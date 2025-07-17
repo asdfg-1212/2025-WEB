@@ -5,6 +5,13 @@ import './App.css'
 
 function App() {
   const [count, setCount] = useState(0)
+  const [user, setUser] = useState<any>(null);
+
+  const fetchUser = async () => {
+    const res = await fetch('/api/get_user?uid=123');
+    const data = await res.json();
+    setUser(data.data);
+  };
 
   return (
     <>
@@ -25,6 +32,13 @@ function App() {
           Edit <code>src/App.tsx</code> and save to test HMR
         </p>
       </div>
+      <button onClick={fetchUser}>获取用户信息</button>
+      {user && (
+        <div>
+          <div>用户名: {user.username}</div>
+          <div>邮箱: {user.email}</div>
+        </div>
+      )}
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
       </p>
