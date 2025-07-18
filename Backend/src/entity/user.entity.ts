@@ -7,16 +7,13 @@ export class User {
   id: number;
 
   @Column({ unique: true })
-  username: string;
+  username: string;//用户名
 
   @Column()
-  password: string;
+  password: string;//密码
 
-  @Column({ nullable: true })
-  nickname: string;
-
-  @Column({ nullable: true })
-  phone: string;
+  @Column({ unique: true })
+  email: string;//邮箱
 
   @Column({ default: 'user' })
   role: string;

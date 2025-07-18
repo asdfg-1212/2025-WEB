@@ -8,8 +8,15 @@ export class UserController {
 
   @Post('/register')
   async register(@Body() body) {
-    const { username, password, nickname, phone } = body;
-    const result = await this.userService.register(username, password, nickname, phone);
-    return { code: 0, msg: '注册成功', data: result };
+    const { email,username, password, } = body;
+    const result = await this.userService.register(email, username, password);
+    return result;
+  }
+
+  @Post('/login')
+  async login(@Body() body) {
+    const { email, password } = body;
+    const result = await this.userService.login(email, password);
+    return result;
   }
 }
