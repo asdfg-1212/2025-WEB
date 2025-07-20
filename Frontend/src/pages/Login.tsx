@@ -10,7 +10,7 @@ const Login: React.FC = () => {
     try {
       await login(data.email,data.username, data.password);
       alert("登录成功！");
-      navigate("/"); // 登录成功跳转首页
+      navigate("/dashboard"); // 登录成功跳转到主页
     } catch (err) {
       alert("登录失败，请检查用户名或密码。");
     }
