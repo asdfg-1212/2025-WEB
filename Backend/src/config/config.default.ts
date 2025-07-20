@@ -1,4 +1,5 @@
 import { MidwayConfig } from '@midwayjs/core';
+import { User } from '../entity/user.entity';
 
 export default {
   // use for cookie sign key, should change to your own and keep security
@@ -6,14 +7,15 @@ export default {
   koa: {
     port: 7001,
   },
-  orm: {
-    type: 'mysql',
-    host: 'localhost',
-    port: 3306,
-    username: 'root',
-    password: '你的密码',
-    database: '你的数据库名',
-    synchronize: true, // 自动同步实体
-    logging: true,
+  typeorm: {
+    dataSource:{
+      default: {
+        type: 'sqlite',
+        database: './database.sqlite', // SQLite 数据库文件路径
+        synchronize: true, // 自动同步实体
+        logging: true, // 日志输出
+        entities: [User],
+      },
+    },
   },
 } as MidwayConfig;

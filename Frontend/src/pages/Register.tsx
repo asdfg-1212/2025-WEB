@@ -6,11 +6,11 @@ import { register } from "@/services/auth";
 const Register: React.FC = () => {
   const navigate = useNavigate();
 
-  const handleRegister = async (data: { email: string; password: string }) => {
+  const handleRegister = async (data: { email: string; username: string; password: string }) => {
     try {
-      await register(data.email, data.password);
-      alert("注册成功，请登录！");
-      navigate("/login");
+      await register(data.email, data.username, data.password);
+    alert("注册成功，请登录！");
+    navigate("/login");
     } catch (err) {
       alert("注册失败，请重试。");
     }

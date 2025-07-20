@@ -6,9 +6,9 @@ import { login } from "@/services/auth";
 const Login: React.FC = () => {
   const navigate = useNavigate();
 
-  const handleLogin = async (data: { email: string; password: string }) => {
+  const handleLogin = async (data: { email: string; username: string; password: string }) => {
     try {
-      await login(data.email, data.password);
+      await login(data.email,data.username, data.password);
       alert("登录成功！");
       navigate("/"); // 登录成功跳转首页
     } catch (err) {

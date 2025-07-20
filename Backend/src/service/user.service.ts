@@ -1,5 +1,5 @@
 import { Provide } from '@midwayjs/core';
-import { InjectEntityModel } from '@midwayjs/orm';
+import { InjectEntityModel } from '@midwayjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../entity/user.entity';
 
@@ -33,7 +33,7 @@ export class UserService {
     return await this.userModel.save(newUser);
   }
 
-  async login(email: string, password: string) { 
+  async login(email: string,username: string, password: string) { 
     const user = await this.userModel.findOne({ where: { email }});
     if (!user) return {code: 1, message: '用户不存在'};
     if (user.password !== password) return {code: 2, message: '密码错误'};

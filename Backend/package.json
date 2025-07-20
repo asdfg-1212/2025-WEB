@@ -10,8 +10,10 @@
     "@midwayjs/info": "^3.12.0",
     "@midwayjs/koa": "^3.12.0",
     "@midwayjs/logger": "^3.1.0",
-    "@midwayjs/orm": "^3.4.3",
+    "@midwayjs/typeorm": "^3.20.4",
     "@midwayjs/validate": "^3.12.0",
+    "mysql2": "^3.14.2",
+    "sqlite3": "^5.1.7",
     "typeorm": "^0.3.25"
   },
   "devDependencies": {

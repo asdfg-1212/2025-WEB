@@ -9,14 +9,20 @@ export class UserController {
   @Post('/register')
   async register(@Body() body) {
     const { email,username, password, } = body;
+    if (!email || !username || !password) {
+    throw new Error("缺少参数");
+  }
     const result = await this.userService.register(email, username, password);
     return result;
   }
 
   @Post('/login')
   async login(@Body() body) {
-    const { email, password } = body;
-    const result = await this.userService.login(email, password);
+    const { email,username, password } = body;
+    if (!email || !username || !password) {
+    throw new Error("缺少参数");
+  }
+    const result = await this.userService.login(email, username, password);  
     return result;
   }
 }

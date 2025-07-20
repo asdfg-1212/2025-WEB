@@ -1,49 +1,56 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, {useState} from "react";
+import AuthForm from "./components/AuthForm";
 
-function App() {
-  const [count, setCount] = useState(0)
-  const [user, setUser] = useState<any>(null);
+const App: React.FC = () => {
+  const [mode, setMode] = useState<"login" | "register">("login");
 
-  const fetchUser = async () => {
-    const res = await fetch('/api/get_user?uid=123');
-    const data = await res.json();
-    setUser(data.data);
+  const handleAuthSubmit = async (data: { email: string; password: string }) => {
+    const endpoint = mode === "login" ? "/api/login" : "/api/register";
+
+    try {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        alert(`${mode === "login" ? "登录成功" : "注册成功"}！`);
+        //JWT
+        if(result.token) {
+          localStorage.setItem("token", result.token);
+        }
+      } else{
+        alert(result.message || "操作失败");
+      }
+    } catch (error) {
+      console.error("Error during authentication:", error);
+      alert("网络错误，请稍后再试。");
+    }
   };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <button onClick={fetchUser}>获取用户信息</button>
-      {user && (
-        <div>
-          <div>用户名: {user.username}</div>
-          <div>邮箱: {user.email}</div>
-        </div>
-      )}
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
+      <h1 className="text-2xl font-bold mb-4">
+        {mode === "login" ? "登录" : "注册"}
+      </h1>
 
-export default App
+      <AuthForm
+        onSubmit={handleAuthSubmit}
+        submitText={mode === "login" ? "登录" : "注册"}
+      />
+
+      <button
+        className="mt-4 text-blue-500 underline"
+        onClick={() => setMode(mode === "login" ? "register" : "login")}
+      >
+        {mode === "login" ? "没有账号？点击注册" : "已有账号？点击登录"}
+      </button>
+    </div>
+  );
+};
+
+export default App;

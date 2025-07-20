@@ -1,19 +1,18 @@
-import { EntityModel } from '@midwayjs/orm';
-import { Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn,Column } from 'typeorm';
 
-@EntityModel('users')
+@Entity('users')
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
-
+  
+  @Column({ unique: true })
+  email: string;//邮箱
+  
   @Column({ unique: true })
   username: string;//用户名
 
   @Column()
   password: string;//密码
-
-  @Column({ unique: true })
-  email: string;//邮箱
 
   @Column({ default: 'user' })
   role: string;
