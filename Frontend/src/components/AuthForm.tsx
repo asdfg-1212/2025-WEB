@@ -6,7 +6,8 @@ const AuthForm: React.FC<{
   submitText: string;
   title?: string;
   subtitle?: string;
-}> = ({ onSubmit, submitText, title, subtitle }) => {
+  bottomLink?: React.ReactNode;
+}> = ({ onSubmit, submitText, title, subtitle, bottomLink }) => {
   const [email, setEmail] = React.useState('');
   const [username, setUsername] = React.useState('');
   const [password, setPassword] = React.useState('');
@@ -23,45 +24,55 @@ const AuthForm: React.FC<{
         <div className="basketball-icon">
           <div className="basketball-lines"></div>
         </div>
-        <h1 className="auth-title">{title || "体育活动室网站"}</h1>
+        <h1 className="auth-title">{title || "体育活动室"}</h1>
         <p className="auth-subtitle">{subtitle || "Welcome back!"}</p>
       </div>
 
       {/* 表单 */}
       <form onSubmit={handleSubmit} className="auth-form">
         <div className="input-group">
+          <span className="input-icon">📧</span>
           <input
             type="email"
             placeholder="邮箱"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="auth-input"
+            className="auth-input auth-input-with-icon"
             required
           />
         </div>
         <div className="input-group">
+          <span className="input-icon">👤</span>
           <input
             type="text"
             placeholder="用户名"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="auth-input"
+            className="auth-input auth-input-with-icon"
             required
           />
         </div>
         <div className="input-group">
+          <span className="input-icon">🔒</span>
           <input
             type="password"
             placeholder="密码"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="auth-input"
+            className="auth-input auth-input-with-icon"
             required
           />
         </div>
         <button type="submit" className="auth-submit">
           {submitText}
         </button>
+        
+        {/* 底部链接 */}
+        {bottomLink && (
+          <div className="auth-bottom-link">
+            {bottomLink}
+          </div>
+        )}
       </form>
     </div>
   );

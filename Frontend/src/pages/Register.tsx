@@ -23,7 +23,7 @@ const Register: React.FC = () => {
     left: 0,
     width: '100vw',
     height: '100vh',
-    background: 'linear-gradient(135deg, #4CAF50 0%, #2196F3 50%, #FF9800 100%)',
+    background: 'linear-gradient(135deg, #4CAF50 0%, #2196F3 50%, #8BC34A 100%)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -67,14 +67,6 @@ const Register: React.FC = () => {
     zIndex: 1002
   };
 
-  const linkStyle: React.CSSProperties = {
-    position: 'absolute',
-    bottom: '40px',
-    color: 'white',
-    zIndex: 1004,
-    textAlign: 'center' as const
-  };
-
   return (
     <div style={pageStyle}>
       {/* 装饰圆圈 */}
@@ -97,14 +89,14 @@ const Register: React.FC = () => {
       <AuthForm 
         onSubmit={handleRegister} 
         submitText="注册" 
-        title="体育活动室网站"
-        subtitle="创建您的账户"
+        title="体育活动室"
+        subtitle="Create Your Account!"
+        bottomLink={
+          <span>
+            已有账户？ <Link to="/login" style={{ color: '#4CAF50', textDecoration: 'none' }}>立即登录</Link>
+          </span>
+        }
       />
-      
-      {/* 登录链接 */}
-      <div style={linkStyle}>
-        已有账户？ <Link to="/login" style={{ color: '#4CAF50', textDecoration: 'none' }}>立即登录</Link>
-      </div>
     </div>
   );
 };

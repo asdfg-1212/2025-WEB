@@ -18,7 +18,7 @@ body.auth-page {
   left: 0 !important;
   width: 100vw !important;
   height: 100vh !important;
-  background: linear-gradient(135deg, #4CAF50 0%, #2196F3 50%, #FF9800 100%) !important;
+  background: linear-gradient(135deg, #4CAF50 0%, #2196F3 50%, #8BC34A 100%) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -98,7 +98,7 @@ body.auth-page {
   width: 80px;
   height: 80px;
   margin: 0 auto 20px;
-  background: linear-gradient(45deg, #FF9800, #FFC107);
+  background: linear-gradient(45deg, #ffa200, #ffa407);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -184,6 +184,17 @@ body.auth-page {
   position: relative;
 }
 
+/* emoji图标样式 */
+.input-icon {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  z-index: 10;
+  pointer-events: none;
+}
+
 .auth-input {
   width: 100%;
   padding: 15px 20px;
@@ -194,6 +205,11 @@ body.auth-page {
   transition: all 0.3s ease;
   outline: none;
   box-sizing: border-box;
+}
+
+/* 带图标的输入框 */
+.auth-input-with-icon {
+  padding-left: 55px;
 }
 
 .auth-input:focus {
@@ -244,6 +260,28 @@ body.auth-page {
 }
 
 .auth-link a:hover {
+  color: #388E3C;
+  text-decoration: underline;
+}
+
+/* 表单内底部链接样式 */
+.auth-bottom-link {
+  text-align: center;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e0e0e0;
+  color: #7f8c8d;
+  font-size: 14px;
+}
+
+.auth-bottom-link a {
+  color: #4CAF50;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.auth-bottom-link a:hover {
   color: #388E3C;
   text-decoration: underline;
 }
