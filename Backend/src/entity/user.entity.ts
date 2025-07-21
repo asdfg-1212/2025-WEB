@@ -20,7 +20,7 @@ export class User {
   @Column()
   password: string; // 密码
 
-  @Column({ type: 'enum', enum: UserRole, default: UserRole.USER })
+  @Column({ default: UserRole.USER })
   role: UserRole; // 用户角色
 
   @Column({ length: 10, nullable: true })

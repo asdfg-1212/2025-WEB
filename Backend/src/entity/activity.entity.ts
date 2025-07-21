@@ -35,10 +35,10 @@ export class Activity {
   @Column({ type: 'text', nullable: true })
   description: string; // 活动描述
 
-  @Column({ type: 'enum', enum: ActivityType })
+  @Column()
   type: ActivityType; // 活动类型
 
-  @Column({ type: 'enum', enum: ActivityStatus, default: ActivityStatus.DRAFT })
+  @Column({ default: ActivityStatus.DRAFT })
   status: ActivityStatus; // 活动状态
 
   @Column({ type: 'datetime' })

@@ -32,7 +32,7 @@ export class Registration {
   @Column()
   activity_id: number;
 
-  @Column({ type: 'enum', enum: RegistrationStatus, default: RegistrationStatus.CONFIRMED })
+  @Column({ default: RegistrationStatus.CONFIRMED })
   status: RegistrationStatus; // 报名状态
 
   @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
