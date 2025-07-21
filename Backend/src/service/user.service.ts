@@ -1,7 +1,8 @@
 import { Provide } from '@midwayjs/core';
 import { InjectEntityModel } from '@midwayjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from '../entity/user.entity';
+import { User, UserRole } from '../entity/user.entity';
+import { isValidAvatarEmoji } from '../config/avatar.config';
 
 @Provide()
 export class UserService {
@@ -16,6 +17,7 @@ export class UserService {
       email: user.email,
       username: user.username,
       role: user.role,
+      avatar_emoji: user.avatar_emoji,
       created_at: user.created_at,
     };
   }
@@ -25,15 +27,18 @@ export class UserService {
     const existUsername = await this.userModel.findOne({ where: { username } });
     if (existEmail) return {code: 1, message: '邮箱已被注册'};
     if (existUsername) return {code: 2, message: '用户名已被注册'};
+    
     const newUser = new User();
     newUser.email = email;
     newUser.username = username;
     newUser.password = password;
-    newUser.role = 'user';
+    newUser.role = UserRole.USER;
+    // 注册时不设置头像，保持默认的null值
+    
     return await this.userModel.save(newUser);
   }
 
-  async login(email: string,username: string, password: string) { 
+  async login(email: string, username: string, password: string) { 
     const user = await this.userModel.findOne({ where: { email }});
     if (!user) return {code: 1, message: '用户不存在'};
     if (user.password !== password) return {code: 2, message: '密码错误'};
@@ -43,7 +48,25 @@ export class UserService {
       id: user.id,
       username: user.username,
       email: user.email,
-      role: user.role
+      role: user.role,
+      avatar_emoji: user.avatar_emoji
     }};
+  }
+
+  // 更新用户头像
+  async updateAvatar(userId: number, avatarEmoji: string) {
+    if (!isValidAvatarEmoji(avatarEmoji)) {
+      return { code: 1, message: '无效的头像emoji' };
+    }
+
+    const user = await this.userModel.findOne({ where: { id: userId } });
+    if (!user) {
+      return { code: 2, message: '用户不存在' };
+    }
+
+    user.avatar_emoji = avatarEmoji;
+    await this.userModel.save(user);
+
+    return { code: 0, message: '头像更新成功', data: { avatar_emoji: avatarEmoji } };
   }
 }
