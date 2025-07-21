@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../styles/dashboard.css';
 
 interface User {
@@ -12,6 +13,7 @@ interface User {
 const Dashboard: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // 模拟从token获取用户信息
@@ -38,6 +40,25 @@ const Dashboard: React.FC = () => {
   const handleLogout = () => {
     localStorage.removeItem('token');
     window.location.href = '/login';
+  };
+
+  const handleStatusClick = (type: string) => {
+    switch (type) {
+      case 'registration-open':
+        navigate('/activities/registration-open');
+        break;
+      case 'ended':
+        navigate('/activities/ended');
+        break;
+      case 'participated':
+        navigate('/activities/participated');
+        break;
+      case 'pending':
+        navigate('/activities/pending');
+        break;
+      default:
+        break;
+    }
   };
 
   if (isLoading) {
@@ -84,19 +105,19 @@ const Dashboard: React.FC = () => {
       {/* 主要内容区域 */}
       <main className="dashboard-main">
         <div className="content-grid">
-          {/* 左侧 - 活动列表 */}
+          {/* 左侧 - 活动大全 */}
           <div className="content-section activity-list-section">
             <div className="section-header">
-              <h3>活动列表</h3>
+              <h3>活动大全</h3>
               <p>Find Activities</p>
             </div>
             
             <div className="activity-status">
-              <div className="status-item">
+              <div className="status-item" onClick={() => handleStatusClick('registration-open')}>
                 <span className="status-number">5</span>
                 <span className="status-label">报名中</span>
               </div>
-              <div className="status-item">
+              <div className="status-item" onClick={() => handleStatusClick('ended')}>
                 <span className="status-number">8</span>
                 <span className="status-label">已结束</span>
               </div>
@@ -112,11 +133,11 @@ const Dashboard: React.FC = () => {
 
             <div className="user-activities">
               <div className="activity-status">
-                <div className="status-item">
+                <div className="status-item" onClick={() => handleStatusClick('participated')}>
                   <span className="status-number">3</span>
                   <span className="status-label">已参与</span>
                 </div>
-                <div className="status-item">
+                <div className="status-item" onClick={() => handleStatusClick('pending')}>
                   <span className="status-number">2</span>
                   <span className="status-label">待参与</span>
                 </div>

@@ -1,0 +1,139 @@
+/* 活动卡片样式 */
+.activity-card {
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 280px;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.activity-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+/* 顶部状态区域 */
+.activity-header {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 2;
+}
+
+.activity-status-badge {
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* 渐变背景区域 */
+.activity-gradient-section {
+  background: linear-gradient(135deg, #b794f6 0%, #63b3ed 100%);
+  padding: 60px 24px 40px;
+  color: white;
+  position: relative;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.activity-type {
+  font-size: 48px;
+  font-weight: 700;
+  text-align: center;
+  margin: 0;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* 活动信息区域 */
+.activity-info {
+  padding: 24px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.activity-info-item {
+  display: flex;
+  align-items: flex-start;
+  position: relative;
+  padding-left: 8px;
+}
+
+.activity-info-item::before {
+  content: '•';
+  color: #63b3ed;
+  font-size: 16px;
+  position: absolute;
+  left: -8px;
+  top: 0;
+}
+
+.activity-info-label {
+  font-size: 14px;
+  color: #4a5568;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+/* 底部按钮区域 */
+.activity-action {
+  padding: 0 24px 24px;
+}
+
+.activity-action-btn {
+  width: 100%;
+  background: #2d3748;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.activity-action-btn:hover {
+  background: #1a202c;
+  transform: translateY(-1px);
+}
+
+.activity-action-btn:active {
+  transform: translateY(0);
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+  .activity-card {
+    width: 260px;
+  }
+}
+
+@media (max-width: 768px) {
+  .activity-card {
+    width: 100%;
+    max-width: 320px;
+  }
+  
+  .activity-type {
+    font-size: 36px;
+  }
+  
+  .activity-gradient-section {
+    padding: 40px 20px 30px;
+    min-height: 140px;
+  }
+}

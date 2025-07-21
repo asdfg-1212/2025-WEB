@@ -1,0 +1,100 @@
+/* 活动列表样式 */
+.activity-list-container {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(120, 210, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(29, 209, 161, 0.1) 0%, transparent 50%),
+    linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.activity-list-header {
+  padding: 32px;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  z-index: 1;
+}
+
+.activity-list-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #2d3748;
+  margin: 0;
+}
+
+.activity-list-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px;
+}
+
+.activity-list-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  justify-items: center;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* 确保不超过4列 */
+@media (min-width: 1200px) {
+  .activity-list-grid {
+    grid-template-columns: repeat(4, 280px);
+    justify-content: center;
+  }
+}
+
+@media (max-width: 1199px) and (min-width: 900px) {
+  .activity-list-grid {
+    grid-template-columns: repeat(3, 280px);
+    justify-content: center;
+  }
+}
+
+@media (max-width: 899px) and (min-width: 600px) {
+  .activity-list-grid {
+    grid-template-columns: repeat(2, 280px);
+    justify-content: center;
+  }
+}
+
+@media (max-width: 599px) {
+  .activity-list-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .activity-list-scroll {
+    padding: 16px;
+  }
+  
+  .activity-list-header {
+    padding: 24px 16px;
+  }
+  
+  .activity-list-title {
+    font-size: 24px;
+  }
+}
+
+/* 滚动条样式 */
+.activity-list-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.activity-list-scroll::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
+.activity-list-scroll::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.activity-list-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
