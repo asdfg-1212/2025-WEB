@@ -55,7 +55,7 @@ const ParticipatedActivities: React.FC = () => {
   return (
     <ActivityList
       activities={activities}
-      title="我已参与的活动"
+      title="已参与的活动"
       onActivityClick={handleActivityClick}
     />
   );

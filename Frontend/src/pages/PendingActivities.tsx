@@ -45,7 +45,7 @@ const PendingActivities: React.FC = () => {
   return (
     <ActivityList
       activities={activities}
-      title="我待参与的活动"
+      title="待参与的活动"
       onActivityClick={handleActivityClick}
     />
   );

@@ -6,8 +6,9 @@
   overflow: hidden;
   cursor: pointer;
   transition: all 0.3s ease;
-  width: 280px;
-  min-height: 400px;
+  width: 100%;
+  max-width: 380px;
+  min-height: 420px;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -27,7 +28,9 @@
 }
 
 .activity-status-badge {
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   color: white;
   padding: 6px 12px;
   border-radius: 20px;
@@ -37,11 +40,11 @@
 
 /* 渐变背景区域 */
 .activity-gradient-section {
-  background: linear-gradient(135deg, #b794f6 0%, #63b3ed 100%);
+  background: linear-gradient(135deg, #c4acf0 0%, #9ed0f3 100%);
   padding: 60px 24px 40px;
   color: white;
   position: relative;
-  min-height: 180px;
+  min-height: 200px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -58,33 +61,33 @@
 
 /* 活动信息区域 */
 .activity-info {
-  padding: 24px;
+  padding: 28px;
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
 }
 
 .activity-info-item {
   display: flex;
   align-items: flex-start;
   position: relative;
-  padding-left: 8px;
+  padding-left: 12px;
 }
 
 .activity-info-item::before {
   content: '•';
-  color: #63b3ed;
-  font-size: 16px;
+  color: #92c4e8;
+  font-size: 18px;
   position: absolute;
   left: -8px;
   top: 0;
 }
 
 .activity-info-label {
-  font-size: 14px;
+  font-size: 15px;
   color: #4a5568;
-  line-height: 1.5;
+  line-height: 1.6;
   word-break: break-word;
 }
 
@@ -95,7 +98,7 @@
 
 .activity-action-btn {
   width: 100%;
-  background: #2d3748;
+  background: #252f42;
   color: white;
   border: none;
   border-radius: 12px;
@@ -116,16 +119,10 @@
 }
 
 /* 响应式设计 */
-@media (max-width: 1200px) {
-  .activity-card {
-    width: 260px;
-  }
-}
-
 @media (max-width: 768px) {
   .activity-card {
-    width: 100%;
-    max-width: 320px;
+    max-width: 100%;
+    min-height: 400px;
   }
   
   .activity-type {
@@ -134,6 +131,33 @@
   
   .activity-gradient-section {
     padding: 40px 20px 30px;
-    min-height: 140px;
+    min-height: 160px;
+  }
+  
+  .activity-info {
+    padding: 24px;
+    gap: 16px;
+  }
+  
+  .activity-info-label {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .activity-card {
+    margin: 0 8px;
+  }
+  
+  .activity-type {
+    font-size: 32px;
+  }
+  
+  .activity-info {
+    padding: 20px;
+  }
+  
+  .activity-action {
+    padding: 0 20px 20px;
   }
 }
