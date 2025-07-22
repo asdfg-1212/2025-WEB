@@ -1,4 +1,5 @@
 import { Inject, Controller, Get, Post, Put, Query, Body, Param } from '@midwayjs/core';
+import { Del } from '@midwayjs/decorator';
 import { Context } from '@midwayjs/koa';
 import { CommentService, CreateCommentDTO, UpdateCommentDTO } from '../service/comment.service';
 
@@ -16,31 +17,53 @@ export class CommentController {
     try {
       const { content, user_id, activity_id, parent_id } = body;
       
+      // 基础参数验证
       if (!content || !user_id || !activity_id) {
         this.ctx.status = 400;
         return {
-          success: false,
-          message: '缺少必要参数',
+          code: 400,
+          message: '缺少必要参数：content, user_id, activity_id',
           data: null
         };
       }
 
-      const result = await this.commentService.createComment({
-        content,
+      // 内容长度验证
+      if (content.trim().length === 0) {
+        this.ctx.status = 400;
+        return {
+          code: 400,
+          message: '评论内容不能为空',
+          data: null
+        };
+      }
+
+      if (content.length > 1000) {
+        this.ctx.status = 400;
+        return {
+          code: 400,
+          message: '评论内容不能超过1000个字符',
+          data: null
+        };
+      }
+
+      const commentData: CreateCommentDTO = {
+        content: content.trim(),
         user_id: Number(user_id),
         activity_id: Number(activity_id),
         parent_id: parent_id ? Number(parent_id) : undefined
-      });
+      };
+
+      const result = await this.commentService.createComment(commentData);
       
       if (result.code === 0) {
-        this.ctx.status = 201;
+        this.ctx.status = 201; // Created
         return {
           success: true,
           message: result.message,
           data: result.data
         };
       } else {
-        this.ctx.status = 400;
+        this.ctx.status = result.code === 404 ? 404 : 400;
         return {
           success: false,
           message: result.message,
@@ -48,27 +71,21 @@ export class CommentController {
         };
       }
     } catch (error) {
+      console.error('创建评论失败:', error);
       this.ctx.status = 500;
       return {
         success: false,
         message: '服务器内部错误',
-        data: null,
-        error: error.message
+        data: null
       };
     }
   }
 
-  // 获取活动评论列表 GET /api/comments/activity/:activityId
+  // 获取活动的所有评论 GET /api/comments/activity/:activityId
   @Get('/activity/:activityId')
-  async getActivityComments(
-    @Param('activityId') activityId: string,
-    @Query('page') page?: string,
-    @Query('pageSize') pageSize?: string,
-    @Query('include_replies') include_replies?: string
-  ) {
+  async getActivityComments(@Param('activityId') activityId: string) {
     try {
-      const activity_id = Number(activityId);
-      if (isNaN(activity_id)) {
+      if (!activityId || isNaN(Number(activityId))) {
         this.ctx.status = 400;
         return {
           success: false,
@@ -77,13 +94,7 @@ export class CommentController {
         };
       }
 
-      const params = {
-        page: page ? Number(page) : 1,
-        pageSize: pageSize ? Number(pageSize) : 20,
-        include_replies: include_replies !== 'false' // 默认包含回复
-      };
-
-      const result = await this.commentService.getActivityComments(activity_id, params);
+      const result = await this.commentService.getActivityComments(Number(activityId));
       
       if (result.code === 0) {
         return {
@@ -92,7 +103,7 @@ export class CommentController {
           data: result.data
         };
       } else {
-        this.ctx.status = 400;
+        this.ctx.status = result.code;
         return {
           success: false,
           message: result.message,
@@ -100,63 +111,21 @@ export class CommentController {
         };
       }
     } catch (error) {
+      console.error('获取活动评论失败:', error);
       this.ctx.status = 500;
       return {
         success: false,
         message: '服务器内部错误',
-        data: null,
-        error: error.message
+        data: null
       };
     }
   }
 
-  // 获取用户评论列表 GET /api/comments/user/:userId
-  @Get('/user/:userId')
-  async getUserComments(
-    @Param('userId') userId: string,
-    @Query('page') page?: string,
-    @Query('pageSize') pageSize?: string
-  ) {
+  // 获取单个评论详情 GET /api/comments/:commentId
+  @Get('/:commentId')
+  async getCommentById(@Param('commentId') commentId: string) {
     try {
-      const user_id = Number(userId);
-      if (isNaN(user_id)) {
-        this.ctx.status = 400;
-        return {
-          success: false,
-          message: '无效的用户ID',
-          data: null
-        };
-      }
-
-      const params = {
-        page: page ? Number(page) : 1,
-        pageSize: pageSize ? Number(pageSize) : 10
-      };
-
-      const result = await this.commentService.getUserComments(user_id, params);
-      
-      return {
-        success: true,
-        message: result.message,
-        data: result.data
-      };
-    } catch (error) {
-      this.ctx.status = 500;
-      return {
-        success: false,
-        message: '服务器内部错误',
-        data: null,
-        error: error.message
-      };
-    }
-  }
-
-  // 获取评论详情 GET /api/comments/:id
-  @Get('/:id')
-  async getCommentDetails(@Param('id') id: string) {
-    try {
-      const commentId = Number(id);
-      if (isNaN(commentId)) {
+      if (!commentId || isNaN(Number(commentId))) {
         this.ctx.status = 400;
         return {
           success: false,
@@ -165,42 +134,43 @@ export class CommentController {
         };
       }
 
-      const comment = await this.commentService.getCommentWithDetails(commentId);
+      const result = await this.commentService.getCommentById(Number(commentId));
       
-      if (!comment) {
-        this.ctx.status = 404;
+      if (result.code === 0) {
+        return {
+          success: true,
+          message: result.message,
+          data: result.data
+        };
+      } else {
+        this.ctx.status = result.code;
         return {
           success: false,
-          message: '评论不存在',
+          message: result.message,
           data: null
         };
       }
-
-      return {
-        success: true,
-        message: '获取评论详情成功',
-        data: comment
-      };
     } catch (error) {
+      console.error('获取评论详情失败:', error);
       this.ctx.status = 500;
       return {
         success: false,
         message: '服务器内部错误',
-        data: null,
-        error: error.message
+        data: null
       };
     }
   }
 
-  // 更新评论 PUT /api/comments/:id
-  @Put('/:id')
+  // 更新评论 PUT /api/comments/:commentId
+  @Put('/:commentId')
   async updateComment(
-    @Param('id') id: string, 
+    @Param('commentId') commentId: string, 
     @Body() body: UpdateCommentDTO & { user_id: number }
   ) {
     try {
-      const commentId = Number(id);
-      if (isNaN(commentId)) {
+      const { content, user_id } = body;
+
+      if (!commentId || isNaN(Number(commentId))) {
         this.ctx.status = 400;
         return {
           success: false,
@@ -209,65 +179,6 @@ export class CommentController {
         };
       }
 
-      const { user_id, content } = body;
-      if (!user_id || !content) {
-        this.ctx.status = 400;
-        return {
-          success: false,
-          message: '缺少必要参数',
-          data: null
-        };
-      }
-
-      const result = await this.commentService.updateComment(
-        commentId,
-        { content },
-        user_id
-      );
-      
-      if (result.code === 0) {
-        return {
-          success: true,
-          message: result.message,
-          data: result.data
-        };
-      } else {
-        this.ctx.status = 400;
-        return {
-          success: false,
-          message: result.message,
-          data: null
-        };
-      }
-    } catch (error) {
-      this.ctx.status = 500;
-      return {
-        success: false,
-        message: '服务器内部错误',
-        data: null,
-        error: error.message
-      };
-    }
-  }
-
-  // 删除评论 POST /api/comments/:id/delete
-  @Post('/:id/delete')
-  async deleteComment(
-    @Param('id') id: string,
-    @Body() body: { user_id: number; is_admin?: boolean }
-  ) {
-    try {
-      const commentId = Number(id);
-      if (isNaN(commentId)) {
-        this.ctx.status = 400;
-        return {
-          success: false,
-          message: '无效的评论ID',
-          data: null
-        };
-      }
-
-      const { user_id, is_admin = false } = body;
       if (!user_id) {
         this.ctx.status = 400;
         return {
@@ -277,53 +188,41 @@ export class CommentController {
         };
       }
 
-      const result = await this.commentService.deleteComment(commentId, user_id, is_admin);
-      
-      if (result.code === 0) {
-        return {
-          success: true,
-          message: result.message,
-          data: null
-        };
-      } else {
+      if (!content) {
         this.ctx.status = 400;
         return {
           success: false,
-          message: result.message,
+          message: '评论内容不能为空',
           data: null
         };
       }
-    } catch (error) {
-      this.ctx.status = 500;
-      return {
-        success: false,
-        message: '服务器内部错误',
-        data: null,
-        error: error.message
+
+      if (content.trim().length === 0) {
+        this.ctx.status = 400;
+        return {
+          success: false,
+          message: '评论内容不能为空',
+          data: null
+        };
+      }
+
+      if (content.length > 1000) {
+        this.ctx.status = 400;
+        return {
+          success: false,
+          message: '评论内容不能超过1000个字符',
+          data: null
+        };
+      }
+
+      const updateData: UpdateCommentDTO = {
+        content: content.trim()
       };
-    }
-  }
 
-  // 批量删除评论 POST /api/comments/batch-delete
-  @Post('/batch-delete')
-  async batchDeleteComments(
-    @Body() body: { comment_ids: number[]; operator_id: number }
-  ) {
-    try {
-      const { comment_ids, operator_id } = body;
-      
-      if (!comment_ids || !Array.isArray(comment_ids) || !operator_id) {
-        this.ctx.status = 400;
-        return {
-          success: false,
-          message: '缺少必要参数或参数格式错误',
-          data: null
-        };
-      }
-
-      const result = await this.commentService.batchDeleteComments(
-        comment_ids.map(id => Number(id)),
-        operator_id
+      const result = await this.commentService.updateComment(
+        Number(commentId), 
+        Number(user_id), 
+        updateData
       );
       
       if (result.code === 0) {
@@ -333,7 +232,7 @@ export class CommentController {
           data: result.data
         };
       } else {
-        this.ctx.status = 400;
+        this.ctx.status = result.code;
         return {
           success: false,
           message: result.message,
@@ -341,25 +240,26 @@ export class CommentController {
         };
       }
     } catch (error) {
+      console.error('更新评论失败:', error);
       this.ctx.status = 500;
       return {
         success: false,
         message: '服务器内部错误',
-        data: null,
-        error: error.message
+        data: null
       };
     }
   }
 
-  // 举报评论 POST /api/comments/:id/report
-  @Post('/:id/report')
-  async reportComment(
-    @Param('id') id: string,
-    @Body() body: { reporter_id: number; reason: string }
+  // 删除评论 DELETE /api/comments/:commentId
+  @Del('/:commentId')
+  async deleteComment(
+    @Param('commentId') commentId: string,
+    @Body() body: { user_id: number }
   ) {
     try {
-      const commentId = Number(id);
-      if (isNaN(commentId)) {
+      const { user_id } = body;
+
+      if (!commentId || isNaN(Number(commentId))) {
         this.ctx.status = 400;
         return {
           success: false,
@@ -368,17 +268,80 @@ export class CommentController {
         };
       }
 
-      const { reporter_id, reason } = body;
-      if (!reporter_id || !reason) {
+      if (!user_id) {
         this.ctx.status = 400;
         return {
           success: false,
-          message: '缺少必要参数',
+          message: '缺少用户ID',
           data: null
         };
       }
 
-      const result = await this.commentService.reportComment(commentId, reporter_id, reason);
+      const result = await this.commentService.deleteComment(
+        Number(commentId), 
+        Number(user_id)
+      );
+      
+      if (result.code === 0) {
+        return {
+          success: true,
+          message: result.message,
+          data: null
+        };
+      } else {
+        this.ctx.status = result.code;
+        return {
+          success: false,
+          message: result.message,
+          data: null
+        };
+      }
+    } catch (error) {
+      console.error('删除评论失败:', error);
+      this.ctx.status = 500;
+      return {
+        success: false,
+        message: '服务器内部错误',
+        data: null
+      };
+    }
+  }
+
+  // 获取用户的所有评论 GET /api/comments/user/:userId
+  @Get('/user/:userId')
+  async getUserComments(
+    @Param('userId') userId: string,
+    @Query('page') page: string = '1',
+    @Query('pageSize') pageSize: string = '10'
+  ) {
+    try {
+      if (!userId || isNaN(Number(userId))) {
+        this.ctx.status = 400;
+        return {
+          success: false,
+          message: '无效的用户ID',
+          data: null
+        };
+      }
+
+      const pageNum = parseInt(page) || 1;
+      const pageSizeNum = parseInt(pageSize) || 10;
+
+      // 限制每页最大数量
+      if (pageSizeNum > 50) {
+        this.ctx.status = 400;
+        return {
+          success: false,
+          message: '每页最多只能获取50条记录',
+          data: null
+        };
+      }
+
+      const result = await this.commentService.getUserComments(
+        Number(userId), 
+        pageNum, 
+        pageSizeNum
+      );
       
       if (result.code === 0) {
         return {
@@ -387,7 +350,7 @@ export class CommentController {
           data: result.data
         };
       } else {
-        this.ctx.status = 400;
+        this.ctx.status = result.code;
         return {
           success: false,
           message: result.message,
@@ -395,45 +358,12 @@ export class CommentController {
         };
       }
     } catch (error) {
+      console.error('获取用户评论失败:', error);
       this.ctx.status = 500;
       return {
         success: false,
         message: '服务器内部错误',
-        data: null,
-        error: error.message
-      };
-    }
-  }
-
-  // 获取评论统计 GET /api/comments/stats
-  @Get('/stats')
-  async getCommentStats(@Query('activity_id') activity_id?: string) {
-    try {
-      const activityId = activity_id ? Number(activity_id) : undefined;
-      
-      if (activity_id && isNaN(activityId)) {
-        this.ctx.status = 400;
-        return {
-          success: false,
-          message: '无效的活动ID',
-          data: null
-        };
-      }
-
-      const result = await this.commentService.getCommentStats(activityId);
-      
-      return {
-        success: true,
-        message: result.message,
-        data: result.data
-      };
-    } catch (error) {
-      this.ctx.status = 500;
-      return {
-        success: false,
-        message: '服务器内部错误',
-        data: null,
-        error: error.message
+        data: null
       };
     }
   }

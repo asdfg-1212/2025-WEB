@@ -1,7 +1,7 @@
-import { Inject, Controller, Get, Post, Put, Query, Body, Param } from '@midwayjs/core';
+import { Inject, Controller, Get, Post, Body, Param } from '@midwayjs/core';
+import { Del } from '@midwayjs/decorator';
 import { Context } from '@midwayjs/koa';
 import { RegistrationService, RegisterActivityDTO } from '../service/registration.service';
-import { RegistrationStatus } from '../entity/registration.entity';
 
 @Controller('/api/registrations')
 export class RegistrationController {
@@ -11,35 +11,37 @@ export class RegistrationController {
   @Inject()
   registrationService: RegistrationService;
 
-  // 用户报名活动 POST /api/registrations
+  // 1. 报名参加活动 POST /api/registrations
   @Post('/')
   async registerActivity(@Body() body: RegisterActivityDTO) {
     try {
       const { user_id, activity_id } = body;
       
+      // 基础参数验证
       if (!user_id || !activity_id) {
-        this.ctx.status = 400;
         return {
-          success: false,
-          message: '缺少必要参数',
+          code: 400,
+          message: '缺少必要参数：user_id, activity_id',
           data: null
         };
       }
 
-      const result = await this.registrationService.registerActivity({
+      const registrationData: RegisterActivityDTO = {
         user_id: Number(user_id),
         activity_id: Number(activity_id)
-      });
+      };
+
+      const result = await this.registrationService.registerActivity(registrationData);
       
       if (result.code === 0) {
-        this.ctx.status = 201;
+        this.ctx.status = 201; // Created
         return {
           success: true,
           message: result.message,
           data: result.data
         };
       } else {
-        this.ctx.status = 400;
+        this.ctx.status = result.code === 404 ? 404 : 400;
         return {
           success: false,
           message: result.message,
@@ -47,34 +49,35 @@ export class RegistrationController {
         };
       }
     } catch (error) {
+      console.error('报名失败:', error);
       this.ctx.status = 500;
       return {
         success: false,
         message: '服务器内部错误',
-        data: null,
-        error: error.message
+        data: null
       };
     }
   }
 
-  // 取消报名 POST /api/registrations/cancel
-  @Post('/cancel')
-  async cancelRegistration(@Body() body: { user_id: number; activity_id: number }) {
+  // 2. 取消报名 DELETE /api/registrations/:userId/:activityId
+  @Del('/:userId/:activityId')
+  async cancelRegistration(
+    @Param('userId') userId: string,
+    @Param('activityId') activityId: string
+  ) {
     try {
-      const { user_id, activity_id } = body;
-      
-      if (!user_id || !activity_id) {
+      if (!userId || isNaN(Number(userId)) || !activityId || isNaN(Number(activityId))) {
         this.ctx.status = 400;
         return {
           success: false,
-          message: '缺少必要参数',
+          message: '无效的用户ID或活动ID',
           data: null
         };
       }
 
       const result = await this.registrationService.cancelRegistration(
-        Number(user_id),
-        Number(activity_id)
+        Number(userId), 
+        Number(activityId)
       );
       
       if (result.code === 0) {
@@ -84,7 +87,7 @@ export class RegistrationController {
           data: result.data
         };
       } else {
-        this.ctx.status = 400;
+        this.ctx.status = result.code;
         return {
           success: false,
           message: result.message,
@@ -92,128 +95,21 @@ export class RegistrationController {
         };
       }
     } catch (error) {
+      console.error('取消报名失败:', error);
       this.ctx.status = 500;
       return {
         success: false,
         message: '服务器内部错误',
-        data: null,
-        error: error.message
+        data: null
       };
     }
   }
 
-  // 管理员更新报名状态 PUT /api/registrations/:id/status
-  @Put('/:id/status')
-  async updateRegistrationStatus(
-    @Param('id') id: string, 
-    @Body() body: { status: RegistrationStatus; operator_id: number }
-  ) {
-    try {
-      const registrationId = Number(id);
-      if (isNaN(registrationId)) {
-        this.ctx.status = 400;
-        return {
-          success: false,
-          message: '无效的报名ID',
-          data: null
-        };
-      }
-
-      const { status, operator_id } = body;
-      if (!status || !operator_id) {
-        this.ctx.status = 400;
-        return {
-          success: false,
-          message: '缺少必要参数',
-          data: null
-        };
-      }
-
-      const result = await this.registrationService.updateRegistrationStatus(
-        registrationId,
-        status,
-        operator_id
-      );
-      
-      if (result.code === 0) {
-        return {
-          success: true,
-          message: result.message,
-          data: result.data
-        };
-      } else {
-        this.ctx.status = 400;
-        return {
-          success: false,
-          message: result.message,
-          data: null
-        };
-      }
-    } catch (error) {
-      this.ctx.status = 500;
-      return {
-        success: false,
-        message: '服务器内部错误',
-        data: null,
-        error: error.message
-      };
-    }
-  }
-
-  // 获取用户报名列表 GET /api/registrations/user/:userId
-  @Get('/user/:userId')
-  async getUserRegistrations(
-    @Param('userId') userId: string,
-    @Query('status') status?: RegistrationStatus,
-    @Query('page') page?: string,
-    @Query('pageSize') pageSize?: string
-  ) {
-    try {
-      const user_id = Number(userId);
-      if (isNaN(user_id)) {
-        this.ctx.status = 400;
-        return {
-          success: false,
-          message: '无效的用户ID',
-          data: null
-        };
-      }
-
-      const params = {
-        status,
-        page: page ? Number(page) : 1,
-        pageSize: pageSize ? Number(pageSize) : 10
-      };
-
-      const result = await this.registrationService.getUserRegistrations(user_id, params);
-      
-      return {
-        success: true,
-        message: result.message,
-        data: result.data
-      };
-    } catch (error) {
-      this.ctx.status = 500;
-      return {
-        success: false,
-        message: '服务器内部错误',
-        data: null,
-        error: error.message
-      };
-    }
-  }
-
-  // 获取活动报名列表 GET /api/registrations/activity/:activityId
+  // 3. 管理员查看某活动的报名列表 GET /api/registrations/activity/:activityId
   @Get('/activity/:activityId')
-  async getActivityRegistrations(
-    @Param('activityId') activityId: string,
-    @Query('status') status?: RegistrationStatus,
-    @Query('page') page?: string,
-    @Query('pageSize') pageSize?: string
-  ) {
+  async getActivityRegistrations(@Param('activityId') activityId: string) {
     try {
-      const activity_id = Number(activityId);
-      if (isNaN(activity_id)) {
+      if (!activityId || isNaN(Number(activityId))) {
         this.ctx.status = 400;
         return {
           success: false,
@@ -222,90 +118,52 @@ export class RegistrationController {
         };
       }
 
-      const params = {
-        status,
-        page: page ? Number(page) : 1,
-        pageSize: pageSize ? Number(pageSize) : 20
-      };
-
-      const result = await this.registrationService.getActivityRegistrations(activity_id, params);
+      const result = await this.registrationService.getActivityRegistrations(Number(activityId));
       
-      return {
-        success: true,
-        message: result.message,
-        data: result.data
-      };
+      if (result.code === 0) {
+        return {
+          success: true,
+          message: result.message,
+          data: result.data
+        };
+      } else {
+        this.ctx.status = result.code;
+        return {
+          success: false,
+          message: result.message,
+          data: null
+        };
+      }
     } catch (error) {
+      console.error('获取活动报名列表失败:', error);
       this.ctx.status = 500;
       return {
         success: false,
         message: '服务器内部错误',
-        data: null,
-        error: error.message
+        data: null
       };
     }
   }
 
-  // 获取报名详情 GET /api/registrations/:id
-  @Get('/:id')
-  async getRegistrationDetails(@Param('id') id: string) {
+  // 4. 检查用户是否已报名某活动 GET /api/registrations/check/:userId/:activityId
+  @Get('/check/:userId/:activityId')
+  async checkUserRegistration(
+    @Param('userId') userId: string,
+    @Param('activityId') activityId: string
+  ) {
     try {
-      const registrationId = Number(id);
-      if (isNaN(registrationId)) {
+      if (!userId || isNaN(Number(userId)) || !activityId || isNaN(Number(activityId))) {
         this.ctx.status = 400;
         return {
           success: false,
-          message: '无效的报名ID',
+          message: '无效的用户ID或活动ID',
           data: null
         };
       }
 
-      const registration = await this.registrationService.getRegistrationWithDetails(registrationId);
-      
-      if (!registration) {
-        this.ctx.status = 404;
-        return {
-          success: false,
-          message: '报名记录不存在',
-          data: null
-        };
-      }
-
-      return {
-        success: true,
-        message: '获取报名详情成功',
-        data: registration
-      };
-    } catch (error) {
-      this.ctx.status = 500;
-      return {
-        success: false,
-        message: '服务器内部错误',
-        data: null,
-        error: error.message
-      };
-    }
-  }
-
-  // 批量签到 POST /api/registrations/batch-checkin
-  @Post('/batch-checkin')
-  async batchCheckIn(@Body() body: { activity_id: number; user_ids: number[]; operator_id: number }) {
-    try {
-      const { activity_id, user_ids, operator_id } = body;
-      
-      if (!activity_id || !user_ids || !Array.isArray(user_ids) || !operator_id) {
-        this.ctx.status = 400;
-        return {
-          success: false,
-          message: '缺少必要参数或参数格式错误',
-          data: null
-        };
-      }
-
-      const result = await this.registrationService.batchCheckIn(
-        activity_id,
-        user_ids.map(id => Number(id)),
-        operator_id
+      const result = await this.registrationService.checkUserRegistration(
+        Number(userId),
+        Number(activityId)
       );
       
       if (result.code === 0) {
@@ -315,7 +173,7 @@ export class RegistrationController {
           data: result.data
         };
       } else {
-        this.ctx.status = 400;
+        this.ctx.status = result.code;
         return {
           success: false,
           message: result.message,
@@ -323,125 +181,13 @@ export class RegistrationController {
         };
       }
     } catch (error) {
+      console.error('检查用户报名状态失败:', error);
       this.ctx.status = 500;
       return {
         success: false,
         message: '服务器内部错误',
-        data: null,
-        error: error.message
+        data: null
       };
     }
-  }
-
-  // 标记缺席用户 POST /api/registrations/mark-absent
-  @Post('/mark-absent')
-  async markAbsentUsers(@Body() body: { activity_id: number; operator_id: number }) {
-    try {
-      const { activity_id, operator_id } = body;
-      
-      if (!activity_id || !operator_id) {
-        this.ctx.status = 400;
-        return {
-          success: false,
-          message: '缺少必要参数',
-          data: null
-        };
-      }
-
-      const result = await this.registrationService.markAbsentUsers(activity_id, operator_id);
-      
-      if (result.code === 0) {
-        return {
-          success: true,
-          message: result.message,
-          data: result.data
-        };
-      } else {
-        this.ctx.status = 400;
-        return {
-          success: false,
-          message: result.message,
-          data: null
-        };
-      }
-    } catch (error) {
-      this.ctx.status = 500;
-      return {
-        success: false,
-        message: '服务器内部错误',
-        data: null,
-        error: error.message
-      };
-    }
-  }
-
-  // 获取报名统计 GET /api/registrations/stats
-  @Get('/stats')
-  async getRegistrationStats(@Query('activity_id') activity_id?: string) {
-    try {
-      const activityId = activity_id ? Number(activity_id) : undefined;
-      
-      if (activity_id && isNaN(activityId)) {
-        this.ctx.status = 400;
-        return {
-          success: false,
-          message: '无效的活动ID',
-          data: null
-        };
-      }
-
-      const result = await this.registrationService.getRegistrationStats(activityId);
-      
-      return {
-        success: true,
-        message: result.message,
-        data: result.data
-      };
-    } catch (error) {
-      this.ctx.status = 500;
-      return {
-        success: false,
-        message: '服务器内部错误',
-        data: null,
-        error: error.message
-      };
-    }
-  }
-
-  // 获取报名状态列表 GET /api/registrations/statuses
-  @Get('/statuses')
-  async getRegistrationStatuses() {
-    try {
-      const statuses = Object.values(RegistrationStatus).map(status => ({
-        value: status,
-        label: this.getRegistrationStatusLabel(status)
-      }));
-
-      return {
-        success: true,
-        message: '获取报名状态成功',
-        data: statuses
-      };
-    } catch (error) {
-      this.ctx.status = 500;
-      return {
-        success: false,
-        message: '服务器内部错误',
-        data: null,
-        error: error.message
-      };
-    }
-  }
-
-  // 工具方法：获取报名状态的中文标签
-  private getRegistrationStatusLabel(status: RegistrationStatus): string {
-    const labels = {
-      [RegistrationStatus.PENDING]: '待确认',
-      [RegistrationStatus.CONFIRMED]: '已确认',
-      [RegistrationStatus.CANCELLED]: '已取消',
-      [RegistrationStatus.ATTENDED]: '已参加',
-      [RegistrationStatus.ABSENT]: '缺席'
-    };
-    return labels[status] || status;
   }
 }

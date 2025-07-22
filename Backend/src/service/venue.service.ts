@@ -276,7 +276,11 @@ export class VenueService {
         });
         
         if (existingVenue) {
-          errors.push(`场馆 "${venueData.name}" 已存在`);
+          errors.push({
+            index: i,
+            name: venueData.name,
+            error: '场馆名称已存在'
+          });
           continue;
         }
 
