@@ -61,10 +61,18 @@ const ActivitiesEnded: React.FC = () => {
     }
   };
 
-  const handleViewParticipants = (activityId: string) => {
-    // TODO: 实现查看参与者名单功能
-    console.log('查看参与者名单:', activityId);
-    alert('查看参与者名单功能开发中...');
+  const handleRemoveParticipant = async (participantId: string) => {
+    try {
+      // TODO: 实现移除参与者逻辑
+      console.log('移除参与者:', participantId);
+      alert('参与者移除成功！');
+      // 重新获取活动列表以更新报名人数
+      const data = await getActivities({ status: 'ended' });
+      setActivities(data);
+    } catch (err: any) {
+      console.error('移除参与者失败:', err);
+      alert('移除参与者失败: ' + (err.message || '未知错误'));
+    }
   };
 
   if (loading) {
@@ -124,7 +132,7 @@ const ActivitiesEnded: React.FC = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onPostComment={handlePostComment}
-        onViewParticipants={handleViewParticipants}
+        onRemoveParticipant={handleRemoveParticipant}
       />
     </>
   );

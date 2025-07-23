@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ParticipantsModal from './ParticipantsModal';
 import '../styles/activity-detail-modal.css';
 
 interface Activity {
@@ -30,7 +31,7 @@ interface ActivityDetailModalProps {
   onUnregister?: (activityId: string) => void;
   onEditActivity?: (activityId: string) => void;
   onPostComment?: (activityId: string, content: string) => void;
-  onViewParticipants?: (activityId: string) => void;
+  onRemoveParticipant?: (participantId: string) => void;
 }
 
 const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
@@ -41,17 +42,18 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
   onUnregister,
   onEditActivity,
   onPostComment,
-  onViewParticipants
+  onRemoveParticipant
 }) => {
   const [commentText, setCommentText] = useState('');
   const [isCommentExpanded, setIsCommentExpanded] = useState(false);
+  const [isParticipantsModalOpen, setIsParticipantsModalOpen] = useState(false);
 
   if (!isOpen || !activity) return null;
 
   // TODO: 从用户上下文获取这些信息
   const isRegistrationOpen = true; // 根据时间判断是否还能报名
   const isUserRegistered = false; // 根据用户状态判断是否已报名
-  const isAdmin = false; // 根据用户角色判断
+  const isAdmin = true; // 根据用户角色判断 - 临时设置为true以测试功能
   // const currentUser = { id: '1', username: '当前用户' }; // 当前用户信息 - 暂时注释
 
   // 模拟评论数据
@@ -104,6 +106,14 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
       setCommentText('');
       setIsCommentExpanded(false);
     }
+  };
+
+  const handleViewParticipants = () => {
+    setIsParticipantsModalOpen(true);
+  };
+
+  const handleCloseParticipantsModal = () => {
+    setIsParticipantsModalOpen(false);
   };
 
   return (
@@ -238,7 +248,7 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
                   <button className="btn btn-secondary btn-large" onClick={handleEditActivity}>
                     编辑活动
                   </button>
-                  <button className="btn btn-info btn-large" onClick={() => onViewParticipants && onViewParticipants(activity.id)}>
+                  <button className="btn btn-info btn-large" onClick={handleViewParticipants}>
                     查看名单
                   </button>
                 </>
@@ -286,6 +296,14 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
           </div>
         </div>
       </div>
+      
+      {/* 参与者名单模态框 */}
+      <ParticipantsModal
+        activity={activity}
+        isOpen={isParticipantsModalOpen}
+        onClose={handleCloseParticipantsModal}
+        onRemoveParticipant={onRemoveParticipant}
+      />
     </div>
   );
 };
