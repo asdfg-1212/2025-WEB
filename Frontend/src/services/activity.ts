@@ -2,10 +2,56 @@ import axios from "axios";
 
 const API_BASE = "http://localhost:7001/api";
 
+// 配置axios默认设置
+const apiClient = axios.create({
+  baseURL: API_BASE,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// 添加请求拦截器，自动添加token
+apiClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 // 活动相关接口
 export async function getActivities() {
-  const res = await axios.get(`${API_BASE}/activities`);
-  return res.data;
+  const res = await apiClient.get('/activities');
+  if (res.data.success) {
+    return res.data.data.activities.map(transformActivityData);
+  }
+  throw new Error(res.data.message || '获取活动列表失败');
+}
+
+// 数据转换函数：将后端数据格式转换为前端期望的格式
+function transformActivityData(backendActivity: any) {
+  return {
+    id: backendActivity.id.toString(),
+    type: backendActivity.title, // 使用标题作为类型显示
+    venue: backendActivity.venue_name || backendActivity.venue?.name || '未知场馆',
+    startTime: formatDateTime(backendActivity.start_time),
+    endTime: formatDateTime(backendActivity.end_time),
+    registrationDeadline: formatDateTime(backendActivity.registration_deadline),
+    registeredCount: backendActivity.current_participants || 0,
+    maxCount: backendActivity.max_participants || 0,
+  };
+}
+
+// 日期格式化函数
+function formatDateTime(dateString: string) {
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hour = String(date.getHours()).padStart(2, '0');
+  const minute = String(date.getMinutes()).padStart(2, '0');
+  
+  return `${year}年${month}月${day}日 ${hour}:${minute}`;
 }
 
 export async function getActivityById(id: number) {

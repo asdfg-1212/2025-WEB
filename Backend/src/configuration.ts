@@ -3,6 +3,7 @@ import * as koa from '@midwayjs/koa';
 import * as validate from '@midwayjs/validate';
 import * as info from '@midwayjs/info';
 import * as typeorm from '@midwayjs/typeorm';
+import * as cors from '@koa/cors';
 import { join } from 'path';
 // import { DefaultErrorFilter } from './filter/default.filter';
 // import { NotFoundFilter } from './filter/notfound.filter';
@@ -25,6 +26,14 @@ export class MainConfiguration {
   app: koa.Application;
 
   async onReady() {
+    // 添加CORS中间件
+    this.app.use(cors({
+      origin: 'http://localhost:5173',
+      credentials: true,
+      allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowHeaders: ['Content-Type', 'Authorization'],
+    }));
+
     // add middleware
     this.app.useMiddleware([ReportMiddleware]);
     // add filter
