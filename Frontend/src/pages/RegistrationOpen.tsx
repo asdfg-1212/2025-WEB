@@ -22,7 +22,8 @@ const RegistrationOpen: React.FC = () => {
     const fetchActivities = async () => {
       try {
         setLoading(true);
-        const data = await getActivities();
+        // 只获取报名中的活动
+        const data = await getActivities({ status: 'open' });
         setActivities(data);
         setError(null);
       } catch (err: any) {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getActivityCounts } from '../services/activity';
 import '../styles/dashboard.css';
 
 interface User {
@@ -13,6 +14,12 @@ interface User {
 const Dashboard: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [activityCounts, setActivityCounts] = useState({
+    open: 0,
+    ended: 0,
+    participated: 0,
+    pending: 0
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -23,18 +30,37 @@ const Dashboard: React.FC = () => {
       return;
     }
 
-    // 这里模拟用户信息，实际应该从后端API获取
-    // 专注于普通用户界面
-    const mockUser: User = {
-      id: '1',
-      email: 'user@example.com',
-      role: 'user', // 固定为普通用户
-      name: '用户名',
-      avatar: '/api/placeholder/40/40'
+    // 初始化用户信息和活动统计
+    const initializeData = async () => {
+      // 这里模拟用户信息，实际应该从后端API获取
+      // 专注于普通用户界面
+      const mockUser: User = {
+        id: '1',
+        email: 'user@example.com',
+        role: 'user', // 固定为普通用户
+        name: '用户名',
+        avatar: '/api/placeholder/40/40'
+      };
+
+      setUser(mockUser);
+
+      // 获取活动统计数据
+      try {
+        const counts = await getActivityCounts();
+        setActivityCounts(prev => ({
+          ...prev,
+          open: counts.open,
+          ended: counts.ended
+        }));
+      } catch (error) {
+        console.error('获取活动统计失败:', error);
+        // 如果获取失败，保持默认值0
+      }
+
+      setIsLoading(false);
     };
 
-    setUser(mockUser);
-    setIsLoading(false);
+    initializeData();
   }, []);
 
   const handleLogout = () => {
@@ -114,11 +140,11 @@ const Dashboard: React.FC = () => {
             
             <div className="activity-status">
               <div className="status-item" onClick={() => handleStatusClick('registration-open')}>
-                <span className="status-number">5</span>
+                <span className="status-number">{activityCounts.open}</span>
                 <span className="status-label">报名中</span>
               </div>
               <div className="status-item" onClick={() => handleStatusClick('ended')}>
-                <span className="status-number">8</span>
+                <span className="status-number">{activityCounts.ended}</span>
                 <span className="status-label">已结束</span>
               </div>
             </div>
@@ -134,11 +160,11 @@ const Dashboard: React.FC = () => {
             <div className="user-activities">
               <div className="activity-status">
                 <div className="status-item" onClick={() => handleStatusClick('participated')}>
-                  <span className="status-number">3</span>
+                  <span className="status-number">{activityCounts.participated}</span>
                   <span className="status-label">已参与</span>
                 </div>
                 <div className="status-item" onClick={() => handleStatusClick('pending')}>
-                  <span className="status-number">2</span>
+                  <span className="status-number">{activityCounts.pending}</span>
                   <span className="status-label">待参与</span>
                 </div>
               </div>
