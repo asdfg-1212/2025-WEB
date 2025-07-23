@@ -30,6 +30,7 @@ interface ActivityDetailModalProps {
   onUnregister?: (activityId: string) => void;
   onEditActivity?: (activityId: string) => void;
   onPostComment?: (activityId: string, content: string) => void;
+  onViewParticipants?: (activityId: string) => void;
 }
 
 const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
@@ -39,9 +40,9 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
   onRegister,
   onUnregister,
   onEditActivity,
-  onPostComment
+  onPostComment,
+  onViewParticipants
 }) => {
-  const [activeTab, setActiveTab] = useState<'details' | 'participants'>('details');
   const [commentText, setCommentText] = useState('');
   const [isCommentExpanded, setIsCommentExpanded] = useState(false);
 
@@ -118,39 +119,20 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
           </button>
         </div>
 
-        {/* Tabs (仅管理员可见报名名单) */}
-        {isAdmin && (
-          <div className="modal-tabs">
-            <button 
-              className={`tab-button ${activeTab === 'details' ? 'active' : ''}`}
-              onClick={() => setActiveTab('details')}
-            >
-              详情
-            </button>
-            <button 
-              className={`tab-button ${activeTab === 'participants' ? 'active' : ''}`}
-              onClick={() => setActiveTab('participants')}
-            >
-              报名名单
-            </button>
-          </div>
-        )}
-
         {/* Content Area */}
         <div className="modal-body">
-          {activeTab === 'details' ? (
-            <div className="activity-details">
-              {/* 活动基本信息 */}
-              <div className="detail-section">
-                <h3 className="activity-title">{activity.type}</h3>
-                
-                {/* 活动详情（管理员发布时添加） */}
-                <div className="activity-description">
-                  <h4>活动详情</h4>
-                  <p>
-                    {activity.description || `欢迎参加${activity.type}活动！本次活动将为大家提供专业的运动体验，请准时到场参与。活动期间请注意安全，遵守场馆规定。`}
-                  </p>
-                </div>
+          <div className="activity-details">
+            {/* 活动基本信息 */}
+            <div className="detail-section">
+              <h3 className="activity-title">{activity.type}</h3>
+              
+              {/* 活动描述 */}
+              <div className="activity-description">
+                <h4>活动描述</h4>
+                <p>
+                  {activity.description || `欢迎参加${activity.type}活动！本次活动将为大家提供专业的运动体验，请准时到场参与。活动期间请注意安全，遵守场馆规定。`}
+                </p>
+              </div>
 
                 {/* 活动信息 */}
                 <div className="activity-info">
@@ -223,102 +205,85 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
                 </div>
               </div>
             </div>
-          ) : (
-            <div className="participants-list">
-              <h4>报名名单 ({activity.registeredCount}人)</h4>
-              <div className="participants-grid">
-                {/* TODO: 显示实际的报名用户列表 */}
-                {Array.from({ length: activity.registeredCount }, (_, index) => (
-                  <div key={index} className="participant-item">
-                    <div className="participant-avatar">👤</div>
-                    <div className="participant-info">
-                      <span className="participant-name">用户{index + 1}</span>
-                      <span className="participant-time">2025-07-23 {10 + index}:30</span>
-                    </div>
-                    {isAdmin && (
-                      <button className="participant-action">移除</button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+          </div>
 
         {/* Action Buttons */}
         <div className="modal-footer">
-          {activeTab === 'details' && (
-            <div className="footer-actions">
-              {/* 用户操作区 */}
-              <div className="left-actions">
-                {isRegistrationOpen && !isAdmin ? (
-                  isUserRegistered ? (
-                    <button className="btn btn-danger" onClick={handleUnregister}>
-                      取消报名
-                    </button>
-                  ) : activity.registeredCount >= activity.maxCount ? (
-                    <button className="btn btn-disabled" disabled>
-                      已满员
-                    </button>
-                  ) : (
-                    <button className="btn btn-primary" onClick={handleRegister}>
-                      立即报名
-                    </button>
-                  )
-                ) : !isAdmin && (
-                  <button className="btn btn-disabled" disabled>
-                    报名已截止
+          <div className="footer-actions">
+            {/* 左侧操作区 */}
+            <div className="left-actions">
+              {isRegistrationOpen && !isAdmin ? (
+                isUserRegistered ? (
+                  <button className="btn btn-danger btn-large" onClick={handleUnregister}>
+                    取消报名
                   </button>
-                )}
-
-                {/* 管理员操作 */}
-                {isAdmin && (
-                  <button className="btn btn-secondary" onClick={handleEditActivity}>
-                    编辑活动
-                  </button>
-                )}
-              </div>
-
-              {/* 评论输入区 */}
-              <div className="right-actions">
-                {!isCommentExpanded ? (
-                  <button 
-                    className="btn btn-comment" 
-                    onClick={() => setIsCommentExpanded(true)}
-                  >
-                    写评论...
+                ) : activity.registeredCount >= activity.maxCount ? (
+                  <button className="btn btn-disabled btn-large" disabled>
+                    已满员
                   </button>
                 ) : (
-                  <div className="comment-input-group">
-                    <input
-                      type="text"
-                      value={commentText}
-                      onChange={(e) => setCommentText(e.target.value)}
-                      placeholder="写下你的想法..."
-                      className="comment-input"
-                      autoFocus
-                    />
-                    <button 
-                      className="btn btn-primary btn-sm" 
-                      onClick={handlePostComment}
-                      disabled={!commentText.trim()}
-                    >
-                      发送
-                    </button>
-                    <button 
-                      className="btn btn-secondary btn-sm" 
-                      onClick={() => {
-                        setIsCommentExpanded(false);
-                        setCommentText('');
-                      }}
-                    >
-                      取消
-                    </button>
-                  </div>
-                )}
-              </div>
+                  <button className="btn btn-primary btn-large" onClick={handleRegister}>
+                    立即报名
+                  </button>
+                )
+              ) : !isAdmin && (
+                <button className="btn btn-disabled btn-large" disabled>
+                  报名已截止
+                </button>
+              )}
+
+              {/* 管理员操作 */}
+              {isAdmin && (
+                <>
+                  <button className="btn btn-secondary btn-large" onClick={handleEditActivity}>
+                    编辑活动
+                  </button>
+                  <button className="btn btn-info btn-large" onClick={() => onViewParticipants && onViewParticipants(activity.id)}>
+                    查看名单
+                  </button>
+                </>
+              )}
             </div>
-          )}
+
+            {/* 右侧评论输入区 */}
+            <div className="right-actions">
+              {!isCommentExpanded ? (
+                <button 
+                  className="btn btn-comment btn-large" 
+                  onClick={() => setIsCommentExpanded(true)}
+                >
+                  写评论...
+                </button>
+              ) : (
+                <div className="comment-input-group">
+                  <input
+                    type="text"
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
+                    placeholder="写下你的想法..."
+                    className="comment-input"
+                    autoFocus
+                  />
+                  <button 
+                    className="btn btn-primary btn-sm" 
+                    onClick={handlePostComment}
+                    disabled={!commentText.trim()}
+                  >
+                    发送
+                  </button>
+                  <button 
+                    className="btn btn-secondary btn-sm" 
+                    onClick={() => {
+                      setIsCommentExpanded(false);
+                      setCommentText('');
+                    }}
+                  >
+                    取消
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>

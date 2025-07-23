@@ -61,6 +61,12 @@ const ActivitiesEnded: React.FC = () => {
     }
   };
 
+  const handleViewParticipants = (activityId: string) => {
+    // TODO: 实现查看参与者名单功能
+    console.log('查看参与者名单:', activityId);
+    alert('查看参与者名单功能开发中...');
+  };
+
   if (loading) {
     return (
       <div style={{ 
@@ -118,6 +124,7 @@ const ActivitiesEnded: React.FC = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onPostComment={handlePostComment}
+        onViewParticipants={handleViewParticipants}
       />
     </>
   );

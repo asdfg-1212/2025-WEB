@@ -89,6 +89,12 @@ const RegistrationOpen: React.FC = () => {
     }
   };
 
+  const handleViewParticipants = (activityId: string) => {
+    // TODO: 实现查看参与者名单功能
+    console.log('查看参与者名单:', activityId);
+    alert('查看参与者名单功能开发中...');
+  };
+
   if (loading) {
     return (
       <div style={{ 
@@ -148,6 +154,7 @@ const RegistrationOpen: React.FC = () => {
         onRegister={handleRegister}
         onUnregister={handleUnregister}
         onPostComment={handlePostComment}
+        onViewParticipants={handleViewParticipants}
       />
     </>
   );
