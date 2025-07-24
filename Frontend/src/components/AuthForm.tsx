@@ -7,7 +7,9 @@ const AuthForm: React.FC<{
   title?: string;
   subtitle?: string;
   bottomLink?: React.ReactNode;
-}> = ({ onSubmit, submitText, title, subtitle, bottomLink }) => {
+  loading?: boolean;
+  error?: string | null;
+}> = ({ onSubmit, submitText, title, subtitle, bottomLink, loading = false, error }) => {
   const [email, setEmail] = React.useState('');
   const [username, setUsername] = React.useState('');
   const [password, setPassword] = React.useState('');
@@ -63,8 +65,33 @@ const AuthForm: React.FC<{
             required
           />
         </div>
-        <button type="submit" className="auth-submit">
-          {submitText}
+        
+        {/* 错误显示 */}
+        {error && (
+          <div style={{
+            color: '#f44336',
+            fontSize: '14px',
+            marginBottom: '16px',
+            textAlign: 'center',
+            backgroundColor: 'rgba(244, 67, 54, 0.1)',
+            padding: '8px 12px',
+            borderRadius: '4px',
+            border: '1px solid rgba(244, 67, 54, 0.2)'
+          }}>
+            {error}
+          </div>
+        )}
+        
+        <button 
+          type="submit" 
+          className="auth-submit"
+          disabled={loading}
+          style={{
+            opacity: loading ? 0.7 : 1,
+            cursor: loading ? 'not-allowed' : 'pointer'
+          }}
+        >
+          {loading ? '处理中...' : submitText}
         </button>
         
         {/* 底部链接 */}

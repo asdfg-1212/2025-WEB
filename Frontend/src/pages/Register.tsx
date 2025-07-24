@@ -1,10 +1,11 @@
 import React from "react";
-import AuthForm from "@/components/AuthForm";
+import AuthForm from "../components/AuthForm";
 import { useNavigate, Link } from "react-router-dom";
-import { register } from "@/services/auth";
+import { useUser } from "../contexts/UserContext";
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
+  const { register, isLoading, error } = useUser();
 
   const handleRegister = async (data: { email: string; username: string; password: string }) => {
     try {
@@ -12,7 +13,8 @@ const Register: React.FC = () => {
       alert("注册成功，请登录！");
       navigate("/login");
     } catch (err) {
-      alert("注册失败，请重试。");
+      // 错误会显示在UI中
+      console.error("注册失败:", err);
     }
   };
 
@@ -91,6 +93,8 @@ const Register: React.FC = () => {
         submitText="注册" 
         title="体育活动室"
         subtitle="Create Your Account!"
+        loading={isLoading}
+        error={error}
         bottomLink={
           <span>
             已有账户？ <Link to="/login" style={{ color: '#4CAF50', textDecoration: 'none' }}>立即登录</Link>

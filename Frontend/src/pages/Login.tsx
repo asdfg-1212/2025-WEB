@@ -1,18 +1,18 @@
 import React from "react";
 import AuthForm from "../components/AuthForm";
 import { useNavigate, Link } from "react-router-dom";
-import { login } from "@/services/auth";
+import { useUser } from "../contexts/UserContext";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+  const { login, isLoading, error } = useUser();
 
   const handleLogin = async (data: { email: string; username: string; password: string }) => {
     try {
-      await login(data.email,data.username, data.password);
-      alert("登录成功！");
+      await login(data.email, data.username, data.password);
       navigate("/dashboard"); // 登录成功跳转到主页
     } catch (err) {
-      alert("登录失败，请检查用户名或密码。");
+      // 错误已经通过context处理，可以在UI中显示
     }
   };
 
@@ -91,6 +91,8 @@ const Login: React.FC = () => {
         submitText="登录" 
         title="体育活动室"
         subtitle="Welcome back!"
+        loading={isLoading}
+        error={error}
         bottomLink={
           <span>
             还没有账户？ <Link to="/register" style={{ color: '#4CAF50', textDecoration: 'none' }}>立即注册</Link>

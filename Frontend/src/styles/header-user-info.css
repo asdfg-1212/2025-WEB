@@ -1,0 +1,152 @@
+/* 页面头部用户信息样式 */
+.header-user-info {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+  transition: all 0.2s ease;
+}
+
+.header-user-info:hover {
+  box-shadow: 0 12px 40px rgba(31, 38, 135, 0.25);
+  transform: translateY(-2px);
+}
+
+.header-user-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* 头像 */
+.header-user-avatar {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+.header-user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.header-admin-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background-color: #ffd700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  border: 1px solid #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* 用户详情 */
+.header-user-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.header-username {
+  font-weight: 600;
+  font-size: 13px;
+  color: #1a202c;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.header-user-role {
+  font-size: 11px;
+  color: #666;
+  padding: 2px 6px;
+  border-radius: 8px;
+  background-color: rgba(100, 116, 139, 0.1);
+  display: inline-block;
+}
+
+/* 退出按钮 */
+.header-logout-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.header-logout-btn:hover {
+  background-color: rgba(239, 68, 68, 0.2);
+  transform: scale(1.05);
+}
+
+.header-logout-btn svg {
+  transition: transform 0.2s ease;
+}
+
+.header-logout-btn:hover svg {
+  transform: translateX(1px);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .header-user-info {
+    top: 10px;
+    right: 10px;
+    padding: 6px 8px;
+  }
+  
+  .header-user-content {
+    gap: 8px;
+  }
+  
+  .header-user-avatar {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .header-username {
+    font-size: 12px;
+  }
+  
+  .header-user-role {
+    font-size: 10px;
+    padding: 1px 4px;
+  }
+  
+  .header-logout-btn {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .header-logout-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+/* 确保在仪表盘页面不重复显示 */
+.dashboard-container .header-user-info {
+  display: none;
+}

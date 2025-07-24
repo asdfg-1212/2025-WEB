@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ActivityList from '../components/ActivityList';
+import HeaderUserInfo from '../components/HeaderUserInfo';
 
 interface Activity {
   id: string;
@@ -106,11 +107,14 @@ const ParticipatedActivities: React.FC = () => {
   }
 
   return (
-    <ActivityList
-      activities={activities}
-      title="已参与的活动"
-      onActivityClick={handleActivityClick}
-    />
+    <>
+      <HeaderUserInfo />
+      <ActivityList
+        activities={activities}
+        title="已参与的活动"
+        onActivityClick={handleActivityClick}
+      />
+    </>
   );
 };
 

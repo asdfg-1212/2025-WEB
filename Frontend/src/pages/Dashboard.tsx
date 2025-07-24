@@ -1,18 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getActivityCounts } from '../services/activity';
+import { useUser } from '../contexts/UserContext';
 import '../styles/dashboard.css';
 
-interface User {
-  id: string;
-  email: string;
-  role: 'user' | 'admin';
-  name?: string;
-  avatar?: string;
-}
-
 const Dashboard: React.FC = () => {
-  const [user, setUser] = useState<User | null>(null);
+  const { user, logout } = useUser();
   const [isLoading, setIsLoading] = useState(true);
   const [activityCounts, setActivityCounts] = useState({
     open: 0,
@@ -23,28 +16,8 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // 模拟从token获取用户信息
-    const token = localStorage.getItem('token');
-    if (!token) {
-      window.location.href = '/login';
-      return;
-    }
-
-    // 初始化用户信息和活动统计
-    const initializeData = async () => {
-      // 这里模拟用户信息，实际应该从后端API获取
-      // 专注于普通用户界面
-      const mockUser: User = {
-        id: '1',
-        email: 'user@example.com',
-        role: 'user', // 固定为普通用户
-        name: '用户名',
-        avatar: '/api/placeholder/40/40'
-      };
-
-      setUser(mockUser);
-
-      // 获取活动统计数据
+    // 获取活动统计数据
+    const loadActivityCounts = async () => {
       try {
         const counts = await getActivityCounts();
         setActivityCounts(prev => ({
@@ -55,17 +28,17 @@ const Dashboard: React.FC = () => {
       } catch (error) {
         console.error('获取活动统计失败:', error);
         // 如果获取失败，保持默认值0
+      } finally {
+        setIsLoading(false);
       }
-
-      setIsLoading(false);
     };
 
-    initializeData();
+    loadActivityCounts();
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    window.location.href = '/login';
+    logout();
+    navigate('/login');
   };
 
   const handleStatusClick = (type: string) => {
@@ -105,7 +78,7 @@ const Dashboard: React.FC = () => {
       {/* 顶部导航栏 */}
       <header className="dashboard-header">
         <div className="welcome-section">
-          <h1 className="welcome-title">Welcome!</h1>
+          <h1 className="welcome-title">Welcome, {user?.username || '用户'}!</h1>
           <h2 className="welcome-subtitle">体育活动室</h2>
         </div>
         
@@ -118,8 +91,8 @@ const Dashboard: React.FC = () => {
           </div>
           <div className="user-avatar">
             <img 
-              src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiM2MzY2ZjEiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxNiIgcj0iNiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTggMzJDOCAyNi40NzcgMTMuNDc3IDIyIDIwIDIyQzI2LjUyMyAyMiAzMiAyNi40NzcgMzIgMzJWMzRIOFYzMloiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo="
-              alt="用户头像" 
+              src={user?.avatar || "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiM2MzY2ZjEiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxNiIgcj0iNiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTggMzJDOCAyNi40NzcgMTMuNDc3IDIyIDIwIDIyQzI2LjUyMyAyMiAzMiAyNi40NzcgMzIgMzJWMzRIOFYzMloiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo="}
+              alt={`${user?.username || '用户'}的头像`} 
             />
           </div>
           <button className="logout-btn" onClick={handleLogout}>
@@ -155,6 +128,28 @@ const Dashboard: React.FC = () => {
             <div className="section-header-right">
               <h3>我的活动</h3>
               <p>My Activities</p>
+            </div>
+
+            {/* 用户信息卡片 */}
+            <div className="user-info-card">
+              <div className="user-card-content">
+                <div className="user-avatar-large">
+                  <img 
+                    src={user?.avatar || "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiM2MzY2ZjEiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxNiIgcj0iNiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTggMzJDOCAyNi40NzcgMTMuNDc3IDIyIDIwIDIyQzI2LjUyMyAyMiAzMiAyNi40NzcgMzIgMzJWMzRIOFYzMloiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo="}
+                    alt={`${user?.username || '用户'}的头像`}
+                  />
+                  {user?.role === 'admin' && (
+                    <div className="admin-badge-large">👑</div>
+                  )}
+                </div>
+                <div className="user-card-info">
+                  <h4>{user?.username || '用户'}</h4>
+                  <p className="user-email">{user?.email}</p>
+                  <span className="user-role-badge">
+                    {user?.role === 'admin' ? '管理员' : '普通用户'}
+                  </span>
+                </div>
+              </div>
             </div>
 
             <div className="user-activities">
