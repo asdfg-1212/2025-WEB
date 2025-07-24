@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useUser } from '../contexts/UserContext';
 import HeaderUserInfo from '../components/HeaderUserInfo';
+import { getUserAvatar } from '../utils/avatar';
 import '../styles/profile.css';
 
 const Profile: React.FC = () => {
@@ -9,7 +10,7 @@ const Profile: React.FC = () => {
   const [formData, setFormData] = useState({
     username: user?.username || '',
     email: user?.email || '',
-    avatar: user?.avatar || ''
+    avatar_emoji: user?.avatar_emoji || ''
   });
 
   const handleSave = async () => {
@@ -28,7 +29,7 @@ const Profile: React.FC = () => {
     setFormData({
       username: user?.username || '',
       email: user?.email || '',
-      avatar: user?.avatar || ''
+      avatar_emoji: user?.avatar_emoji || ''
     });
     setIsEditing(false);
   };
@@ -56,7 +57,7 @@ const Profile: React.FC = () => {
           <div className="avatar-section">
             <div className="avatar-display">
               <img 
-                src={user.avatar || "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDQwIDQwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIyMCIgZmlsbD0iIzYzNjZmMSIvPgo8Y2lyY2xlIGN4PSIyMCIgY3k9IjE2IiByPSI2IiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNOCAzMkM4IDI2LjQ3NyAxMy40NzcgMjIgMjAgMjJDMjYuNTIzIDIyIDMyIDI2LjQ3NyAzMiAzMlYzNEg4VjMyWiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+Cg=="}
+                src={getUserAvatar(user)}
                 alt={`${user.username}的头像`}
                 className="profile-avatar"
               />
@@ -133,7 +134,7 @@ const Profile: React.FC = () => {
               <div className="form-field">
                 <label>注册时间</label>
                 <div className="form-value">
-                  {new Date(user.createdAt).toLocaleString('zh-CN')}
+                  {user.created_at ? new Date(user.created_at).toLocaleString('zh-CN') : '未知'}
                 </div>
               </div>
 

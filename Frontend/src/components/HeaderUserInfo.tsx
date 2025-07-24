@@ -1,6 +1,7 @@
 import React from 'react';
 import { useUser } from '../contexts/UserContext';
 import { useNavigate } from 'react-router-dom';
+import { getUserAvatar } from '../utils/avatar';
 import '../styles/header-user-info.css';
 
 const HeaderUserInfo: React.FC = () => {
@@ -21,7 +22,7 @@ const HeaderUserInfo: React.FC = () => {
       <div className="header-user-content">
         <div className="header-user-avatar">
           <img 
-            src={user.avatar || "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiM2MzY2ZjEiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxNiIgcj0iNiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTggMzJDOCAyNi40NzcgMTMuNDc3IDIyIDIwIDIyQzI2LjUyMyAyMiAzMiAyNi40NzcgMzIgMzJWMzRIOFYzMloiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo="}
+            src={getUserAvatar(user)}
             alt={`${user.username}的头像`}
           />
           {user.role === 'admin' && (

@@ -1,11 +1,11 @@
 // 用户相关类型定义
 export interface User {
-  id: string;
+  id: number;
   username: string;
   email: string;
   role: 'admin' | 'user';
-  avatar?: string;
-  createdAt: string;
+  avatar_emoji?: string | null;
+  created_at?: string;
 }
 
 // 用户上下文状态类型
