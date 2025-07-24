@@ -2,7 +2,13 @@ import React, { useState, useEffect } from 'react';
 import ActivityList from '../components/ActivityList';
 import ActivityDetailModal from '../components/ActivityDetailModal';
 import HeaderUserInfo from '../components/HeaderUserInfo';
-import { getActivities } from '../services/activity';
+import { 
+  getActivities, 
+  registerForActivity, 
+  unregisterFromActivity, 
+  postActivityComment, 
+  removeParticipant 
+} from '../services/activity';
 
 interface Activity {
   id: string;
@@ -53,8 +59,7 @@ const RegistrationOpen: React.FC = () => {
 
   const handleRegister = async (activityId: string) => {
     try {
-      // TODO: 实现报名逻辑
-      console.log('报名活动:', activityId);
+      await registerForActivity(activityId);
       alert('报名成功！');
       // 重新获取活动列表以更新报名人数
       const data = await getActivities({ status: 'open' });
@@ -67,8 +72,7 @@ const RegistrationOpen: React.FC = () => {
 
   const handleUnregister = async (activityId: string) => {
     try {
-      // TODO: 实现取消报名逻辑
-      console.log('取消报名:', activityId);
+      await unregisterFromActivity(activityId);
       alert('取消报名成功！');
       // 重新获取活动列表以更新报名人数
       const data = await getActivities({ status: 'open' });
@@ -81,8 +85,7 @@ const RegistrationOpen: React.FC = () => {
 
   const handlePostComment = async (activityId: string, content: string) => {
     try {
-      // TODO: 实现发表评论逻辑
-      console.log('发表评论:', activityId, content);
+      await postActivityComment(activityId, content);
       alert('评论发表成功！');
     } catch (err: any) {
       console.error('发表评论失败:', err);
@@ -92,12 +95,13 @@ const RegistrationOpen: React.FC = () => {
 
   const handleRemoveParticipant = async (participantId: string) => {
     try {
-      // TODO: 实现移除参与者逻辑
-      console.log('移除参与者:', participantId);
-      alert('参与者已移除！');
-      // 重新获取活动列表以更新报名人数
-      const data = await getActivities({ status: 'open' });
-      setActivities(data);
+      if (selectedActivity) {
+        await removeParticipant(selectedActivity.id, participantId);
+        alert('参与者已移除！');
+        // 重新获取活动列表以更新报名人数
+        const data = await getActivities({ status: 'open' });
+        setActivities(data);
+      }
     } catch (err: any) {
       console.error('移除参与者失败:', err);
       alert('移除参与者失败: ' + (err.message || '未知错误'));

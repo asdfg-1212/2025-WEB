@@ -121,3 +121,70 @@ export async function deleteActivity(id: number) {
   const res = await axios.delete(`${API_BASE}/activities/${id}`);
   return res.data;
 }
+
+// 活动报名相关接口
+export async function registerForActivity(activityId: string) {
+  const res = await apiClient.post(`/activities/${activityId}/register`);
+  if (res.data.success) {
+    return res.data;
+  }
+  throw new Error(res.data.message || '报名失败');
+}
+
+export async function unregisterFromActivity(activityId: string) {
+  const res = await apiClient.delete(`/activities/${activityId}/register`);
+  if (res.data.success) {
+    return res.data;
+  }
+  throw new Error(res.data.message || '取消报名失败');
+}
+
+// 获取用户的活动报名状态
+export async function getRegistrationStatus(activityId: string) {
+  try {
+    const res = await apiClient.get(`/activities/${activityId}/registration-status`);
+    if (res.data.success) {
+      return res.data.data.isRegistered;
+    }
+    return false;
+  } catch (error) {
+    console.error('获取报名状态失败:', error);
+    return false;
+  }
+}
+
+// 获取活动参与者列表
+export async function getActivityParticipants(activityId: string) {
+  const res = await apiClient.get(`/activities/${activityId}/participants`);
+  if (res.data.success) {
+    return res.data.data.participants;
+  }
+  throw new Error(res.data.message || '获取参与者列表失败');
+}
+
+// 移除活动参与者（管理员功能）
+export async function removeParticipant(activityId: string, participantId: string) {
+  const res = await apiClient.delete(`/activities/${activityId}/participants/${participantId}`);
+  if (res.data.success) {
+    return res.data;
+  }
+  throw new Error(res.data.message || '移除参与者失败');
+}
+
+// 发表活动评论
+export async function postActivityComment(activityId: string, content: string) {
+  const res = await apiClient.post(`/activities/${activityId}/comments`, { content });
+  if (res.data.success) {
+    return res.data.data;
+  }
+  throw new Error(res.data.message || '发表评论失败');
+}
+
+// 获取活动评论
+export async function getActivityComments(activityId: string) {
+  const res = await apiClient.get(`/activities/${activityId}/comments`);
+  if (res.data.success) {
+    return res.data.data.comments;
+  }
+  throw new Error(res.data.message || '获取评论失败');
+}

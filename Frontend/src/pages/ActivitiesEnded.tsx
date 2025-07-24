@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ActivityList from '../components/ActivityList';
 import ActivityDetailModal from '../components/ActivityDetailModal';
 import HeaderUserInfo from '../components/HeaderUserInfo';
-import { getActivities } from '../services/activity';
+import { getActivities, postActivityComment, removeParticipant } from '../services/activity';
 
 interface Activity {
   id: string;
@@ -53,8 +53,7 @@ const ActivitiesEnded: React.FC = () => {
 
   const handlePostComment = async (activityId: string, content: string) => {
     try {
-      // TODO: 实现发表评论逻辑
-      console.log('发表评论:', activityId, content);
+      await postActivityComment(activityId, content);
       alert('评论发表成功！');
     } catch (err: any) {
       console.error('发表评论失败:', err);
@@ -64,12 +63,13 @@ const ActivitiesEnded: React.FC = () => {
 
   const handleRemoveParticipant = async (participantId: string) => {
     try {
-      // TODO: 实现移除参与者逻辑
-      console.log('移除参与者:', participantId);
-      alert('参与者移除成功！');
-      // 重新获取活动列表以更新报名人数
-      const data = await getActivities({ status: 'ended' });
-      setActivities(data);
+      if (selectedActivity) {
+        await removeParticipant(selectedActivity.id, participantId);
+        alert('参与者移除成功！');
+        // 重新获取活动列表以更新报名人数
+        const data = await getActivities({ status: 'ended' });
+        setActivities(data);
+      }
     } catch (err: any) {
       console.error('移除参与者失败:', err);
       alert('移除参与者失败: ' + (err.message || '未知错误'));
