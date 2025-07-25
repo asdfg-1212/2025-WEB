@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useUser } from '../contexts/UserContext';
 import ParticipantsModal from './ParticipantsModal';
 import '../styles/activity-detail-modal.css';
 
@@ -31,7 +32,6 @@ interface ActivityDetailModalProps {
   onUnregister?: (activityId: string) => void;
   onEditActivity?: (activityId: string) => void;
   onPostComment?: (activityId: string, content: string) => void;
-  onRemoveParticipant?: (participantId: string) => void;
 }
 
 const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
@@ -41,9 +41,9 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
   onRegister,
   onUnregister,
   onEditActivity,
-  onPostComment,
-  onRemoveParticipant
+  onPostComment
 }) => {
+  const { user } = useUser();
   const [commentText, setCommentText] = useState('');
   const [isCommentExpanded, setIsCommentExpanded] = useState(false);
   const [isParticipantsModalOpen, setIsParticipantsModalOpen] = useState(false);
@@ -53,7 +53,7 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
   // TODO: 从用户上下文获取这些信息
   const isRegistrationOpen = true; // 根据时间判断是否还能报名
   const isUserRegistered = false; // 根据用户状态判断是否已报名
-  const isAdmin = true; // 根据用户角色判断 - 临时设置为true以测试功能
+  const isAdmin = user?.role === 'admin';
   // const currentUser = { id: '1', username: '当前用户' }; // 当前用户信息 - 暂时注释
 
   // 模拟评论数据
@@ -302,7 +302,6 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
         activity={activity}
         isOpen={isParticipantsModalOpen}
         onClose={handleCloseParticipantsModal}
-        onRemoveParticipant={onRemoveParticipant}
       />
     </div>
   );

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ActivityList from '../components/ActivityList';
 import ActivityDetailModal from '../components/ActivityDetailModal';
-import { getActivities, postActivityComment, removeParticipant } from '../services/activity';
+import { getActivities, postActivityComment } from '../services/activity';
 
 interface Activity {
   id: string;
@@ -57,21 +57,6 @@ const ActivitiesEnded: React.FC = () => {
     } catch (err: any) {
       console.error('发表评论失败:', err);
       alert('发表评论失败: ' + (err.message || '未知错误'));
-    }
-  };
-
-  const handleRemoveParticipant = async (participantId: string) => {
-    try {
-      if (selectedActivity) {
-        await removeParticipant(selectedActivity.id, participantId);
-        alert('参与者移除成功！');
-        // 重新获取活动列表以更新报名人数
-        const data = await getActivities({ status: 'ended' });
-        setActivities(data);
-      }
-    } catch (err: any) {
-      console.error('移除参与者失败:', err);
-      alert('移除参与者失败: ' + (err.message || '未知错误'));
     }
   };
 
@@ -132,7 +117,6 @@ const ActivitiesEnded: React.FC = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onPostComment={handlePostComment}
-        onRemoveParticipant={handleRemoveParticipant}
       />
     </>
   );

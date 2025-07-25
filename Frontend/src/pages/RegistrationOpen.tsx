@@ -5,8 +5,7 @@ import {
   getActivities, 
   registerForActivity, 
   unregisterFromActivity, 
-  postActivityComment, 
-  removeParticipant 
+  postActivityComment
 } from '../services/activity';
 
 interface Activity {
@@ -92,21 +91,6 @@ const RegistrationOpen: React.FC = () => {
     }
   };
 
-  const handleRemoveParticipant = async (participantId: string) => {
-    try {
-      if (selectedActivity) {
-        await removeParticipant(selectedActivity.id, participantId);
-        alert('参与者已移除！');
-        // 重新获取活动列表以更新报名人数
-        const data = await getActivities({ status: 'open' });
-        setActivities(data);
-      }
-    } catch (err: any) {
-      console.error('移除参与者失败:', err);
-      alert('移除参与者失败: ' + (err.message || '未知错误'));
-    }
-  };
-
   if (loading) {
     return (
       <div style={{ 
@@ -166,7 +150,6 @@ const RegistrationOpen: React.FC = () => {
         onRegister={handleRegister}
         onUnregister={handleUnregister}
         onPostComment={handlePostComment}
-        onRemoveParticipant={handleRemoveParticipant}
       />
     </>
   );

@@ -162,15 +162,6 @@ export async function getActivityParticipants(activityId: string) {
   throw new Error(res.data.message || '获取参与者列表失败');
 }
 
-// 移除活动参与者（管理员功能）
-export async function removeParticipant(activityId: string, participantId: string) {
-  const res = await apiClient.delete(`/activities/${activityId}/participants/${participantId}`);
-  if (res.data.success) {
-    return res.data;
-  }
-  throw new Error(res.data.message || '移除参与者失败');
-}
-
 // 发表活动评论
 export async function postActivityComment(activityId: string, content: string) {
   const res = await apiClient.post(`/activities/${activityId}/comments`, { content });

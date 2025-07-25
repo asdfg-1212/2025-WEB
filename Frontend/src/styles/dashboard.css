@@ -415,6 +415,36 @@
   letter-spacing: 0.5px;
 }
 
+/* 管理员操作卡片样式 */
+.admin-action-card {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: white;
+}
+
+.admin-action-card:hover {
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+  transform: translateY(-6px);
+  box-shadow: 0 15px 45px rgba(102, 126, 234, 0.4);
+}
+
+.admin-action-card .status-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  display: block;
+}
+
+.admin-action-card .status-label {
+  color: white;
+  font-size: 18px;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
 /* 响应式设计 */
 @media (max-width: 1200px) {
   .dashboard-header {

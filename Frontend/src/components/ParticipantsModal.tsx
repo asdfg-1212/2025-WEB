@@ -26,14 +26,12 @@ interface ParticipantsModalProps {
   activity: Activity | null;
   isOpen: boolean;
   onClose: () => void;
-  onRemoveParticipant?: (participantId: string) => void;
 }
 
 const ParticipantsModal: React.FC<ParticipantsModalProps> = ({
   activity,
   isOpen,
-  onClose,
-  onRemoveParticipant
+  onClose
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'confirmed' | 'pending' | 'cancelled'>('all');
@@ -63,14 +61,6 @@ const ParticipantsModal: React.FC<ParticipantsModalProps> = ({
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
       onClose();
-    }
-  };
-
-  const handleRemoveParticipant = (participantId: string, username: string) => {
-    if (window.confirm(`确认移除参与者 "${username}" 吗？`)) {
-      if (onRemoveParticipant) {
-        onRemoveParticipant(participantId);
-      }
     }
   };
 
@@ -164,15 +154,6 @@ const ParticipantsModal: React.FC<ParticipantsModalProps> = ({
                     <div className="participant-time">
                       报名时间: {participant.registrationTime}
                     </div>
-                  </div>
-                  <div className="participant-actions">
-                    <button
-                      className="btn btn-danger btn-sm"
-                      onClick={() => handleRemoveParticipant(participant.id, participant.username)}
-                      title="移除参与者"
-                    >
-                      移除
-                    </button>
                   </div>
                 </div>
               ))}

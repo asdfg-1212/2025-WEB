@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getActivityCounts } from '../services/activity';
 import { useUser } from '../contexts/UserContext';
+import CreateActivityModal from '../components/CreateActivityModal';
+import CreateVenueModal from '../components/CreateVenueModal';
 import { getUserAvatar } from '../utils/avatar';
 import '../styles/dashboard.css';
 
@@ -14,6 +16,8 @@ const Dashboard: React.FC = () => {
     participated: 0,
     pending: 0
   });
+  const [isCreateActivityModalOpen, setIsCreateActivityModalOpen] = useState(false);
+  const [isCreateVenueModalOpen, setIsCreateVenueModalOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -43,21 +47,42 @@ const Dashboard: React.FC = () => {
   };
 
   const handleStatusClick = (type: string) => {
-    switch (type) {
-      case 'registration-open':
-        navigate('/activities/registration-open');
-        break;
-      case 'ended':
-        navigate('/activities/ended');
-        break;
-      case 'participated':
-        navigate('/activities/participated');
-        break;
-      case 'pending':
-        navigate('/activities/pending');
-        break;
-      default:
-        break;
+    // 管理员的特殊处理
+    if (user?.role === 'admin') {
+      switch (type) {
+        case 'create-activity':
+          setIsCreateActivityModalOpen(true);
+          return;
+        case 'create-venue':
+          setIsCreateVenueModalOpen(true);
+          return;
+        case 'registration-open':
+          navigate('/activities/registration-open');
+          break;
+        case 'ended':
+          navigate('/activities/ended');
+          break;
+        default:
+          break;
+      }
+    } else {
+      // 普通用户的处理
+      switch (type) {
+        case 'registration-open':
+          navigate('/activities/registration-open');
+          break;
+        case 'ended':
+          navigate('/activities/ended');
+          break;
+        case 'participated':
+          navigate('/activities/participated');
+          break;
+        case 'pending':
+          navigate('/activities/pending');
+          break;
+        default:
+          break;
+      }
     }
   };
 
@@ -124,26 +149,51 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* 右侧 - 我的活动 */}
+          {/* 右侧 - 根据用户角色显示不同内容 */}
           <div className="content-section my-activity-section">
             <div className="section-header-right">
-              <h3>我的活动</h3>
-              <p>My Activities</p>
+              <h3>{user?.role === 'admin' ? '创建发布' : '我的活动'}</h3>
+              <p>{user?.role === 'admin' ? 'Create & Publish' : 'My Activities'}</p>
             </div>
 
             <div className="activity-status">
-              <div className="status-item" onClick={() => handleStatusClick('participated')}>
-                <span className="status-number">{activityCounts.participated}</span>
-                <span className="status-label">已参与</span>
-              </div>
-              <div className="status-item" onClick={() => handleStatusClick('pending')}>
-                <span className="status-number">{activityCounts.pending}</span>
-                <span className="status-label">待参与</span>
-              </div>
+              {user?.role === 'admin' ? (
+                <>
+                  <div className="status-item admin-action-card" onClick={() => handleStatusClick('create-activity')}>
+                    <span className="status-icon">📝</span>
+                    <span className="status-label">活动发布</span>
+                  </div>
+                  <div className="status-item admin-action-card" onClick={() => handleStatusClick('create-venue')}>
+                    <span className="status-icon">🏢</span>
+                    <span className="status-label">场馆创建</span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="status-item" onClick={() => handleStatusClick('participated')}>
+                    <span className="status-number">{activityCounts.participated}</span>
+                    <span className="status-label">已参与</span>
+                  </div>
+                  <div className="status-item" onClick={() => handleStatusClick('pending')}>
+                    <span className="status-number">{activityCounts.pending}</span>
+                    <span className="status-label">待参与</span>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
       </main>
+
+      {/* 模态框 */}
+      <CreateActivityModal 
+        isOpen={isCreateActivityModalOpen} 
+        onClose={() => setIsCreateActivityModalOpen(false)} 
+      />
+      <CreateVenueModal 
+        isOpen={isCreateVenueModalOpen} 
+        onClose={() => setIsCreateVenueModalOpen(false)} 
+      />
     </div>
   );
 };
