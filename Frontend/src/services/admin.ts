@@ -43,10 +43,7 @@ export async function createActivity(activity: {
 // 创建场馆
 export async function createVenue(venue: {
   name: string;
-  location: string;
-  capacity: number;
-  description?: string;
-  facilities?: string;
+  location?: string;
   operator_id: number;
 }) {
   const res = await apiClient.post('/venues', venue);

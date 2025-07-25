@@ -159,12 +159,12 @@ const Dashboard: React.FC = () => {
             <div className="activity-status">
               {user?.role === 'admin' ? (
                 <>
-                  <div className="status-item admin-action-card" onClick={() => handleStatusClick('create-activity')}>
-                    <span className="status-icon">📝</span>
+                  <div className="status-item" onClick={() => handleStatusClick('create-activity')}>
+                    <span className="status-number admin-emoji">📝</span>
                     <span className="status-label">活动发布</span>
                   </div>
-                  <div className="status-item admin-action-card" onClick={() => handleStatusClick('create-venue')}>
-                    <span className="status-icon">🏢</span>
+                  <div className="status-item" onClick={() => handleStatusClick('create-venue')}>
+                    <span className="status-number admin-emoji">🏢</span>
                     <span className="status-label">场馆创建</span>
                   </div>
                 </>

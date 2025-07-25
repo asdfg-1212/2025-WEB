@@ -8,6 +8,9 @@ export class Venue {
   @Column({ length: 100 })
   name: string; // 场馆名称
 
+  @Column({ length: 200, nullable: true })
+  location: string; // 场馆位置
+
   @Column({ default: true })
   is_active: boolean; // 是否可用
 

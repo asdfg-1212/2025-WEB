@@ -42,10 +42,14 @@ const CreateActivityModal: React.FC<CreateActivityModalProps> = ({ isOpen, onClo
 
   const loadVenues = async () => {
     try {
+      console.log('开始加载场馆列表...');
       const venueList = await getAvailableVenues();
+      console.log('获取到的场馆列表:', venueList);
       setVenues(venueList || []);
     } catch (error) {
       console.error('获取场馆列表失败:', error);
+      // 如果API失败，显示错误提示
+      alert('获取场馆列表失败: ' + (error instanceof Error ? error.message : '未知错误'));
     }
   };
 
@@ -144,9 +148,21 @@ const CreateActivityModal: React.FC<CreateActivityModalProps> = ({ isOpen, onClo
               <option value="">请选择活动类型</option>
               <option value="basketball">篮球</option>
               <option value="football">足球</option>
-              <option value="volleyball">排球</option>
               <option value="badminton">羽毛球</option>
               <option value="tennis">网球</option>
+              <option value="pingpong">乒乓球</option>
+              <option value="volleyball">排球</option>
+              <option value="billiards">台球</option>
+              <option value="golf">高尔夫</option>
+              <option value="running">跑步</option>
+              <option value="swimming">游泳</option>
+              <option value="martial arts">武术</option>
+              <option value="dance">舞蹈</option>
+              <option value="fencing">击剑</option>
+              <option value="taekwondo">跆拳道</option>
+              <option value="shooting">射击</option>
+              <option value="skating">滑冰</option>
+              <option value="other">其他</option>
             </select>
           </div>
 
@@ -154,12 +170,21 @@ const CreateActivityModal: React.FC<CreateActivityModalProps> = ({ isOpen, onClo
             <label>活动场馆</label>
             <select name="venue_id" value={formData.venue_id} onChange={handleChange} required>
               <option value="">请选择场馆</option>
-              {venues.map((venue) => (
-                <option key={venue.id} value={venue.id}>
-                  {venue.name} - {venue.location} (容量: {venue.capacity}人)
-                </option>
-              ))}
+              {venues.length === 0 ? (
+                <option value="" disabled>暂无可用场馆，请先创建场馆</option>
+              ) : (
+                venues.map((venue) => (
+                  <option key={venue.id} value={venue.id}>
+                    {venue.name} - {venue.location}
+                  </option>
+                ))
+              )}
             </select>
+            {venues.length === 0 && (
+              <small style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px', display: 'block' }}>
+                💡 提示：如果没有可用场馆，请先使用"场馆创建"功能添加场馆
+              </small>
+            )}
           </div>
 
           <div className="form-row">

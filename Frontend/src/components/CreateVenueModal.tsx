@@ -14,10 +14,7 @@ const CreateVenueModal: React.FC<CreateVenueModalProps> = ({ isOpen, onClose, on
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
-    location: '',
-    capacity: '',
-    description: '',
-    facilities: ''
+    location: ''
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -34,19 +31,13 @@ const CreateVenueModal: React.FC<CreateVenueModalProps> = ({ isOpen, onClose, on
       await createVenue({
         name: formData.name,
         location: formData.location,
-        capacity: Number(formData.capacity),
-        description: formData.description,
-        facilities: formData.facilities,
         operator_id: user.id
       });
       
       alert('场馆创建成功！');
       setFormData({
         name: '',
-        location: '',
-        capacity: '',
-        description: '',
-        facilities: ''
+        location: ''
       });
       onSuccess?.();
       onClose();
@@ -100,7 +91,7 @@ const CreateVenueModal: React.FC<CreateVenueModalProps> = ({ isOpen, onClose, on
             />
           </div>
 
-          <div className="form-group">
+          {/*<div className="form-group">
             <label>容纳人数</label>
             <input 
               type="number" 
@@ -133,7 +124,7 @@ const CreateVenueModal: React.FC<CreateVenueModalProps> = ({ isOpen, onClose, on
               placeholder="请输入场馆的详细描述"
               rows={4}
             />
-          </div>
+          </div>*/}
 
           <div className="form-actions">
             <button type="button" onClick={onClose} className="btn-cancel" disabled={loading}>

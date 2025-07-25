@@ -6,6 +6,7 @@ import { User } from '../entity/user.entity';
 
 export interface CreateVenueDTO {
   name: string;
+  location?: string;
   is_active?: boolean;
 }
 
@@ -43,6 +44,7 @@ export class VenueService {
       // 创建场馆
       const venue = new Venue();
       venue.name = data.name;
+      venue.location = data.location || ''; // 设置位置信息
       venue.is_active = data.is_active ?? true; // 默认为可用状态
 
       const savedVenue = await this.venueModel.save(venue);

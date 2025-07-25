@@ -137,8 +137,18 @@ const EditActivityModal: React.FC<EditActivityModalProps> = ({ isOpen, onClose, 
               <option value="football">足球</option>
               <option value="badminton">羽毛球</option>
               <option value="tennis">网球</option>
+              <option value="pingpong">乒乓球</option>
+              <option value="volleyball">排球</option>
+              <option value="billiards">台球</option>
+              <option value="golf">高尔夫</option>
+              <option value="running">跑步</option>
               <option value="swimming">游泳</option>
-              <option value="fitness">健身</option>
+              <option value="martial arts">武术</option>
+              <option value="dance">舞蹈</option>
+              <option value="fencing">击剑</option>
+              <option value="taekwondo">跆拳道</option>
+              <option value="shooting">射击</option>
+              <option value="skating">滑冰</option>
               <option value="other">其他</option>
             </select>
           </div>
