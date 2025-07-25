@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getActivityCounts } from '../services/activity';
 import { useUser } from '../contexts/UserContext';
+import { getUserAvatar } from '../utils/avatar';
 import '../styles/dashboard.css';
 
 const Dashboard: React.FC = () => {
@@ -91,7 +92,7 @@ const Dashboard: React.FC = () => {
           </div>
           <div className="user-avatar">
             <img 
-              src={user?.avatar || "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiM2MzY2ZjEiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxNiIgcj0iNiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTggMzJDOCAyNi40NzcgMTMuNDc3IDIyIDIwIDIyQzI2LjUyMyAyMiAzMiAyNi40NzcgMzIgMzJWMzRIOFYzMloiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo="}
+              src={getUserAvatar(user)}
               alt={`${user?.username || '用户'}的头像`} 
             />
           </div>
@@ -106,7 +107,7 @@ const Dashboard: React.FC = () => {
         <div className="content-grid">
           {/* 左侧 - 活动大全 */}
           <div className="content-section activity-list-section">
-            <div className="section-header">
+            <div className="section-header-right">
               <h3>活动大全</h3>
               <p>Find Activities</p>
             </div>
@@ -135,7 +136,7 @@ const Dashboard: React.FC = () => {
               <div className="user-card-content">
                 <div className="user-avatar-large">
                   <img 
-                    src={user?.avatar || "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiM2MzY2ZjEiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxNiIgcj0iNiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTggMzJDOCAyNi40NzcgMTMuNDc3IDIyIDIwIDIyQzI2LjUyMyAyMiAzMiAyNi40NzcgMzIgMzJWMzRIOFYzMloiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo="}
+                    src={getUserAvatar(user)}
                     alt={`${user?.username || '用户'}的头像`}
                   />
                   {user?.role === 'admin' && (

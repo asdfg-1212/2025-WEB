@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ActivityList from '../components/ActivityList';
 import ActivityDetailModal from '../components/ActivityDetailModal';
-import HeaderUserInfo from '../components/HeaderUserInfo';
 import { 
   getActivities, 
   registerForActivity, 
@@ -154,7 +153,6 @@ const RegistrationOpen: React.FC = () => {
 
   return (
     <>
-      <HeaderUserInfo />
       <ActivityList
         activities={activities}
         title="报名中的活动"

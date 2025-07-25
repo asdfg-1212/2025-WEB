@@ -72,6 +72,11 @@
   min-height: 120px;
 }
 
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
 .welcome-section {
   display: flex;
   flex-direction: column;
@@ -836,12 +841,12 @@
 /* 用户信息卡片样式 */
 .user-info-card {
   margin-bottom: 20px;
-  background: rgba(255, 255, 255, 0.9);
+  background: transparent;
   border-radius: 16px;
   padding: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
+  border: none;
+  backdrop-filter: none;
+  box-shadow: none;
 }
 
 .user-card-content {
