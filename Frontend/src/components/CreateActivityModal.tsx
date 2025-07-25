@@ -12,8 +12,10 @@ interface CreateActivityModalProps {
 interface Venue {
   id: number;
   name: string;
-  location: string;
-  capacity: number;
+  location?: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 const CreateActivityModal: React.FC<CreateActivityModalProps> = ({ isOpen, onClose, onSuccess }) => {

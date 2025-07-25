@@ -1,18 +1,27 @@
 import React, { useState } from 'react';
 import { useUser } from '../contexts/UserContext';
 import ParticipantsModal from './ParticipantsModal';
+import EditActivityModal from './EditActivityModal';
 import '../styles/activity-detail-modal.css';
 
 interface Activity {
-  id: string;
+  id: number;
+  title: string;
+  description?: string;
   type: string;
-  venue: string;
-  startTime: string;
-  endTime: string;
-  registrationDeadline: string;
-  registeredCount: number;
-  maxCount: number;
-  description?: string; // 活动详情描述
+  start_time: string;
+  end_time: string;
+  registration_deadline: string;
+  max_participants: number;
+  venue_id: number;
+  notes?: string;
+  allow_comments?: boolean;
+  registeredCount?: number;
+  venue?: {
+    id: number;
+    name: string;
+    location?: string;
+  };
 }
 
 interface Comment {
@@ -28,10 +37,11 @@ interface ActivityDetailModalProps {
   activity: Activity | null;
   isOpen: boolean;
   onClose: () => void;
-  onRegister?: (activityId: string) => void;
-  onUnregister?: (activityId: string) => void;
-  onEditActivity?: (activityId: string) => void;
-  onPostComment?: (activityId: string, content: string) => void;
+  onRegister?: (activityId: number) => void;
+  onUnregister?: (activityId: number) => void;
+  onPostComment?: (activityId: number, content: string) => void;
+  onActivityUpdated?: () => void;
+  onActivityDeleted?: () => void;
 }
 
 const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
@@ -40,13 +50,15 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
   onClose,
   onRegister,
   onUnregister,
-  onEditActivity,
-  onPostComment
+  onPostComment,
+  onActivityUpdated,
+  onActivityDeleted
 }) => {
   const { user } = useUser();
   const [commentText, setCommentText] = useState('');
   const [isCommentExpanded, setIsCommentExpanded] = useState(false);
   const [isParticipantsModalOpen, setIsParticipantsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   if (!isOpen || !activity) return null;
 
@@ -95,9 +107,7 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
   };
 
   const handleEditActivity = () => {
-    if (onEditActivity) {
-      onEditActivity(activity.id);
-    }
+    setIsEditModalOpen(true);
   };
 
   const handlePostComment = () => {
@@ -151,14 +161,18 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
                       <span className="info-icon">📅</span>
                       <div className="info-content">
                         <span className="info-label">活动时间</span>
-                        <span className="info-value">{activity.startTime} - {activity.endTime}</span>
+                        <span className="info-value">
+                          {new Date(activity.start_time).toLocaleString()} - {new Date(activity.end_time).toLocaleString()}
+                        </span>
                       </div>
                     </div>
                     <div className="info-item">
                       <span className="info-icon">📍</span>
                       <div className="info-content">
                         <span className="info-label">活动地点</span>
-                        <span className="info-value">{activity.venue}</span>
+                        <span className="info-value">
+                          {activity.venue ? `${activity.venue.name}${activity.venue.location ? ` - ${activity.venue.location}` : ''}` : '未指定场馆'}
+                        </span>
                       </div>
                     </div>
                     <div className="info-item">
@@ -166,7 +180,7 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
                       <div className="info-content">
                         <span className="info-label">报名人数</span>
                         <span className="info-value">
-                          {activity.registeredCount}/{activity.maxCount} 人
+                          {activity.registeredCount || 0}/{activity.max_participants} 人
                         </span>
                       </div>
                     </div>
@@ -174,7 +188,7 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
                       <span className="info-icon">⏰</span>
                       <div className="info-content">
                         <span className="info-label">报名截止</span>
-                        <span className="info-value">{activity.registrationDeadline}</span>
+                        <span className="info-value">{new Date(activity.registration_deadline).toLocaleString()}</span>
                       </div>
                     </div>
                   </div>
@@ -186,12 +200,12 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
                     <div 
                       className="progress-fill" 
                       style={{ 
-                        width: `${Math.min((activity.registeredCount / activity.maxCount) * 100, 100)}%` 
+                        width: `${Math.min(((activity.registeredCount || 0) / activity.max_participants) * 100, 100)}%` 
                       }}
                     />
                   </div>
                   <span className="progress-text">
-                    {activity.registeredCount >= activity.maxCount ? '已满员' : '正在报名中'}
+                    {(activity.registeredCount || 0) >= activity.max_participants ? '已满员' : '正在报名中'}
                   </span>
                 </div>
               </div>
@@ -227,7 +241,7 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
                   <button className="btn btn-danger btn-large" onClick={handleUnregister}>
                     取消报名
                   </button>
-                ) : activity.registeredCount >= activity.maxCount ? (
+                ) : (activity.registeredCount || 0) >= activity.max_participants ? (
                   <button className="btn btn-disabled btn-large" disabled>
                     已满员
                   </button>
@@ -299,9 +313,33 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
       
       {/* 参与者名单模态框 */}
       <ParticipantsModal
-        activity={activity}
+        activity={activity ? {
+          id: activity.id.toString(),
+          type: activity.type,
+          venue: activity.venue ? `${activity.venue.name}${activity.venue.location ? ` - ${activity.venue.location}` : ''}` : '未指定场馆',
+          startTime: activity.start_time,
+          endTime: activity.end_time,
+          registeredCount: activity.registeredCount || 0,
+          maxCount: activity.max_participants
+        } : null}
         isOpen={isParticipantsModalOpen}
         onClose={handleCloseParticipantsModal}
+      />
+      
+      {/* 编辑活动模态框 */}
+      <EditActivityModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        activity={activity}
+        onSuccess={() => {
+          setIsEditModalOpen(false);
+          onActivityUpdated?.();
+        }}
+        onDelete={() => {
+          setIsEditModalOpen(false);
+          onClose(); // 关闭详情模态框
+          onActivityDeleted?.();
+        }}
       />
     </div>
   );

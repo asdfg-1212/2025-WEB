@@ -1,32 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import { getAvailableVenues } from '../services/admin';
+import { useUser } from '../contexts/UserContext';
 import '../styles/create-modals.css';
 
 interface Activity {
-  id: string;
+  id: number;
   title: string;
   description?: string;
   type: string;
-  startTime: string;
-  endTime: string;
-  registrationDeadline: string;
-  maxCount: number;
-  venue: string;
+  start_time: string;
+  end_time: string;
+  registration_deadline: string;
+  max_participants: number;
+  venue_id: number;
+  notes?: string;
+  allow_comments?: boolean;
 }
 
 interface EditActivityModalProps {
   isOpen: boolean;
   onClose: () => void;
   activity: Activity | null;
+  onSuccess?: () => void;
+  onDelete?: () => void;
 }
 
-const EditActivityModal: React.FC<EditActivityModalProps> = ({ isOpen, onClose, activity }) => {
+const EditActivityModal: React.FC<EditActivityModalProps> = ({ 
+  isOpen, 
+  onClose, 
+  activity, 
+  onSuccess,
+  onDelete 
+}) => {
+  const { user } = useUser();
   const [venues, setVenues] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    type: 'basketball',
+    type: '',
     venue_id: '',
     start_time: '',
     end_time: '',
@@ -44,14 +57,14 @@ const EditActivityModal: React.FC<EditActivityModalProps> = ({ isOpen, onClose, 
         setFormData({
           title: activity.title || '',
           description: activity.description || '',
-          type: activity.type || 'basketball',
-          venue_id: '', // 需要从venue名称查找ID
-          start_time: formatDateTimeForInput(activity.startTime),
-          end_time: formatDateTimeForInput(activity.endTime),
-          registration_deadline: formatDateTimeForInput(activity.registrationDeadline),
-          max_participants: activity.maxCount?.toString() || '',
-          notes: '',
-          allow_comments: true
+          type: activity.type || '',
+          venue_id: activity.venue_id?.toString() || '',
+          start_time: formatDateTimeForInput(activity.start_time),
+          end_time: formatDateTimeForInput(activity.end_time),
+          registration_deadline: formatDateTimeForInput(activity.registration_deadline),
+          max_participants: activity.max_participants?.toString() || '',
+          notes: activity.notes || '',
+          allow_comments: activity.allow_comments ?? true
         });
       }
     }
@@ -79,18 +92,94 @@ const EditActivityModal: React.FC<EditActivityModalProps> = ({ isOpen, onClose, 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!user || !activity) {
+      alert('请先登录或选择要编辑的活动');
+      return;
+    }
+
     setLoading(true);
     
     try {
-      // TODO: 实现活动更新API调用
-      console.log('更新活动:', formData);
-      alert('活动更新功能正在开发中...');
-      onClose();
-    } catch (error) {
+      const response = await fetch(`http://localhost:7001/api/activities/${activity.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          title: formData.title,
+          description: formData.description,
+          type: formData.type,
+          start_time: formData.start_time,
+          end_time: formData.end_time,
+          registration_deadline: formData.registration_deadline,
+          max_participants: Number(formData.max_participants),
+          venue_id: Number(formData.venue_id),
+          notes: formData.notes,
+          allow_comments: formData.allow_comments,
+          operator_id: user.id
+        })
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        alert('活动更新成功！');
+        onSuccess?.();
+        onClose();
+      } else {
+        alert('活动更新失败: ' + result.message);
+      }
+    } catch (error: any) {
       console.error('更新活动失败:', error);
-      alert('更新活动失败: ' + (error instanceof Error ? error.message : '未知错误'));
+      alert('更新活动失败: ' + (error.message || '未知错误'));
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!activity || !user) {
+      return;
+    }
+
+    const confirmDelete = window.confirm(
+      `确定要删除活动"${activity.title}"吗？\n\n此操作不可撤销，所有相关的报名和评论数据都将被删除。`
+    );
+
+    if (!confirmDelete) {
+      return;
+    }
+
+    setDeleteLoading(true);
+
+    try {
+      const response = await fetch(`http://localhost:7001/api/activities/${activity.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          operator_id: user.id
+        })
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        alert('活动删除成功！');
+        onDelete?.();
+        onClose();
+      } else {
+        alert('活动删除失败: ' + result.message);
+      }
+    } catch (error: any) {
+      console.error('删除活动失败:', error);
+      alert('删除活动失败: ' + (error.message || '未知错误'));
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -133,6 +222,7 @@ const EditActivityModal: React.FC<EditActivityModalProps> = ({ isOpen, onClose, 
               onChange={handleChange}
               required
             >
+                <option value="">请选择活动类型</option>
               <option value="basketball">篮球</option>
               <option value="football">足球</option>
               <option value="badminton">羽毛球</option>
@@ -250,13 +340,23 @@ const EditActivityModal: React.FC<EditActivityModalProps> = ({ isOpen, onClose, 
             </label>
           </div>
 
-          <div className="form-actions">
-            <button type="button" onClick={onClose} className="btn-cancel">
-              取消
+          <div className="form-actions edit-actions">
+            <button 
+              type="button" 
+              onClick={handleDelete} 
+              className="btn-delete" 
+              disabled={deleteLoading || loading}
+            >
+              {deleteLoading ? '删除中...' : '🗑️ 删除活动'}
             </button>
-            <button type="submit" className="btn-create" disabled={loading}>
-              {loading ? '更新中...' : '更新活动'}
-            </button>
+            <div className="right-actions">
+              <button type="button" onClick={onClose} className="btn-cancel" disabled={loading || deleteLoading}>
+                取消
+              </button>
+              <button type="submit" className="btn-create" disabled={loading || deleteLoading}>
+                {loading ? '保存中...' : '✅ 完成编辑'}
+              </button>
+            </div>
           </div>
         </form>
       </div>

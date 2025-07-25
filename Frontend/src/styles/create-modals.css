@@ -193,3 +193,106 @@
     width: 100%;
   }
 }
+
+/* 编辑模态框特殊样式 */
+.large-modal {
+  max-width: 600px;
+}
+
+.edit-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.right-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-delete {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-delete:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
+
+.btn-delete:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* 编辑模态框特殊样式 */
+.edit-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.right-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-delete {
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-delete:hover:not(:disabled) {
+  background: #b91c1c;
+  transform: translateY(-1px);
+}
+
+.btn-delete:disabled {
+  background: #6b7280;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.large-modal {
+  max-width: 600px;
+}
+
+@media (max-width: 768px) {
+  .edit-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .right-actions {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .btn-delete {
+    width: 100%;
+    justify-content: center;
+  }
+}

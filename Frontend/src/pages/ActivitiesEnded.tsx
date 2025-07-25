@@ -4,14 +4,23 @@ import ActivityDetailModal from '../components/ActivityDetailModal';
 import { getActivities, postActivityComment } from '../services/activity';
 
 interface Activity {
-  id: string;
+  id: number;
+  title: string;
+  description?: string;
   type: string;
-  venue: string;
-  startTime: string;
-  endTime: string;
-  registrationDeadline: string;
-  registeredCount: number;
-  maxCount: number;
+  start_time: string;
+  end_time: string;
+  registration_deadline: string;
+  max_participants: number;
+  venue_id: number;
+  notes?: string;
+  allow_comments?: boolean;
+  registeredCount?: number;
+  venue?: {
+    id: number;
+    name: string;
+    location?: string;
+  };
 }
 
 const ActivitiesEnded: React.FC = () => {
@@ -50,9 +59,9 @@ const ActivitiesEnded: React.FC = () => {
     setSelectedActivity(null);
   };
 
-  const handlePostComment = async (activityId: string, content: string) => {
+  const handlePostComment = async (activityId: number, content: string) => {
     try {
-      await postActivityComment(activityId, content);
+      await postActivityComment(activityId.toString(), content);
       alert('评论发表成功！');
     } catch (err: any) {
       console.error('发表评论失败:', err);
@@ -107,9 +116,24 @@ const ActivitiesEnded: React.FC = () => {
   return (
     <>
       <ActivityList
-        activities={activities}
+        activities={activities.map(activity => ({
+          id: activity.id.toString(),
+          type: activity.type,
+          venue: activity.venue ? `${activity.venue.name}${activity.venue.location ? ` - ${activity.venue.location}` : ''}` : '未指定场馆',
+          startTime: activity.start_time,
+          endTime: activity.end_time,
+          registrationDeadline: activity.registration_deadline,
+          registeredCount: activity.registeredCount || 0,
+          maxCount: activity.max_participants
+        }))}
         title="已结束的活动"
-        onActivityClick={handleActivityClick}
+        onActivityClick={(listActivity) => {
+          // 根据ID找到原始activity对象
+          const originalActivity = activities.find(a => a.id.toString() === listActivity.id);
+          if (originalActivity) {
+            handleActivityClick(originalActivity);
+          }
+        }}
       />
       
       <ActivityDetailModal

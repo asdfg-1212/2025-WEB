@@ -57,7 +57,7 @@ export async function createVenue(venue: {
 export async function getAvailableVenues() {
   const res = await apiClient.get('/venues/available');
   if (res.data.success) {
-    return res.data.data.venues;
+    return res.data.data; // 直接返回venues数组
   }
   throw new Error(res.data.message || '获取场馆列表失败');
 }

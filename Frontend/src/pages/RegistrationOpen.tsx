@@ -9,14 +9,23 @@ import {
 } from '../services/activity';
 
 interface Activity {
-  id: string;
+  id: number;
+  title: string;
+  description?: string;
   type: string;
-  venue: string;
-  startTime: string;
-  endTime: string;
-  registrationDeadline: string;
-  registeredCount: number;
-  maxCount: number;
+  start_time: string;
+  end_time: string;
+  registration_deadline: string;
+  max_participants: number;
+  venue_id: number;
+  notes?: string;
+  allow_comments?: boolean;
+  registeredCount?: number;
+  venue?: {
+    id: number;
+    name: string;
+    location?: string;
+  };
 }
 
 const RegistrationOpen: React.FC = () => {
@@ -55,9 +64,9 @@ const RegistrationOpen: React.FC = () => {
     setSelectedActivity(null);
   };
 
-  const handleRegister = async (activityId: string) => {
+  const handleRegister = async (activityId: number) => {
     try {
-      await registerForActivity(activityId);
+      await registerForActivity(activityId.toString());
       alert('报名成功！');
       // 重新获取活动列表以更新报名人数
       const data = await getActivities({ status: 'open' });
@@ -68,9 +77,9 @@ const RegistrationOpen: React.FC = () => {
     }
   };
 
-  const handleUnregister = async (activityId: string) => {
+  const handleUnregister = async (activityId: number) => {
     try {
-      await unregisterFromActivity(activityId);
+      await unregisterFromActivity(activityId.toString());
       alert('取消报名成功！');
       // 重新获取活动列表以更新报名人数
       const data = await getActivities({ status: 'open' });
@@ -81,9 +90,9 @@ const RegistrationOpen: React.FC = () => {
     }
   };
 
-  const handlePostComment = async (activityId: string, content: string) => {
+  const handlePostComment = async (activityId: number, content: string) => {
     try {
-      await postActivityComment(activityId, content);
+      await postActivityComment(activityId.toString(), content);
       alert('评论发表成功！');
     } catch (err: any) {
       console.error('发表评论失败:', err);
@@ -138,9 +147,24 @@ const RegistrationOpen: React.FC = () => {
   return (
     <>
       <ActivityList
-        activities={activities}
+        activities={activities.map(activity => ({
+          id: activity.id.toString(),
+          type: activity.type,
+          venue: activity.venue ? `${activity.venue.name}${activity.venue.location ? ` - ${activity.venue.location}` : ''}` : '未指定场馆',
+          startTime: activity.start_time,
+          endTime: activity.end_time,
+          registrationDeadline: activity.registration_deadline,
+          registeredCount: activity.registeredCount || 0,
+          maxCount: activity.max_participants
+        }))}
         title="报名中的活动"
-        onActivityClick={handleActivityClick}
+        onActivityClick={(listActivity) => {
+          // 根据ID找到原始activity对象
+          const originalActivity = activities.find(a => a.id.toString() === listActivity.id);
+          if (originalActivity) {
+            handleActivityClick(originalActivity);
+          }
+        }}
       />
       
       <ActivityDetailModal
