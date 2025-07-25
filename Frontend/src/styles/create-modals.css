@@ -237,6 +237,11 @@
   transform: none;
 }
 
+/* 当编辑模态框右侧只有一个按钮时的样式调整 */
+.edit-actions .right-actions {
+  margin-left: auto;
+}
+
 /* 编辑模态框特殊样式 */
 .edit-actions {
   display: flex;

@@ -81,13 +81,18 @@ const EditActivityModal: React.FC<EditActivityModalProps> = ({
 
   const formatDateTimeForInput = (dateTimeString: string) => {
     if (!dateTimeString) return '';
-    // 假设输入格式是 "2024年01月15日 10:00"
-    const match = dateTimeString.match(/(\d{4})年(\d{2})月(\d{2})日\s+(\d{2}):(\d{2})/);
-    if (match) {
-      const [, year, month, day, hour, minute] = match;
-      return `${year}-${month}-${day}T${hour}:${minute}`;
+    try {
+      const date = new Date(dateTimeString);
+      if (isNaN(date.getTime())) return '';
+      
+      // 转换为本地时间的ISO字符串，然后截取前16位（yyyy-MM-ddThh:mm）
+      return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+        .toISOString()
+        .slice(0, 16);
+    } catch (error) {
+      console.error('日期格式化失败:', error);
+      return '';
     }
-    return '';
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -95,6 +100,25 @@ const EditActivityModal: React.FC<EditActivityModalProps> = ({
     
     if (!user || !activity) {
       alert('请先登录或选择要编辑的活动');
+      return;
+    }
+
+    // 检查数据是否有变化
+    const hasChanges = 
+      formData.title !== activity.title ||
+      formData.description !== (activity.description || '') ||
+      formData.type !== activity.type ||
+      Number(formData.venue_id) !== activity.venue_id ||
+      formData.start_time !== formatDateTimeForInput(activity.start_time) ||
+      formData.end_time !== formatDateTimeForInput(activity.end_time) ||
+      formData.registration_deadline !== formatDateTimeForInput(activity.registration_deadline) ||
+      Number(formData.max_participants) !== activity.max_participants ||
+      formData.notes !== (activity.notes || '') ||
+      formData.allow_comments !== (activity.allow_comments ?? true);
+
+    // 如果没有变化，直接关闭模态框
+    if (!hasChanges) {
+      onClose();
       return;
     }
 
@@ -350,9 +374,6 @@ const EditActivityModal: React.FC<EditActivityModalProps> = ({
               {deleteLoading ? '删除中...' : '🗑️ 删除活动'}
             </button>
             <div className="right-actions">
-              <button type="button" onClick={onClose} className="btn-cancel" disabled={loading || deleteLoading}>
-                取消
-              </button>
               <button type="submit" className="btn-create" disabled={loading || deleteLoading}>
                 {loading ? '保存中...' : '✅ 完成编辑'}
               </button>
