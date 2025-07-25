@@ -199,55 +199,84 @@
   max-width: 600px;
 }
 
-.edit-actions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-}
-
-.right-actions {
-  display: flex;
-  gap: 12px;
-}
-
-.btn-delete {
-  background: #ef4444;
-  color: white;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.btn-delete:hover {
-  background: #dc2626;
-  transform: translateY(-1px);
-}
-
-.btn-delete:disabled {
-  background: #9ca3af;
-  cursor: not-allowed;
-  transform: none;
-}
-
-/* 当编辑模态框右侧只有一个按钮时的样式调整 */
-.edit-actions .right-actions {
-  margin-left: auto;
-}
-
 /* 编辑模态框特殊样式 */
 .edit-actions {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
+  padding: 20px 0 10px 0;
+}
+
+.edit-actions .btn-delete {
+  flex: 1;
+  max-width: 200px;
+  padding: 16px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #8B5CF6 0%, #A855F7 100%); /* 梦幻紫 */
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3); /* 梦幻紫阴影 */
+}
+
+.edit-actions .btn-delete:hover {
+  background: linear-gradient(135deg, #7C3AED 0%, #9333EA 100%); /* 梦幻紫深色 */
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4); /* 梦幻紫阴影深色 */
+}
+
+.edit-actions .btn-delete:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.edit-actions .right-actions {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  max-width: 200px;
+  margin-left: auto;
+}
+
+.edit-actions .btn-create {
+  width: 100%;
+  padding: 16px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #06B6D4 0%, #0891B2 100%); /* 马尔代夫蓝 */
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3); /* 马尔代夫蓝阴影 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.edit-actions .btn-create:hover {
+  background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%); /* 马尔代夫蓝深色 */
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(6, 182, 212, 0.4); /* 马尔代夫蓝阴影深色 */
+}
+
+.edit-actions .btn-create:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .right-actions {

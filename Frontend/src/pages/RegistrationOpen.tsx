@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ActivityList from '../components/ActivityList';
 import ActivityDetailModal from '../components/ActivityDetailModal';
+import type { ActivityDisplay } from '../types/activity';
 import { 
   getActivities, 
   registerForActivity, 
@@ -8,31 +9,11 @@ import {
   postActivityComment
 } from '../services/activity';
 
-interface Activity {
-  id: number;
-  title: string;
-  description?: string;
-  type: string;
-  start_time: string;
-  end_time: string;
-  registration_deadline: string;
-  max_participants: number;
-  venue_id: number;
-  notes?: string;
-  allow_comments?: boolean;
-  registeredCount?: number;
-  venue?: {
-    id: number;
-    name: string;
-    location?: string;
-  };
-}
-
 const RegistrationOpen: React.FC = () => {
-  const [activities, setActivities] = useState<Activity[]>([]);
+  const [activities, setActivities] = useState<ActivityDisplay[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
+  const [selectedActivity, setSelectedActivity] = useState<ActivityDisplay | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
@@ -54,7 +35,7 @@ const RegistrationOpen: React.FC = () => {
     fetchActivities();
   }, []);
 
-  const handleActivityClick = (activity: Activity) => {
+  const handleActivityClick = (activity: ActivityDisplay) => {
     setSelectedActivity(activity);
     setIsModalOpen(true);
   };
@@ -147,20 +128,11 @@ const RegistrationOpen: React.FC = () => {
   return (
     <>
       <ActivityList
-        activities={activities.map(activity => ({
-          id: activity.id.toString(),
-          type: activity.type,
-          venue: activity.venue ? `${activity.venue.name}${activity.venue.location ? ` - ${activity.venue.location}` : ''}` : '未指定场馆',
-          startTime: activity.start_time,
-          endTime: activity.end_time,
-          registrationDeadline: activity.registration_deadline,
-          registeredCount: activity.registeredCount || 0,
-          maxCount: activity.max_participants
-        }))}
+        activities={activities}
         title="报名中的活动"
         onActivityClick={(listActivity) => {
           // 根据ID找到原始activity对象
-          const originalActivity = activities.find(a => a.id.toString() === listActivity.id);
+          const originalActivity = activities.find(a => a.id.toString() === listActivity.id.toString());
           if (originalActivity) {
             handleActivityClick(originalActivity);
           }
@@ -168,7 +140,25 @@ const RegistrationOpen: React.FC = () => {
       />
       
       <ActivityDetailModal
-        activity={selectedActivity}
+        activity={selectedActivity ? {
+          id: selectedActivity.id,
+          title: selectedActivity.title,
+          description: selectedActivity.description,
+          type: selectedActivity.type,
+          start_time: selectedActivity.start_time,
+          end_time: selectedActivity.end_time,
+          registration_deadline: selectedActivity.registration_deadline,
+          max_participants: selectedActivity.max_participants,
+          venue_id: selectedActivity.venue_id,
+          notes: selectedActivity.notes,
+          allow_comments: selectedActivity.allow_comments,
+          registeredCount: selectedActivity.registeredCount,
+          venue: selectedActivity.venue_id ? {
+            id: selectedActivity.venue_id,
+            name: selectedActivity.venue.split(' - ')[0] || selectedActivity.venue,
+            location: selectedActivity.venue.includes(' - ') ? selectedActivity.venue.split(' - ')[1] : undefined
+          } : undefined
+        } : null}
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onRegister={handleRegister}

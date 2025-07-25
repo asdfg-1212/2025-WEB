@@ -4,7 +4,8 @@ import ActivityCard from './ActivityCard';
 import '../styles/activity-list.css';
 
 interface Activity {
-  id: string;
+  id: string | number;
+  title: string;
   type: string;
   venue: string;
   startTime: string;

@@ -1,4 +1,5 @@
 import axios from "axios";
+import type { ActivityBackend, ActivityDisplay } from '../types/activity';
 
 const API_BASE = "http://localhost:7001/api";
 
@@ -65,16 +66,47 @@ export async function getActivityCounts() {
 }
 
 // 数据转换函数：将后端数据格式转换为前端期望的格式
-function transformActivityData(backendActivity: any) {
+function transformActivityData(backendActivity: ActivityBackend): ActivityDisplay {
+  // 活动类型映射
+  const typeMapping: { [key: string]: string } = {
+    'basketball': '篮球',
+    'football': '足球',
+    'badminton': '羽毛球',
+    'tennis': '网球',
+    'pingpong': '乒乓球',
+    'volleyball': '排球',
+    'billiards': '台球',
+    'golf': '高尔夫',
+    'running': '跑步',
+    'swimming': '游泳',
+    'martial arts': '武术',
+    'dance': '舞蹈',
+    'fencing': '击剑',
+    'taekwondo': '跆拳道',
+    'shooting': '射击',
+    'skating': '滑冰',
+    'other': '其他'
+  };
+
   return {
-    id: backendActivity.id.toString(),
-    type: backendActivity.title, // 使用标题作为类型显示
-    venue: backendActivity.venue_name || backendActivity.venue?.name || '未知场馆',
+    id: backendActivity.id,
+    title: backendActivity.title, // 活动标题
+    type: typeMapping[backendActivity.type] || backendActivity.type, // 正确的活动类型
+    venue: (backendActivity.venue ? `${backendActivity.venue.name}${backendActivity.venue.location ? ` - ${backendActivity.venue.location}` : ''}` : '未知场馆'),
     startTime: formatDateTime(backendActivity.start_time),
     endTime: formatDateTime(backendActivity.end_time),
     registrationDeadline: formatDateTime(backendActivity.registration_deadline),
     registeredCount: backendActivity.current_participants || 0,
     maxCount: backendActivity.max_participants || 0,
+    // 保持完整的活动信息用于详情页面
+    description: backendActivity.description,
+    notes: backendActivity.notes,
+    allow_comments: backendActivity.allow_comments,
+    venue_id: backendActivity.venue_id,
+    start_time: backendActivity.start_time,
+    end_time: backendActivity.end_time,
+    registration_deadline: backendActivity.registration_deadline,
+    max_participants: backendActivity.max_participants
   };
 }
 

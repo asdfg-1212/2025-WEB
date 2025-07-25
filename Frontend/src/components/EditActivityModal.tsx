@@ -52,21 +52,41 @@ const EditActivityModal: React.FC<EditActivityModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       loadVenues();
-      if (activity) {
-        // 填充表单数据
-        setFormData({
-          title: activity.title || '',
-          description: activity.description || '',
-          type: activity.type || '',
-          venue_id: activity.venue_id?.toString() || '',
-          start_time: formatDateTimeForInput(activity.start_time),
-          end_time: formatDateTimeForInput(activity.end_time),
-          registration_deadline: formatDateTimeForInput(activity.registration_deadline),
-          max_participants: activity.max_participants?.toString() || '',
-          notes: activity.notes || '',
-          allow_comments: activity.allow_comments ?? true
-        });
-      }
+    }
+  }, [isOpen]);
+
+  // 单独处理activity数据的填充，确保在activity变化时立即更新
+  useEffect(() => {
+    if (isOpen && activity) {
+      console.log('EditActivityModal: 填充活动数据', activity);
+      const newFormData = {
+        title: activity.title || '',
+        description: activity.description || '',
+        type: activity.type || '',
+        venue_id: activity.venue_id?.toString() || '',
+        start_time: formatDateTimeForInput(activity.start_time),
+        end_time: formatDateTimeForInput(activity.end_time),
+        registration_deadline: formatDateTimeForInput(activity.registration_deadline),
+        max_participants: activity.max_participants?.toString() || '',
+        notes: activity.notes || '',
+        allow_comments: activity.allow_comments ?? true
+      };
+      console.log('EditActivityModal: 设置表单数据', newFormData);
+      setFormData(newFormData);
+    } else if (!isOpen) {
+      // 当模态框关闭时，重置表单数据
+      setFormData({
+        title: '',
+        description: '',
+        type: '',
+        venue_id: '',
+        start_time: '',
+        end_time: '',
+        registration_deadline: '',
+        max_participants: '',
+        notes: '',
+        allow_comments: true
+      });
     }
   }, [isOpen, activity]);
 
@@ -82,15 +102,30 @@ const EditActivityModal: React.FC<EditActivityModalProps> = ({
   const formatDateTimeForInput = (dateTimeString: string) => {
     if (!dateTimeString) return '';
     try {
-      const date = new Date(dateTimeString);
-      if (isNaN(date.getTime())) return '';
+      // 处理不同的日期格式
+      let date;
+      if (dateTimeString.includes('T')) {
+        // ISO格式: 2024-07-25T10:30:00.000Z
+        date = new Date(dateTimeString);
+      } else if (dateTimeString.includes('/')) {
+        // 中文格式: 2024/7/25 10:30:00
+        date = new Date(dateTimeString.replace(/\//g, '-'));
+      } else {
+        date = new Date(dateTimeString);
+      }
+      
+      if (isNaN(date.getTime())) {
+        console.error('无效的日期格式:', dateTimeString);
+        return '';
+      }
       
       // 转换为本地时间的ISO字符串，然后截取前16位（yyyy-MM-ddThh:mm）
-      return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
-        .toISOString()
-        .slice(0, 16);
+      const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+      const formatted = localDate.toISOString().slice(0, 16);
+      console.log(`日期转换: ${dateTimeString} -> ${formatted}`);
+      return formatted;
     } catch (error) {
-      console.error('日期格式化失败:', error);
+      console.error('日期格式化失败:', dateTimeString, error);
       return '';
     }
   };
@@ -371,11 +406,11 @@ const EditActivityModal: React.FC<EditActivityModalProps> = ({
               className="btn-delete" 
               disabled={deleteLoading || loading}
             >
-              {deleteLoading ? '删除中...' : '🗑️ 删除活动'}
+              {deleteLoading ? '删除中...' : '删除活动'}
             </button>
             <div className="right-actions">
               <button type="submit" className="btn-create" disabled={loading || deleteLoading}>
-                {loading ? '保存中...' : '✅ 完成编辑'}
+                {loading ? '保存中...' : '完成编辑'}
               </button>
             </div>
           </div>

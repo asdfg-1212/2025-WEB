@@ -2,7 +2,8 @@ import React from 'react';
 import '../styles/activity-card.css';
 
 interface Activity {
-  id: string;
+  id: string | number;
+  title: string;
   type: string;
   venue: string;
   startTime: string;
@@ -35,6 +36,9 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ activity, onClick }) => {
 
       {/* 渐变背景区域 */}
       <div className="activity-gradient-section">
+        <div className="activity-title">
+          {activity.title}
+        </div>
         <div className="activity-type">
           {activity.type}
         </div>
