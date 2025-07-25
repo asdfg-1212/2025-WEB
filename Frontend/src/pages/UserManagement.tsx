@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useUser } from '../contexts/UserContext';
+import { getUserAvatar } from '../utils/avatar';
 import '../styles/user-management.css';
 
 interface UserListItem {
-  id: string;
+  id: number;
   username: string;
   email: string;
   role: 'admin' | 'user';
-  avatar?: string;
+  avatar_emoji?: string | null;
   createdAt: string;
   lastLoginAt?: string;
 }
@@ -26,7 +27,7 @@ const UserManagement: React.FC = () => {
         // TODO: 替换为真实API调用
         const mockUsers: UserListItem[] = [
           {
-            id: '1',
+            id: 1,
             username: 'admin',
             email: 'admin@example.com',
             role: 'admin',
@@ -34,7 +35,7 @@ const UserManagement: React.FC = () => {
             lastLoginAt: '2025-07-24T09:00:00Z'
           },
           {
-            id: '2',
+            id: 2,
             username: 'user1',
             email: 'user1@example.com',
             role: 'user',
@@ -42,7 +43,7 @@ const UserManagement: React.FC = () => {
             lastLoginAt: '2025-07-23T14:30:00Z'
           },
           {
-            id: '3',
+            id: 3,
             username: 'user2',
             email: 'user2@example.com',
             role: 'user',
@@ -72,7 +73,7 @@ const UserManagement: React.FC = () => {
     return matchesSearch && matchesRole;
   });
 
-  const handleRoleChange = async (userId: string, newRole: 'admin' | 'user') => {
+  const handleRoleChange = async (userId: number, newRole: 'admin' | 'user') => {
     try {
       // TODO: 实现角色更改API调用
       setUsers(prev => prev.map(user => 
@@ -85,7 +86,7 @@ const UserManagement: React.FC = () => {
     }
   };
 
-  const handleDeleteUser = async (userId: string) => {
+  const handleDeleteUser = async (userId: number) => {
     if (userId === currentUser?.id) {
       alert('不能删除自己的账户');
       return;
@@ -182,7 +183,7 @@ const UserManagement: React.FC = () => {
               <div className="user-info">
                 <div className="user-avatar">
                   <img 
-                    src={user.avatar || "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiM2MzY2ZjEiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxNiIgcj0iNiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTggMzJDOCAyNi40NzcgMTMuNDc3IDIyIDIwIDIyQzI2LjUyMyAyMiAzMiAyNi40NzcgMzIgMzJWMzRIOFYzMloiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPgo="}
+                    src={getUserAvatar({ avatar_emoji: user.avatar_emoji } as any)}
                     alt={`${user.username}的头像`}
                   />
                   {user.role === 'admin' && <span className="admin-badge">👑</span>}

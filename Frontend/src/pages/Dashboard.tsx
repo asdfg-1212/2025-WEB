@@ -131,38 +131,14 @@ const Dashboard: React.FC = () => {
               <p>My Activities</p>
             </div>
 
-            {/* 用户信息卡片 */}
-            <div className="user-info-card">
-              <div className="user-card-content">
-                <div className="user-avatar-large">
-                  <img 
-                    src={getUserAvatar(user)}
-                    alt={`${user?.username || '用户'}的头像`}
-                  />
-                  {user?.role === 'admin' && (
-                    <div className="admin-badge-large">👑</div>
-                  )}
-                </div>
-                <div className="user-card-info">
-                  <h4>{user?.username || '用户'}</h4>
-                  <p className="user-email">{user?.email}</p>
-                  <span className="user-role-badge">
-                    {user?.role === 'admin' ? '管理员' : '普通用户'}
-                  </span>
-                </div>
+            <div className="activity-status">
+              <div className="status-item" onClick={() => handleStatusClick('participated')}>
+                <span className="status-number">{activityCounts.participated}</span>
+                <span className="status-label">已参与</span>
               </div>
-            </div>
-
-            <div className="user-activities">
-              <div className="activity-status">
-                <div className="status-item" onClick={() => handleStatusClick('participated')}>
-                  <span className="status-number">{activityCounts.participated}</span>
-                  <span className="status-label">已参与</span>
-                </div>
-                <div className="status-item" onClick={() => handleStatusClick('pending')}>
-                  <span className="status-number">{activityCounts.pending}</span>
-                  <span className="status-label">待参与</span>
-                </div>
+              <div className="status-item" onClick={() => handleStatusClick('pending')}>
+                <span className="status-number">{activityCounts.pending}</span>
+                <span className="status-label">待参与</span>
               </div>
             </div>
           </div>
