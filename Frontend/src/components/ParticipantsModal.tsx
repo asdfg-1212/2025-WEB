@@ -114,7 +114,7 @@ const ParticipantsModal: React.FC<ParticipantsModalProps> = ({
         <div className="participants-filters">
           <input
             type="text"
-            placeholder="搜索参与者姓名或邮箱..."
+            placeholder="🔍搜索参与者姓名或邮箱..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"

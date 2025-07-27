@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import ActivityList from '../components/ActivityList';
+import ActivityCard from '../components/ActivityCard';
 import ActivityDetailModal from '../components/ActivityDetailModal';
 import type { ActivityDisplay } from '../types/activity';
 import { useUser } from '../contexts/UserContext';
@@ -10,6 +10,7 @@ import {
   postActivityComment,
   getRegistrationStatus
 } from '../services/activity';
+import '../styles/activity-list.css';
 
 const RegistrationOpen: React.FC = () => {
   const { user } = useUser();
@@ -207,156 +208,171 @@ const RegistrationOpen: React.FC = () => {
 
   return (
     <>
-      {/* 搜索和筛选区域 */}
-      <div style={{
-        padding: '20px',
-        backgroundColor: '#f8f9fa',
-        borderBottom: '1px solid #e9ecef',
-        marginBottom: '20px'
-      }}>
-        <div style={{
-          maxWidth: '1200px',
-          margin: '0 auto',
-          display: 'flex',
-          gap: '16px',
-          alignItems: 'center',
-          flexWrap: 'wrap'
-        }}>
-          <h2 style={{ margin: 0, color: '#333', minWidth: '120px' }}>报名中的活动</h2>
-          
-          {/* 搜索框 */}
-          <div style={{ flex: '1', minWidth: '200px', maxWidth: '400px' }}>
-            <input
-              type="text"
-              placeholder="搜索活动名称..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '10px 16px',
-                border: '1px solid #ddd',
-                borderRadius: '8px',
-                fontSize: '14px',
-                outline: 'none',
-                transition: 'border-color 0.2s'
-              }}
-              onFocus={(e) => e.target.style.borderColor = '#4CAF50'}
-              onBlur={(e) => e.target.style.borderColor = '#ddd'}
-            />
-          </div>
-          
-          {/* 类型筛选 */}
-          <div style={{ minWidth: '120px' }}>
-            <select
-              value={selectedType}
-              onChange={(e) => setSelectedType(e.target.value)}
-              style={{
-                padding: '10px 16px',
-                border: '1px solid #ddd',
-                borderRadius: '8px',
-                fontSize: '14px',
-                backgroundColor: 'white',
-                outline: 'none',
-                cursor: 'pointer'
-              }}
-            >
-              <option value="all">所有类型</option>
-              <option value="篮球">篮球</option>
-              <option value="足球">足球</option>
-              <option value="羽毛球">羽毛球</option>
-              <option value="网球">网球</option>
-              <option value="乒乓球">乒乓球</option>
-              <option value="排球">排球</option>
-              <option value="台球">台球</option>
-              <option value="高尔夫">高尔夫</option>
-              <option value="跑步">跑步</option>
-              <option value="游泳">游泳</option>
-              <option value="武术">武术</option>
-              <option value="舞蹈">舞蹈</option>
-              <option value="击剑">击剑</option>
-              <option value="跆拳道">跆拳道</option>
-              <option value="射击">射击</option>
-              <option value="滑冰">滑冰</option>
-              <option value="其他">其他</option>
-            </select>
-          </div>
-          
-          {/* 搜索结果统计 */}
-          <div style={{ 
-            color: '#666', 
-            fontSize: '14px',
-            minWidth: '100px'
+      <div className="activity-list-container">
+        {/* 头部区域：左侧返回按钮和标题，右侧搜索区域 */}
+        <div className="activity-list-header">
+          <div className="header-content" style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            width: '100%'
           }}>
-            共 {filteredActivities.length} 个活动
+            {/* 左侧：返回按钮和标题 */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+              <button className="back-button" onClick={() => window.history.back()}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                返回主页
+              </button>
+              <h2 className="activity-list-title">报名中的活动</h2>
+            </div>
+            
+            {/* 右侧：搜索和筛选区域 */}
+            <div style={{
+              display: 'flex',
+              gap: '16px',
+              alignItems: 'center',
+              flexWrap: 'wrap'
+            }}>
+              {/* 搜索框 */}
+              <div style={{ minWidth: '200px', maxWidth: '300px' }}>
+                <input
+                  type="text"
+                  placeholder="🔍搜索活动名称..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    border: '1px solid #ddd',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    outline: 'none',
+                    transition: 'border-color 0.2s'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#4CAF50'}
+                  onBlur={(e) => e.target.style.borderColor = '#ddd'}
+                />
+              </div>
+              
+              {/* 类型筛选 */}
+              <div style={{ minWidth: '120px' }}>
+                <select
+                  value={selectedType}
+                  onChange={(e) => setSelectedType(e.target.value)}
+                  style={{
+                    padding: '8px 12px',
+                    border: '1px solid #ddd',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    backgroundColor: 'white',
+                    outline: 'none',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <option value="all">所有类型</option>
+                  <option value="篮球">篮球</option>
+                  <option value="足球">足球</option>
+                  <option value="羽毛球">羽毛球</option>
+                  <option value="网球">网球</option>
+                  <option value="乒乓球">乒乓球</option>
+                  <option value="排球">排球</option>
+                  <option value="台球">台球</option>
+                  <option value="高尔夫">高尔夫</option>
+                  <option value="跑步">跑步</option>
+                  <option value="游泳">游泳</option>
+                  <option value="武术">武术</option>
+                  <option value="舞蹈">舞蹈</option>
+                  <option value="击剑">击剑</option>
+                  <option value="跆拳道">跆拳道</option>
+                  <option value="射击">射击</option>
+                  <option value="滑冰">滑冰</option>
+                  <option value="其他">其他</option>
+                </select>
+              </div>
+              
+              {/* 结果统计 */}
+              <div style={{ 
+                color: '#666', 
+                fontSize: '14px',
+                minWidth: '80px',
+                textAlign: 'center'
+              }}>
+                共 {filteredActivities.length} 个
+              </div>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* 活动列表或无结果提示 */}
-      {filteredActivities.length === 0 ? (
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minHeight: '300px',
-          color: '#666',
-          fontSize: '16px'
-        }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔍</div>
-          <p>没有找到符合条件的活动</p>
-          {(searchTerm || selectedType !== 'all') && (
-            <div style={{ marginTop: '12px', textAlign: 'center' }}>
-              <p style={{ fontSize: '14px', margin: '4px 0' }}>
-                当前搜索条件：
-                {searchTerm && <span style={{ color: '#4CAF50' }}>"{searchTerm}"</span>}
-                {searchTerm && selectedType !== 'all' && ' + '}
-                {selectedType !== 'all' && <span style={{ color: '#4CAF50' }}>{selectedType}</span>}
-              </p>
-              <button
-                onClick={() => {
-                  setSearchTerm('');
-                  setSelectedType('all');
-                }}
-                style={{
-                  marginTop: '8px',
-                  padding: '6px 12px',
-                  background: '#4CAF50',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  fontSize: '14px'
-                }}
-              >
-                清除筛选条件
-              </button>
+        {/* 活动列表区域 */}
+        <div className="activity-list-scroll">
+          {filteredActivities.length === 0 ? (
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              minHeight: '400px',
+              color: '#666',
+              fontSize: '16px'
+            }}>
+              <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔍</div>
+              <p>没有找到符合条件的活动</p>
+              {(searchTerm || selectedType !== 'all') && (
+                <div style={{ marginTop: '12px', textAlign: 'center' }}>
+                  <p style={{ fontSize: '14px', margin: '4px 0' }}>
+                    当前搜索条件：
+                    {searchTerm && <span style={{ color: '#4CAF50' }}>"{searchTerm}"</span>}
+                    {searchTerm && selectedType !== 'all' && ' + '}
+                    {selectedType !== 'all' && <span style={{ color: '#4CAF50' }}>{selectedType}</span>}
+                  </p>
+                  <button
+                    onClick={() => {
+                      setSearchTerm('');
+                      setSelectedType('all');
+                    }}
+                    style={{
+                      marginTop: '8px',
+                      padding: '6px 12px',
+                      background: '#4CAF50',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      fontSize: '14px'
+                    }}
+                  >
+                    清除筛选条件
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="activity-list-grid">
+              {filteredActivities.map((activity) => (
+                <ActivityCard
+                  key={activity.id}
+                  activity={activity}
+                  onClick={handleActivityClick}
+                />
+              ))}
             </div>
           )}
         </div>
-      ) : (
-        <ActivityList
-          activities={filteredActivities}
-          title="" // 清空标题，因为我们在上面已经显示了
-          onActivityClick={(listActivity) => {
-            // 根据ID找到原始activity对象
-            const originalActivity = filteredActivities.find(a => a.id.toString() === listActivity.id.toString());
-            if (originalActivity) {
-              handleActivityClick(originalActivity);
-            }
-          }}
+      </div>
+      
+      {selectedActivity && (
+        <ActivityDetailModal
+          activity={selectedActivity}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          onRegister={handleRegister}
+          onUnregister={handleUnregister}
+          onPostComment={handlePostComment}
+          isUserRegistered={isUserRegistered}
         />
       )}
-      
-      <ActivityDetailModal
-        activity={selectedActivity}
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onRegister={handleRegister}
-        onUnregister={handleUnregister}
-        onPostComment={handlePostComment}
-        isUserRegistered={isUserRegistered}
-      />
     </>
   );
 };
