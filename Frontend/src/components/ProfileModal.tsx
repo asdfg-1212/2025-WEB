@@ -72,19 +72,26 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
               </div>
             )}
           </div>
-          <button 
-            className="change-avatar-btn"
-            onClick={handleAvatarChange}
-            disabled={isChangingAvatar}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M3 7V5C3 3.89543 3.89543 3 5 3H19C20.1046 3 21 3.89543 21 5V7" stroke="currentColor" strokeWidth="2"/>
-              <path d="M21 7V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V7" stroke="currentColor" strokeWidth="2"/>
-              <path d="M12 11V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-              <path d="M15 14L12 17L9 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-            </svg>
-            {isChangingAvatar ? '更换中...' : '随机更换头像'}
-          </button>
+          {user.role !== 'admin' && (
+            <button 
+              className="change-avatar-btn"
+              onClick={handleAvatarChange}
+              disabled={isChangingAvatar}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M3 7V5C3 3.89543 3.89543 3 5 3H19C20.1046 3 21 3.89543 21 5V7" stroke="currentColor" strokeWidth="2"/>
+                <path d="M21 7V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V7" stroke="currentColor" strokeWidth="2"/>
+                <path d="M12 11V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                <path d="M15 14L12 17L9 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+              {isChangingAvatar ? '更换中...' : '随机更换头像'}
+            </button>
+          )}
+          {user.role === 'admin' && (
+            <div className="admin-avatar-notice">
+              👑 管理员专属头像
+            </div>
+          )}
         </div>
 
         {/* 用户信息 */}
@@ -119,7 +126,10 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
         {/* 底部操作区域 */}
         <div className="profile-actions">
           <div className="profile-tip">
-            💡 点击上方按钮可随机更换头像
+            {user.role === 'admin' ? 
+              '👑 管理员专属皇冠头像，不可更换' : 
+              '💡 点击上方按钮可随机更换头像'
+            }
           </div>
         </div>
       </div>

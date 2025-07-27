@@ -486,7 +486,8 @@
   border: 1px solid #d1d5db;
   border-radius: 6px;
   font-size: 14px;
-  min-width: 180px;
+  min-width: 120px;
+  max-width: 150px;
   outline: none;
   transition: border-color 0.2s;
 }

@@ -28,13 +28,16 @@ const AVATAR_EMOJIS = [
 export function getUserAvatar(user: User | null): string {
   if (!user) return DEFAULT_AVATAR;
   
+  // 管理员固定使用👑头像
+  const avatarEmoji = user.role === 'admin' ? '👑' : user.avatar_emoji;
+  
   // 如果用户有emoji头像，创建emoji图像
-  if (user.avatar_emoji) {
+  if (avatarEmoji) {
     // 使用encodeURIComponent来安全处理emoji
     const emojiSvg = `
       <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
         <circle cx="20" cy="20" r="20" fill="#f0f0f0"/>
-        <text x="20" y="28" text-anchor="middle" font-size="18" font-family="Apple Color Emoji, Segoe UI Emoji, sans-serif">${user.avatar_emoji}</text>
+        <text x="20" y="28" text-anchor="middle" font-size="18" font-family="Apple Color Emoji, Segoe UI Emoji, sans-serif">${avatarEmoji}</text>
       </svg>
     `;
     // 使用encodeURIComponent而不是btoa来避免编码问题

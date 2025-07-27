@@ -19,6 +19,8 @@ interface Comment {
   user: {
     id: number;
     username: string;
+    email?: string;
+    role?: string;
     avatar_emoji?: string;
   };
   replies?: Comment[];
@@ -64,18 +66,6 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
     setInternalUserRegistered(isUserRegistered);
   }, [isUserRegistered]);
 
-  if (!isOpen || !activity) return null;
-
-  // 判断是否还能报名（基于报名截止时间）
-  const now = new Date();
-  const registrationDeadline = new Date(activity.registration_deadline);
-  const isRegistrationOpen = registrationDeadline > now && activity.status !== 'cancelled';
-  
-  // 判断活动是否已结束（基于报名截止时间）
-  const isActivityEnded = registrationDeadline < now;
-  
-  const isAdmin = user?.role === 'admin';
-
   // 加载评论数据
   const loadComments = async () => {
     if (!activity) return;
@@ -99,6 +89,18 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
       loadComments();
     }
   }, [activity, isOpen]);
+
+  if (!isOpen || !activity) return null;
+
+  // 判断是否还能报名（基于报名截止时间）
+  const now = new Date();
+  const registrationDeadline = new Date(activity.registration_deadline);
+  const isRegistrationOpen = registrationDeadline > now && activity.status !== 'cancelled';
+  
+  // 判断活动是否已结束（基于报名截止时间）
+  const isActivityEnded = registrationDeadline < now;
+  
+  const isAdmin = user?.role === 'admin';
 
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
@@ -300,16 +302,16 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
                           {getUserAvatar({ 
                             id: comment.user.id, 
                             username: comment.user.username,
-                            email: '',
-                            role: 'user',
+                            email: comment.user.email || '',
+                            role: (comment.user.role as 'user' | 'admin') || 'user',
                             avatar_emoji: comment.user.avatar_emoji 
                           }) ? (
                             <img 
                               src={getUserAvatar({ 
                                 id: comment.user.id, 
                                 username: comment.user.username,
-                                email: '',
-                                role: 'user',
+                                email: comment.user.email || '',
+                                role: (comment.user.role as 'user' | 'admin') || 'user',
                                 avatar_emoji: comment.user.avatar_emoji 
                               })} 
                               alt={`${comment.user.username}的头像`}

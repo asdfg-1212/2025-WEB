@@ -179,6 +179,8 @@ export class CommentService {
           user: {
             id: true,
             username: true,
+            email: true,
+            role: true,
             avatar_emoji: true
           }
         },
