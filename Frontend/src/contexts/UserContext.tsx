@@ -66,6 +66,11 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // 更新用户信息
+  const updateUser = (updatedUser: User) => {
+    setUser(updatedUser);
+  };
+
   // 组件挂载时检查用户登录状态
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -84,7 +89,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
     login,
     register,
     logout,
-    refreshUser
+    refreshUser,
+    updateUser
   };
 
   return (

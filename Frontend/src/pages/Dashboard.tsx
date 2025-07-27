@@ -4,6 +4,7 @@ import { getActivityCounts } from '../services/activity';
 import { useUser } from '../contexts/UserContext';
 import CreateActivityModal from '../components/CreateActivityModal';
 import CreateVenueModal from '../components/CreateVenueModal';
+import ProfileModal from '../components/ProfileModal';
 import { getUserAvatar } from '../utils/avatar';
 import '../styles/dashboard.css';
 
@@ -18,6 +19,7 @@ const Dashboard: React.FC = () => {
   });
   const [isCreateActivityModalOpen, setIsCreateActivityModalOpen] = useState(false);
   const [isCreateVenueModalOpen, setIsCreateVenueModalOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -120,7 +122,7 @@ const Dashboard: React.FC = () => {
               {/*未读私信<circle cx="18" cy="6" r="3" fill="#ff4757"/>*/}
             </svg>
           </div>
-          <div className="user-avatar">
+          <div className="user-avatar" onClick={() => setIsProfileModalOpen(true)} style={{ cursor: 'pointer' }}>
             <img 
               src={getUserAvatar(user)}
               alt={`${user?.username || '用户'}的头像`} 
@@ -198,6 +200,10 @@ const Dashboard: React.FC = () => {
       <CreateVenueModal 
         isOpen={isCreateVenueModalOpen} 
         onClose={() => setIsCreateVenueModalOpen(false)} 
+      />
+      <ProfileModal 
+        isOpen={isProfileModalOpen} 
+        onClose={() => setIsProfileModalOpen(false)} 
       />
     </div>
   );

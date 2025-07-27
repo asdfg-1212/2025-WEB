@@ -18,6 +18,7 @@ export interface UserContextType {
   register: (email: string, username: string, password: string) => Promise<void>;
   logout: () => void;
   refreshUser: () => Promise<void>;
+  updateUser: (updatedUser: User) => void;
 }
 
 // API 响应类型
