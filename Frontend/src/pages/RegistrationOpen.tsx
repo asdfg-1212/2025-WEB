@@ -20,9 +20,23 @@ const RegistrationOpen: React.FC = () => {
     const fetchActivities = async () => {
       try {
         setLoading(true);
-        // 只获取报名中的活动
-        const response = await getActivities({ status: 'open' });
-        setActivities(response.data);
+        // 获取所有活动，然后筛选出报名截止时间还没到的活动
+        const response = await getActivities();
+        
+        if (response && response.success && Array.isArray(response.data)) {
+          // 筛选出报名中的活动（未被删除的、报名截止时间还没到的活动）
+          const openActivities = response.data.filter((activity: any) => {
+            const now = new Date();
+            const registrationDeadline = new Date(activity.registration_deadline);
+            
+            // 未被删除的、报名截止时间还没到的活动
+            return activity.status !== 'cancelled' && registrationDeadline > now;
+          });
+          
+          setActivities(openActivities);
+        } else {
+          setActivities([]);
+        }
         setError(null);
       } catch (err: any) {
         console.error('获取活动列表失败:', err);

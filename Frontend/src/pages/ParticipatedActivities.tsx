@@ -53,6 +53,7 @@ const transformToActivityDisplay = (backendActivity: any): ActivityDisplay => {
     registrationDeadline: formatDateTime(backendActivity.registration_deadline),
     registeredCount: backendActivity.current_participants || 0,
     maxCount: backendActivity.max_participants || 0,
+    status: backendActivity.status, // 添加状态字段
     description: backendActivity.description,
     notes: backendActivity.notes,
     allow_comments: backendActivity.allow_comments,

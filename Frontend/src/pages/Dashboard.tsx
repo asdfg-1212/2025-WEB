@@ -24,12 +24,13 @@ const Dashboard: React.FC = () => {
     // 获取活动统计数据
     const loadActivityCounts = async () => {
       try {
-        const counts = await getActivityCounts();
-        setActivityCounts(prev => ({
-          ...prev,
+        const counts = await getActivityCounts(user?.id);
+        setActivityCounts({
           open: counts.open,
-          ended: counts.ended
-        }));
+          ended: counts.ended,
+          pending: counts.pending,
+          participated: counts.participated
+        });
       } catch (error) {
         console.error('获取活动统计失败:', error);
         // 如果获取失败，保持默认值0
@@ -38,8 +39,12 @@ const Dashboard: React.FC = () => {
       }
     };
 
-    loadActivityCounts();
-  }, []);
+    if (user) {
+      loadActivityCounts();
+    } else {
+      setIsLoading(false);
+    }
+  }, [user]);
 
   const handleLogout = () => {
     logout();

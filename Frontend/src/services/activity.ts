@@ -57,20 +57,60 @@ export async function getActivities(options?: {
 }
 
 // 获取活动统计数据
-export async function getActivityCounts() {
+export async function getActivityCounts(userId?: number) {
   try {
-    const [openResponse, endedResponse] = await Promise.all([
-      apiClient.get('/activities?status=open&pageSize=1'),
-      apiClient.get('/activities?status=ended&pageSize=1')
+    // 获取所有活动和用户报名信息
+    const [allActivitiesResponse, myRegistrationsResponse] = await Promise.all([
+      getActivities(), // 使用 getActivities 函数而不是直接调用 API
+      userId ? getMyRegistrations(userId) : Promise.resolve([])
     ]);
 
+    const now = new Date();
+    let openCount = 0;
+    let endedCount = 0;
+    let pendingCount = 0;
+    let participatedCount = 0;
+
+    // 计算报名中和已结束的活动数量（基于报名截止时间）
+    if (allActivitiesResponse && allActivitiesResponse.success && Array.isArray(allActivitiesResponse.data)) {
+      allActivitiesResponse.data.forEach((activity: any) => {
+        if (activity.status !== 'cancelled') {
+          const registrationDeadline = new Date(activity.registration_deadline);
+          
+          if (registrationDeadline > now) {
+            openCount++; // 报名截止之前的活动
+          } else {
+            endedCount++; // 报名截止之后的活动
+          }
+        }
+      });
+    }
+
+    // 计算用户的待参与和已参与活动数量
+    if (userId && Array.isArray(myRegistrationsResponse)) {
+      myRegistrationsResponse.forEach((reg: any) => {
+        const activity = reg.activity;
+        if (activity.status !== 'cancelled') {
+          const startTime = new Date(activity.start_time);
+          
+          if (startTime > now) {
+            pendingCount++; // 活动开始时间之前的已报名活动
+          } else {
+            participatedCount++; // 活动开始时间之后的已报名活动
+          }
+        }
+      });
+    }
+
     return {
-      open: openResponse.data.success ? openResponse.data.data.pagination.total : 0,
-      ended: endedResponse.data.success ? endedResponse.data.data.pagination.total : 0
+      open: openCount,
+      ended: endedCount,
+      pending: pendingCount,
+      participated: participatedCount
     };
   } catch (error) {
     console.error('获取活动统计失败:', error);
-    return { open: 0, ended: 0 };
+    return { open: 0, ended: 0, pending: 0, participated: 0 };
   }
 }
 
@@ -150,18 +190,27 @@ export async function createActivity(activity: {
   notes?: string;
   allow_comments?: boolean;
 }) {
-  const res = await axios.post(`${API_BASE}/activities`, activity);
-  return res.data;
+  const res = await apiClient.post('/activities', activity);
+  if (res.data.success) {
+    return res.data.data;
+  }
+  throw new Error(res.data.message || '创建活动失败');
 }
 
 export async function updateActivity(id: number, activity: any) {
-  const res = await axios.put(`${API_BASE}/activities/${id}`, activity);
-  return res.data;
+  const res = await apiClient.put(`/activities/${id}`, activity);
+  if (res.data.success) {
+    return res.data.data;
+  }
+  throw new Error(res.data.message || '更新活动失败');
 }
 
 export async function deleteActivity(id: number) {
-  const res = await axios.delete(`${API_BASE}/activities/${id}`);
-  return res.data;
+  const res = await apiClient.delete(`/activities/${id}`);
+  if (res.data.success) {
+    return res.data.data;
+  }
+  throw new Error(res.data.message || '删除活动失败');
 }
 
 // 活动报名相关接口

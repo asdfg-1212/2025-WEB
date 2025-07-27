@@ -1,26 +1,49 @@
 const axios = require('axios');
 
-async function testAPI() {
+async function testCreateActivity() {
   try {
-    console.log('测试 /api/activities 接口...');
-    const response = await axios.get('http://localhost:7001/api/activities');
+    console.log('测试创建活动接口...');
     
-    console.log('API 响应状态:', response.status);
-    console.log('API 响应数据:');
-    console.log(JSON.stringify(response.data, null, 2));
+    // 模拟一个活动创建请求
+    const activityData = {
+      title: "测试活动",
+      description: "这是一个测试活动",
+      type: "basketball",
+      start_time: "2025-07-30T10:00:00.000Z",
+      end_time: "2025-07-30T12:00:00.000Z",
+      registration_deadline: "2025-07-29T23:59:59.000Z",
+      max_participants: 10,
+      venue_id: 212,
+      creator_id: 388,
+      notes: "测试备注",
+      allow_comments: true
+    };
     
-    if (response.data.success && response.data.data) {
-      console.log('\n活动状态分析:');
-      response.data.data.forEach(activity => {
-        console.log(`- ID: ${activity.id}, Title: ${activity.title}, Status: ${activity.status}, Registration Deadline: ${activity.registration_deadline}`);
-      });
-    }
+    console.log('发送的数据:', JSON.stringify(activityData, null, 2));
+    
+    const response = await axios.post('http://localhost:7001/api/activities', activityData, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    console.log('创建成功:', response.status);
+    console.log('响应数据:', JSON.stringify(response.data, null, 2));
+    
   } catch (error) {
-    console.error('API 调用失败:', error.message);
-    if (error.response) {
-      console.log('错误响应:', error.response.data);
+    console.error('创建活动失败:');
+    console.error('错误类型:', error.name);
+    console.error('错误消息:', error.message);
+    console.error('状态码:', error.response?.status);
+    
+    if (error.response?.data) {
+      console.error('错误响应数据:', JSON.stringify(error.response.data, null, 2));
+    }
+    
+    if (error.response?.headers) {
+      console.error('响应头:', error.response.headers);
     }
   }
 }
 
-testAPI();
+testCreateActivity();
