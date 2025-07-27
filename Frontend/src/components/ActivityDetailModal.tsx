@@ -3,15 +3,25 @@ import { useUser } from '../contexts/UserContext';
 import ParticipantsModal from './ParticipantsModal';
 import EditActivityModal from './EditActivityModal';
 import type { ActivityDisplay } from '../types/activity';
+import { getActivityComments, createComment } from '../services/comment';
+import { getUserAvatar } from '../utils/avatar';
 import '../styles/activity-detail-modal.css';
 
 interface Comment {
-  id: string;
-  userId: string;
-  username: string;
+  id: number;
   content: string;
-  createdAt: string;
-  avatar?: string;
+  user_id: number;
+  activity_id: number;
+  parent_id: number | null;
+  is_deleted: boolean;
+  created_at: string;
+  updated_at: string;
+  user: {
+    id: number;
+    username: string;
+    avatar_emoji?: string;
+  };
+  replies?: Comment[];
 }
 
 interface ActivityDetailModalProps {
@@ -40,6 +50,9 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
   const { user } = useUser();
   const [commentText, setCommentText] = useState('');
   const [isCommentExpanded, setIsCommentExpanded] = useState(false);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [loadingComments, setLoadingComments] = useState(false);
+  const [postingComment, setPostingComment] = useState(false);
   const [isParticipantsModalOpen, setIsParticipantsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   
@@ -62,27 +75,30 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
   const isActivityEnded = registrationDeadline < now;
   
   const isAdmin = user?.role === 'admin';
-  // const currentUser = { id: '1', username: '当前用户' }; // 当前用户信息 - 暂时注释
 
-  // 模拟评论数据
-  const comments: Comment[] = [
-    {
-      id: '1',
-      userId: '2',
-      username: '运动爱好者',
-      content: '这个活动看起来很不错，期待参加！',
-      createdAt: '2025年07月23日 14:30',
-      avatar: '🏃‍♂️'
-    },
-    {
-      id: '2',
-      userId: '3',
-      username: '健身达人',
-      content: '场地怎么样？有更衣室吗？',
-      createdAt: '2025年07月23日 15:15',
-      avatar: '💪'
+  // 加载评论数据
+  const loadComments = async () => {
+    if (!activity) return;
+    
+    try {
+      setLoadingComments(true);
+      const response = await getActivityComments(activity.id);
+      if (response.success) {
+        setComments(response.data || []);
+      }
+    } catch (error) {
+      console.error('加载评论失败:', error);
+    } finally {
+      setLoadingComments(false);
     }
-  ];
+  };
+
+  // 监听活动变化，重新加载评论
+  useEffect(() => {
+    if (activity && isOpen) {
+      loadComments();
+    }
+  }, [activity, isOpen]);
 
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
@@ -120,11 +136,33 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
     setIsEditModalOpen(true);
   };
 
-  const handlePostComment = () => {
-    if (commentText.trim() && onPostComment) {
-      onPostComment(activity.id, commentText.trim());
-      setCommentText('');
-      setIsCommentExpanded(false);
+  const handlePostComment = async () => {
+    if (!commentText.trim() || !user || !activity) return;
+    
+    try {
+      setPostingComment(true);
+      const response = await createComment({
+        content: commentText.trim(),
+        user_id: user.id,
+        activity_id: activity.id
+      });
+      
+      if (response.success) {
+        setCommentText('');
+        setIsCommentExpanded(false);
+        // 重新加载评论
+        await loadComments();
+        
+        // 调用父组件的回调（如果有的话）
+        if (onPostComment) {
+          onPostComment(activity.id, commentText.trim());
+        }
+      }
+    } catch (error) {
+      console.error('发表评论失败:', error);
+      alert('发表评论失败，请重试');
+    } finally {
+      setPostingComment(false);
     }
   };
 
@@ -230,18 +268,52 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
               <div className="comments-section">
                 <h4>评论区</h4>
                 <div className="comments-list">
-                  {comments.map((comment) => (
-                    <div key={comment.id} className="comment-item">
-                      <div className="comment-avatar">{comment.avatar}</div>
-                      <div className="comment-content">
-                        <div className="comment-header">
-                          <span className="comment-username">{comment.username}</span>
-                          <span className="comment-time">{comment.createdAt}</span>
-                        </div>
-                        <p className="comment-text">{comment.content}</p>
-                      </div>
+                  {loadingComments ? (
+                    <div style={{ textAlign: 'center', padding: '20px', color: '#666' }}>
+                      加载评论中...
                     </div>
-                  ))}
+                  ) : comments.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '20px', color: '#666' }}>
+                      暂无评论，来发表第一条评论吧！
+                    </div>
+                  ) : (
+                    comments.map((comment) => (
+                      <div key={comment.id} className="comment-item">
+                        <div className="comment-avatar">
+                          {getUserAvatar({ 
+                            id: comment.user.id, 
+                            username: comment.user.username,
+                            email: '',
+                            role: 'user',
+                            avatar_emoji: comment.user.avatar_emoji 
+                          }) ? (
+                            <img 
+                              src={getUserAvatar({ 
+                                id: comment.user.id, 
+                                username: comment.user.username,
+                                email: '',
+                                role: 'user',
+                                avatar_emoji: comment.user.avatar_emoji 
+                              })} 
+                              alt={`${comment.user.username}的头像`}
+                              style={{ width: '100%', height: '100%', borderRadius: '50%' }}
+                            />
+                          ) : (
+                            comment.user.avatar_emoji || '👤'
+                          )}
+                        </div>
+                        <div className="comment-content">
+                          <div className="comment-header">
+                            <span className="comment-username">{comment.user.username}</span>
+                            <span className="comment-time">
+                              {new Date(comment.created_at).toLocaleString('zh-CN')}
+                            </span>
+                          </div>
+                          <p className="comment-text">{comment.content}</p>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
             </div>
@@ -307,9 +379,9 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
                   <button 
                     className="btn btn-primary btn-sm" 
                     onClick={handlePostComment}
-                    disabled={!commentText.trim()}
+                    disabled={!commentText.trim() || postingComment}
                   >
-                    发送
+                    {postingComment ? '发送中...' : '发送'}
                   </button>
                   <button 
                     className="btn btn-secondary btn-sm" 

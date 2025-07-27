@@ -290,22 +290,45 @@ export async function getActivityParticipants(activityId: string | number) {
   }
 }
 
-// 发表活动评论
+// 发表活动评论 - 使用用户token
 export async function postActivityComment(activityId: string, content: string) {
-  const res = await apiClient.post(`/activities/${activityId}/comments`, { content });
-  if (res.data.success) {
-    return res.data.data;
+  const token = localStorage.getItem('token');
+  const userStr = localStorage.getItem('user');
+  
+  if (!token || !userStr) {
+    throw new Error('用户未登录');
   }
-  throw new Error(res.data.message || '发表评论失败');
+  
+  const user = JSON.parse(userStr);
+  
+  const res = await fetch('/api/comments', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({
+      content,
+      user_id: user.id,
+      activity_id: parseInt(activityId)
+    })
+  });
+  
+  const data = await res.json();
+  if (data.code === 0) {
+    return data.data;
+  }
+  throw new Error(data.message || '发表评论失败');
 }
 
 // 获取活动评论
 export async function getActivityComments(activityId: string) {
-  const res = await apiClient.get(`/activities/${activityId}/comments`);
-  if (res.data.success) {
-    return res.data.data.comments;
+  const res = await fetch(`/api/comments/activity/${activityId}`);
+  const data = await res.json();
+  if (data.code === 0) {
+    return data.data.comments;
   }
-  throw new Error(res.data.message || '获取评论失败');
+  throw new Error(data.message || '获取评论失败');
 }
 
 // 更新所有活动状态

@@ -4,8 +4,9 @@ const API_BASE = "http://localhost:7001/api";
 
 // 评论相关接口
 export async function getActivityComments(activityId: number) {
-  const res = await axios.get(`${API_BASE}/comments/activity/${activityId}`);
-  return res.data;
+  const res = await fetch(`/api/comments/activity/${activityId}`);
+  const data = await res.json();
+  return data;
 }
 
 export async function createComment(comment: {
@@ -14,8 +15,17 @@ export async function createComment(comment: {
   activity_id: number;
   parent_id?: number;
 }) {
-  const res = await axios.post(`${API_BASE}/comments`, comment);
-  return res.data;
+  const token = localStorage.getItem('token');
+  const res = await fetch('/api/comments', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify(comment)
+  });
+  const data = await res.json();
+  return data;
 }
 
 export async function updateComment(id: number, content: string) {
