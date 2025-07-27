@@ -134,6 +134,7 @@ const PendingActivities: React.FC = () => {
     } catch (err: any) {
       console.error('取消报名失败:', err);
       alert('取消报名失败: ' + (err.message || '未知错误'));
+      throw err; // 重新抛出错误，让 ActivityDetailModal 能够捕获
     }
   };
 
@@ -228,6 +229,7 @@ const PendingActivities: React.FC = () => {
         onRegister={() => {}} // 已经报名了，不需要再报名
         onUnregister={handleUnregister}
         onPostComment={handlePostComment}
+        isUserRegistered={true} // 待参与页面中的活动，用户肯定已经报名了
       />
     </>
   );

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useUser } from '../contexts/UserContext';
 import ParticipantsModal from './ParticipantsModal';
 import EditActivityModal from './EditActivityModal';
@@ -23,6 +23,7 @@ interface ActivityDetailModalProps {
   onPostComment?: (activityId: number, content: string) => void;
   onActivityUpdated?: () => void;
   onActivityDeleted?: () => void;
+  isUserRegistered?: boolean; // 新增：用户是否已报名该活动
 }
 
 const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
@@ -33,19 +34,33 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
   onUnregister,
   onPostComment,
   onActivityUpdated,
-  onActivityDeleted
+  onActivityDeleted,
+  isUserRegistered = false // 新增参数，默认为 false
 }) => {
   const { user } = useUser();
   const [commentText, setCommentText] = useState('');
   const [isCommentExpanded, setIsCommentExpanded] = useState(false);
   const [isParticipantsModalOpen, setIsParticipantsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  
+  // 添加内部状态来跟踪用户报名状态，这样在模态框内操作时能立即更新按钮
+  const [internalUserRegistered, setInternalUserRegistered] = useState(isUserRegistered);
+
+  // 当外部传入的报名状态改变时，更新内部状态
+  useEffect(() => {
+    setInternalUserRegistered(isUserRegistered);
+  }, [isUserRegistered]);
 
   if (!isOpen || !activity) return null;
 
-  // TODO: 从用户上下文获取这些信息
-  const isRegistrationOpen = true; // 根据时间判断是否还能报名
-  const isUserRegistered = false; // 根据用户状态判断是否已报名
+  // 判断是否还能报名（基于报名截止时间）
+  const now = new Date();
+  const registrationDeadline = new Date(activity.registration_deadline);
+  const isRegistrationOpen = registrationDeadline > now && activity.status !== 'cancelled';
+  
+  // 判断活动是否已结束（基于报名截止时间）
+  const isActivityEnded = registrationDeadline < now;
+  
   const isAdmin = user?.role === 'admin';
   // const currentUser = { id: '1', username: '当前用户' }; // 当前用户信息 - 暂时注释
 
@@ -75,15 +90,29 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
     }
   };
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (onRegister) {
-      onRegister(activity.id);
+      try {
+        await onRegister(activity.id);
+        // 如果报名成功且没有抛出错误，更新内部状态
+        setInternalUserRegistered(true);
+      } catch (error) {
+        // 如果报名失败，不更新状态
+        console.error('报名失败:', error);
+      }
     }
   };
 
-  const handleUnregister = () => {
+  const handleUnregister = async () => {
     if (onUnregister) {
-      onUnregister(activity.id);
+      try {
+        await onUnregister(activity.id);
+        // 如果取消报名成功且没有抛出错误，更新内部状态
+        setInternalUserRegistered(false);
+      } catch (error) {
+        // 如果取消报名失败，不更新状态
+        console.error('取消报名失败:', error);
+      }
     }
   };
 
@@ -179,14 +208,20 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
                 <div className="registration-progress">
                   <div className="progress-bar">
                     <div 
-                      className="progress-fill" 
+                      className={`progress-fill ${isActivityEnded ? 'progress-fill-ended' : ''}`}
                       style={{ 
-                        width: `${Math.min(((activity.registeredCount || 0) / activity.max_participants) * 100, 100)}%` 
+                        width: isActivityEnded 
+                          ? '100%' 
+                          : `${Math.min(((activity.registeredCount || 0) / activity.max_participants) * 100, 100)}%` 
                       }}
                     />
                   </div>
                   <span className="progress-text">
-                    {(activity.registeredCount || 0) >= activity.max_participants ? '已满员' : '正在报名中'}
+                    {isActivityEnded 
+                      ? '已结束' 
+                      : (activity.registeredCount || 0) >= activity.max_participants 
+                        ? '已满员' 
+                        : '正在报名中'}
                   </span>
                 </div>
               </div>
@@ -218,7 +253,7 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
             {/* 左侧操作区 */}
             <div className="left-actions">
               {isRegistrationOpen && !isAdmin ? (
-                isUserRegistered ? (
+                internalUserRegistered ? (
                   <button className="btn btn-danger btn-large" onClick={handleUnregister}>
                     取消报名
                   </button>

@@ -2,14 +2,17 @@ import React, { useState, useEffect } from 'react';
 import ActivityList from '../components/ActivityList';
 import ActivityDetailModal from '../components/ActivityDetailModal';
 import type { ActivityDisplay } from '../types/activity';
-import { getActivities, postActivityComment } from '../services/activity';
+import { useUser } from '../contexts/UserContext';
+import { getActivities, postActivityComment, getRegistrationStatus } from '../services/activity';
 
 const ActivitiesEnded: React.FC = () => {
+  const { user } = useUser();
   const [activities, setActivities] = useState<ActivityDisplay[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedActivity, setSelectedActivity] = useState<ActivityDisplay | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isUserRegistered, setIsUserRegistered] = useState(false);
 
   useEffect(() => {
     fetchActivities();
@@ -47,14 +50,28 @@ const ActivitiesEnded: React.FC = () => {
     }
   };
 
-  const handleActivityClick = (activity: ActivityDisplay) => {
+  const handleActivityClick = async (activity: ActivityDisplay) => {
     setSelectedActivity(activity);
     setIsModalOpen(true);
+    
+    // 检查用户是否已报名该活动
+    if (user) {
+      try {
+        const registrationStatus = await getRegistrationStatus(activity.id.toString());
+        setIsUserRegistered(registrationStatus.isRegistered || false);
+      } catch (error) {
+        console.error('检查报名状态失败:', error);
+        setIsUserRegistered(false);
+      }
+    } else {
+      setIsUserRegistered(false);
+    }
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedActivity(null);
+    setIsUserRegistered(false);
   };
 
   const handlePostComment = async (activityId: number, content: string) => {
@@ -147,6 +164,7 @@ const ActivitiesEnded: React.FC = () => {
         onRegister={() => {}} // 已结束的活动不能报名
         onUnregister={() => {}} // 已结束的活动不能取消报名
         onPostComment={handlePostComment}
+        isUserRegistered={isUserRegistered}
       />
     </>
   );

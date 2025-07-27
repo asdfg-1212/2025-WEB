@@ -2,19 +2,23 @@ import React, { useState, useEffect } from 'react';
 import ActivityList from '../components/ActivityList';
 import ActivityDetailModal from '../components/ActivityDetailModal';
 import type { ActivityDisplay } from '../types/activity';
+import { useUser } from '../contexts/UserContext';
 import { 
   getActivities, 
   registerForActivity, 
   unregisterFromActivity, 
-  postActivityComment
+  postActivityComment,
+  getRegistrationStatus
 } from '../services/activity';
 
 const RegistrationOpen: React.FC = () => {
+  const { user } = useUser();
   const [activities, setActivities] = useState<ActivityDisplay[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedActivity, setSelectedActivity] = useState<ActivityDisplay | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isUserRegistered, setIsUserRegistered] = useState(false);
 
   useEffect(() => {
     const fetchActivities = async () => {
@@ -49,26 +53,49 @@ const RegistrationOpen: React.FC = () => {
     fetchActivities();
   }, []);
 
-  const handleActivityClick = (activity: ActivityDisplay) => {
+  const handleActivityClick = async (activity: ActivityDisplay) => {
     setSelectedActivity(activity);
     setIsModalOpen(true);
+    
+    // 检查用户是否已报名该活动
+    if (user) {
+      try {
+        const registrationStatus = await getRegistrationStatus(activity.id.toString());
+        setIsUserRegistered(registrationStatus.isRegistered || false);
+      } catch (error) {
+        console.error('检查报名状态失败:', error);
+        setIsUserRegistered(false);
+      }
+    } else {
+      setIsUserRegistered(false);
+    }
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedActivity(null);
+    setIsUserRegistered(false); // 重置报名状态
   };
 
   const handleRegister = async (activityId: number) => {
     try {
       await registerForActivity(activityId.toString());
       alert('报名成功！');
+      setIsUserRegistered(true); // 更新报名状态
       // 重新获取活动列表以更新报名人数
-      const response = await getActivities({ status: 'open' });
-      setActivities(response.data);
+      const response = await getActivities();
+      if (response && response.success && Array.isArray(response.data)) {
+        const openActivities = response.data.filter((activity: any) => {
+          const now = new Date();
+          const registrationDeadline = new Date(activity.registration_deadline);
+          return activity.status !== 'cancelled' && registrationDeadline > now;
+        });
+        setActivities(openActivities);
+      }
     } catch (err: any) {
       console.error('报名失败:', err);
       alert('报名失败: ' + (err.message || '未知错误'));
+      throw err; // 重新抛出错误，让 ActivityDetailModal 能够捕获
     }
   };
 
@@ -76,12 +103,21 @@ const RegistrationOpen: React.FC = () => {
     try {
       await unregisterFromActivity(activityId.toString());
       alert('取消报名成功！');
+      setIsUserRegistered(false); // 更新报名状态
       // 重新获取活动列表以更新报名人数
-      const response = await getActivities({ status: 'open' });
-      setActivities(response.data);
+      const response = await getActivities();
+      if (response && response.success && Array.isArray(response.data)) {
+        const openActivities = response.data.filter((activity: any) => {
+          const now = new Date();
+          const registrationDeadline = new Date(activity.registration_deadline);
+          return activity.status !== 'cancelled' && registrationDeadline > now;
+        });
+        setActivities(openActivities);
+      }
     } catch (err: any) {
       console.error('取消报名失败:', err);
       alert('取消报名失败: ' + (err.message || '未知错误'));
+      throw err; // 重新抛出错误，让 ActivityDetailModal 能够捕获
     }
   };
 
@@ -160,6 +196,7 @@ const RegistrationOpen: React.FC = () => {
         onRegister={handleRegister}
         onUnregister={handleUnregister}
         onPostComment={handlePostComment}
+        isUserRegistered={isUserRegistered}
       />
     </>
   );

@@ -219,6 +219,7 @@ const ParticipatedActivities: React.FC = () => {
         onRegister={() => {}} // 已经结束的活动不能再报名
         onUnregister={() => {}} // 已经结束的活动不能取消报名
         onPostComment={handlePostComment}
+        isUserRegistered={true} // 已参与页面中的活动，用户肯定已经报名了
       />
     </>
   );

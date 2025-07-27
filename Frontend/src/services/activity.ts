@@ -267,12 +267,12 @@ export async function getRegistrationStatus(activityId: string) {
       
     const res = await apiClient.get(url);
     if (res.data.success) {
-      return res.data.data.isRegistered;
+      return { isRegistered: res.data.data.isRegistered || false };
     }
-    return false;
+    return { isRegistered: false };
   } catch (error) {
     console.error('获取报名状态失败:', error);
-    return false;
+    return { isRegistered: false };
   }
 }
 
