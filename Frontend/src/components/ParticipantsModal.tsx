@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import type { ActivityDisplay } from '../types/activity';
 import { getActivityParticipants } from '../services/activity';
 import '../styles/participants-modal.css';
 
@@ -12,18 +13,8 @@ interface Participant {
   status: 'confirmed' | 'pending' | 'cancelled';
 }
 
-interface Activity {
-  id: string;
-  type: string;
-  venue: string;
-  startTime: string;
-  endTime: string;
-  registeredCount: number;
-  maxCount: number;
-}
-
 interface ParticipantsModalProps {
-  activity: Activity | null;
+  activity: ActivityDisplay | null;
   isOpen: boolean;
   onClose: () => void;
 }

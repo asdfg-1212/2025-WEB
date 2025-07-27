@@ -324,4 +324,52 @@ export class RegistrationService {
       { current_participants: confirmedCount }
     );
   }
+
+  // 5. 获取用户的所有报名活动
+  async getUserRegistrations(userId: number): Promise<ServiceResult<any[]>> {
+    try {
+      const registrations = await this.registrationModel.find({
+        where: { 
+          user_id: userId,
+          status: RegistrationStatus.CONFIRMED
+        },
+        relations: ['activity', 'activity.venue'],
+        order: { registered_at: 'DESC' }
+      });
+
+      const registrationDetails = registrations.map(registration => ({
+        id: registration.id,
+        registered_at: registration.registered_at,
+        status: registration.status,
+        activity: {
+          id: registration.activity.id,
+          title: registration.activity.title,
+          description: registration.activity.description,
+          type: registration.activity.type,
+          start_time: registration.activity.start_time,
+          end_time: registration.activity.end_time,
+          registration_deadline: registration.activity.registration_deadline,
+          max_participants: registration.activity.max_participants,
+          current_participants: registration.activity.current_participants,
+          status: registration.activity.status,
+          venue: registration.activity.venue,
+          allow_comments: registration.activity.allow_comments,
+          notes: registration.activity.notes
+        }
+      }));
+
+      return {
+        code: 0,
+        message: '获取用户报名活动成功',
+        data: registrationDetails
+      };
+    } catch (error) {
+      console.error('获取用户报名活动失败:', error);
+      return {
+        code: 500,
+        message: '服务器内部错误',
+        data: null
+      };
+    }
+  }
 }

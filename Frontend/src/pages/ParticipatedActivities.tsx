@@ -1,44 +1,142 @@
 import React, { useState, useEffect } from 'react';
 import ActivityList from '../components/ActivityList';
+import ActivityDetailModal from '../components/ActivityDetailModal';
+import type { ActivityDisplay } from '../types/activity';
+import { useUser } from '../contexts/UserContext';
+import { 
+  getMyRegistrations, 
+  refreshActivityStatus,
+  postActivityComment
+} from '../services/activity';
 
-interface Activity {
-  id: string;
-  type: string;
-  venue: string;
-  startTime: string;
-  endTime: string;
-  registrationDeadline: string;
-  registeredCount: number;
-  maxCount: number;
-}
+// 创建本地的数据转换函数
+const transformToActivityDisplay = (backendActivity: any): ActivityDisplay => {
+  const typeMapping: { [key: string]: string } = {
+    'basketball': '篮球',
+    'football': '足球',
+    'badminton': '羽毛球',
+    'tennis': '网球',
+    'pingpong': '乒乓球',
+    'volleyball': '排球',
+    'billiards': '台球',
+    'golf': '高尔夫',
+    'running': '跑步',
+    'swimming': '游泳',
+    'martial arts': '武术',
+    'dance': '舞蹈',
+    'fencing': '击剑',
+    'taekwondo': '跆拳道',
+    'shooting': '射击',
+    'skating': '滑冰',
+    'other': '其他'
+  };
+
+  // 日期格式化函数
+  const formatDateTime = (dateString: string) => {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hour = String(date.getHours()).padStart(2, '0');
+    const minute = String(date.getMinutes()).padStart(2, '0');
+    
+    return `${year}年${month}月${day}日 ${hour}:${minute}`;
+  };
+
+  return {
+    id: backendActivity.id,
+    title: backendActivity.title,
+    type: typeMapping[backendActivity.type] || backendActivity.type,
+    venue: backendActivity.venue ? `${backendActivity.venue.name}${backendActivity.venue.location ? ` - ${backendActivity.venue.location}` : ''}` : '未知场馆',
+    startTime: formatDateTime(backendActivity.start_time),
+    endTime: formatDateTime(backendActivity.end_time),
+    registrationDeadline: formatDateTime(backendActivity.registration_deadline),
+    registeredCount: backendActivity.current_participants || 0,
+    maxCount: backendActivity.max_participants || 0,
+    description: backendActivity.description,
+    notes: backendActivity.notes,
+    allow_comments: backendActivity.allow_comments,
+    venue_id: backendActivity.venue_id,
+    start_time: backendActivity.start_time,
+    end_time: backendActivity.end_time,
+    registration_deadline: backendActivity.registration_deadline,
+    max_participants: backendActivity.max_participants
+  };
+};
 
 const ParticipatedActivities: React.FC = () => {
-  const [activities, setActivities] = useState<Activity[]>([]);
+  const { user } = useUser();
+  const [activities, setActivities] = useState<ActivityDisplay[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedActivity, setSelectedActivity] = useState<ActivityDisplay | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    const fetchActivities = async () => {
-      try {
-        setLoading(true);
-        // TODO: 这里需要实现获取用户已参与的活动
-        // 目前先返回空数组，等用户认证系统完善后再实现
-        setActivities([]);
-        setError(null);
-      } catch (err: any) {
-        console.error('获取已参与活动列表失败:', err);
-        setError(err.message || '获取活动列表失败');
-      } finally {
-        setLoading(false);
-      }
-    };
+    if (user) {
+      fetchParticipatedActivities();
+    } else {
+      setActivities([]);
+      setLoading(false);
+    }
+  }, [user]);
 
-    fetchActivities();
-  }, []);
+  const fetchParticipatedActivities = async () => {
+    try {
+      setLoading(true);
+      
+      // 先刷新活动状态
+      await refreshActivityStatus();
+      
+      // 获取用户报名的活动
+      const registrations = await getMyRegistrations(user!.id);
+      
+      // 筛选出已参与的活动（已报名且已结束的活动）
+      const participatedActivities = registrations
+        .filter((reg: any) => {
+          const activity = reg.activity;
+          const now = new Date();
+          const endTime = new Date(activity.end_time);
+          
+          // 活动状态为ended，或者结束时间已过
+          return activity.status === 'ended' || endTime <= now;
+        })
+        .map((reg: any) => transformToActivityDisplay(reg.activity));
+      
+      setActivities(participatedActivities);
+      setError(null);
+    } catch (err: any) {
+      console.error('获取已参与活动列表失败:', err);
+      setError(err.message || '获取活动列表失败');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const handleActivityClick = (activity: Activity) => {
-    console.log('点击了已参与活动:', activity);
-    // 这里后续实现跳转到活动详情页面
+  const handleActivityClick = (activity: any) => {
+    // 从传入的activity找到对应的完整ActivityDisplay对象
+    const fullActivity = activities.find(a => a.id === activity.id);
+    if (fullActivity) {
+      setSelectedActivity(fullActivity);
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedActivity(null);
+  };
+
+  const handlePostComment = async (activityId: number, content: string) => {
+    try {
+      await postActivityComment(activityId.toString(), content);
+      alert('评论发表成功！');
+      return true;
+    } catch (err: any) {
+      console.error('发表评论失败:', err);
+      alert('发表评论失败: ' + (err.message || '未知错误'));
+      return false;
+    }
   };
 
   if (loading) {
@@ -99,7 +197,7 @@ const ParticipatedActivities: React.FC = () => {
       }}>
         <p>暂无已参与的活动</p>
         <p style={{ fontSize: '14px', marginTop: '10px' }}>
-          参与活动后，会在这里显示历史记录
+          参与活动结束后，会在这里显示活动记录
         </p>
       </div>
     );
@@ -111,6 +209,15 @@ const ParticipatedActivities: React.FC = () => {
         activities={activities}
         title="已参与的活动"
         onActivityClick={handleActivityClick}
+      />
+      
+      <ActivityDetailModal
+        activity={selectedActivity}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onRegister={() => {}} // 已经结束的活动不能再报名
+        onUnregister={() => {}} // 已经结束的活动不能取消报名
+        onPostComment={handlePostComment}
       />
     </>
   );

@@ -39,12 +39,21 @@ export async function getActivities(options?: {
   if (options?.pageSize) params.append('pageSize', options.pageSize.toString());
 
   const url = params.toString() ? `/activities?${params.toString()}` : '/activities';
-  const res = await apiClient.get(url);
-  
-  if (res.data.success) {
-    return res.data.data.activities.map(transformActivityData);
+  try {
+    const res = await apiClient.get(url);
+    console.log('API Response:', res.data);
+    
+    if (res.data.success) {
+      return {
+        success: true,
+        data: res.data.data.activities.map(transformActivityData)
+      };
+    }
+    throw new Error(res.data.message || '获取活动列表失败');
+  } catch (error) {
+    console.error('API Error:', error);
+    throw error;
   }
-  throw new Error(res.data.message || '获取活动列表失败');
 }
 
 // 获取活动统计数据
@@ -247,4 +256,22 @@ export async function getActivityComments(activityId: string) {
     return res.data.data.comments;
   }
   throw new Error(res.data.message || '获取评论失败');
+}
+
+// 更新所有活动状态
+export async function refreshActivityStatus() {
+  const res = await apiClient.post('/activities/refresh-status');
+  if (res.data.success) {
+    return res.data;
+  }
+  throw new Error(res.data.message || '更新活动状态失败');
+}
+
+// 获取用户报名的活动列表
+export async function getMyRegistrations(userId: number) {
+  const res = await apiClient.get(`/activities/my-registrations?userId=${userId}`);
+  if (res.data.success) {
+    return res.data.data;
+  }
+  throw new Error(res.data.message || '获取报名活动失败');
 }

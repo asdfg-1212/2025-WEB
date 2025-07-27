@@ -1,24 +1,13 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import ActivityCard from './ActivityCard';
+import type { ActivityDisplay } from '../types/activity';
 import '../styles/activity-list.css';
 
-interface Activity {
-  id: string | number;
-  title: string;
-  type: string;
-  venue: string;
-  startTime: string;
-  endTime: string;
-  registrationDeadline: string;
-  registeredCount: number;
-  maxCount: number;
-}
-
 interface ActivityListProps {
-  activities: Activity[];
+  activities: ActivityDisplay[];
   title: string;
-  onActivityClick?: (activity: Activity) => void;
+  onActivityClick?: (activity: ActivityDisplay) => void;
 }
 
 const ActivityList: React.FC<ActivityListProps> = ({ activities, title, onActivityClick }) => {

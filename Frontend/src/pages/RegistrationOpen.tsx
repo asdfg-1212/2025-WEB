@@ -21,8 +21,8 @@ const RegistrationOpen: React.FC = () => {
       try {
         setLoading(true);
         // 只获取报名中的活动
-        const data = await getActivities({ status: 'open' });
-        setActivities(data);
+        const response = await getActivities({ status: 'open' });
+        setActivities(response.data);
         setError(null);
       } catch (err: any) {
         console.error('获取活动列表失败:', err);
@@ -50,8 +50,8 @@ const RegistrationOpen: React.FC = () => {
       await registerForActivity(activityId.toString());
       alert('报名成功！');
       // 重新获取活动列表以更新报名人数
-      const data = await getActivities({ status: 'open' });
-      setActivities(data);
+      const response = await getActivities({ status: 'open' });
+      setActivities(response.data);
     } catch (err: any) {
       console.error('报名失败:', err);
       alert('报名失败: ' + (err.message || '未知错误'));
@@ -63,8 +63,8 @@ const RegistrationOpen: React.FC = () => {
       await unregisterFromActivity(activityId.toString());
       alert('取消报名成功！');
       // 重新获取活动列表以更新报名人数
-      const data = await getActivities({ status: 'open' });
-      setActivities(data);
+      const response = await getActivities({ status: 'open' });
+      setActivities(response.data);
     } catch (err: any) {
       console.error('取消报名失败:', err);
       alert('取消报名失败: ' + (err.message || '未知错误'));
@@ -140,25 +140,7 @@ const RegistrationOpen: React.FC = () => {
       />
       
       <ActivityDetailModal
-        activity={selectedActivity ? {
-          id: selectedActivity.id,
-          title: selectedActivity.title,
-          description: selectedActivity.description,
-          type: selectedActivity.type,
-          start_time: selectedActivity.start_time,
-          end_time: selectedActivity.end_time,
-          registration_deadline: selectedActivity.registration_deadline,
-          max_participants: selectedActivity.max_participants,
-          venue_id: selectedActivity.venue_id,
-          notes: selectedActivity.notes,
-          allow_comments: selectedActivity.allow_comments,
-          registeredCount: selectedActivity.registeredCount,
-          venue: selectedActivity.venue_id ? {
-            id: selectedActivity.venue_id,
-            name: selectedActivity.venue.split(' - ')[0] || selectedActivity.venue,
-            location: selectedActivity.venue.includes(' - ') ? selectedActivity.venue.split(' - ')[1] : undefined
-          } : undefined
-        } : null}
+        activity={selectedActivity}
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onRegister={handleRegister}

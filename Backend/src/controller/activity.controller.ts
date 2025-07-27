@@ -582,4 +582,68 @@ export class ActivityController {
       };
     }
   }
+
+  // 手动更新所有活动状态 POST /api/activities/refresh-status
+  @Post('/refresh-status')
+  async refreshAllActivityStatus() {
+    try {
+      const result = await this.activityService.autoUpdateActivityStatus();
+      
+      return {
+        success: true,
+        message: result.message,
+        data: null
+      };
+    } catch (error) {
+      console.error('更新活动状态失败:', error);
+      this.ctx.status = 500;
+      return {
+        success: false,
+        message: '服务器内部错误',
+        data: null
+      };
+    }
+  }
+
+  // 获取用户报名的活动列表 GET /api/activities/my-registrations
+  @Get('/my-registrations')
+  async getMyRegistrations() {
+    try {
+      const userId = this.ctx.request.query.userId;
+      
+      if (!userId) {
+        this.ctx.status = 401;
+        return {
+          success: false,
+          message: '用户未登录',
+          data: null
+        };
+      }
+
+      const result = await this.registrationService.getUserRegistrations(Number(userId));
+      
+      if (result.code === 0) {
+        return {
+          success: true,
+          message: result.message,
+          data: result.data
+        };
+      } else {
+        this.ctx.status = 400;
+        return {
+          success: false,
+          message: result.message,
+          data: null
+        };
+      }
+    } catch (error) {
+      console.error('获取用户报名活动失败:', error);
+      this.ctx.status = 500;
+      return {
+        success: false,
+        message: '服务器内部错误',
+        data: null
+      };
+    }
+  }
 }

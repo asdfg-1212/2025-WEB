@@ -1,21 +1,10 @@
 import React from 'react';
+import type { ActivityDisplay } from '../types/activity';
 import '../styles/activity-card.css';
 
-interface Activity {
-  id: string | number;
-  title: string;
-  type: string;
-  venue: string;
-  startTime: string;
-  endTime: string;
-  registrationDeadline: string;
-  registeredCount: number;
-  maxCount: number;
-}
-
 interface ActivityCardProps {
-  activity: Activity;
-  onClick?: (activity: Activity) => void;
+  activity: ActivityDisplay;
+  onClick?: (activity: ActivityDisplay) => void;
 }
 
 const ActivityCard: React.FC<ActivityCardProps> = ({ activity, onClick }) => {

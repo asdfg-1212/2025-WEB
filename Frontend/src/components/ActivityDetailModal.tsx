@@ -2,27 +2,8 @@ import React, { useState } from 'react';
 import { useUser } from '../contexts/UserContext';
 import ParticipantsModal from './ParticipantsModal';
 import EditActivityModal from './EditActivityModal';
+import type { ActivityDisplay } from '../types/activity';
 import '../styles/activity-detail-modal.css';
-
-interface Activity {
-  id: number;
-  title: string;
-  description?: string;
-  type: string;
-  start_time: string;
-  end_time: string;
-  registration_deadline: string;
-  max_participants: number;
-  venue_id: number;
-  notes?: string;
-  allow_comments?: boolean;
-  registeredCount?: number;
-  venue?: {
-    id: number;
-    name: string;
-    location?: string;
-  };
-}
 
 interface Comment {
   id: string;
@@ -34,7 +15,7 @@ interface Comment {
 }
 
 interface ActivityDetailModalProps {
-  activity: Activity | null;
+  activity: ActivityDisplay | null;
   isOpen: boolean;
   onClose: () => void;
   onRegister?: (activityId: number) => void;
@@ -171,7 +152,7 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
                       <div className="info-content">
                         <span className="info-label">活动地点</span>
                         <span className="info-value">
-                          {activity.venue ? `${activity.venue.name}${activity.venue.location ? ` - ${activity.venue.location}` : ''}` : '未指定场馆'}
+                          {activity.venue || '未指定场馆'}
                         </span>
                       </div>
                     </div>
@@ -313,15 +294,7 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
       
       {/* 参与者名单模态框 */}
       <ParticipantsModal
-        activity={activity ? {
-          id: activity.id.toString(),
-          type: activity.type,
-          venue: activity.venue ? `${activity.venue.name}${activity.venue.location ? ` - ${activity.venue.location}` : ''}` : '未指定场馆',
-          startTime: activity.start_time,
-          endTime: activity.end_time,
-          registeredCount: activity.registeredCount || 0,
-          maxCount: activity.max_participants
-        } : null}
+        activity={activity}
         isOpen={isParticipantsModalOpen}
         onClose={handleCloseParticipantsModal}
       />
