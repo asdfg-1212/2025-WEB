@@ -33,7 +33,20 @@ export async function updateComment(id: number, content: string) {
   return res.data;
 }
 
-export async function deleteComment(id: number) {
-  const res = await axios.delete(`${API_BASE}/comments/${id}`);
-  return res.data;
+export async function deleteComment(id: number, userId: number) {
+  const token = localStorage.getItem('token');
+  const response = await fetch(`${API_BASE}/comments/${id}`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ user_id: userId }),
+  });
+
+  if (!response.ok) {
+    throw new Error('删除评论失败');
+  }
+
+  return response.json();
 }

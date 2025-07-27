@@ -1,9 +1,10 @@
-import { Provide } from '@midwayjs/core';
+import { Provide, Inject } from '@midwayjs/core';
 import { InjectEntityModel } from '@midwayjs/typeorm';
 import { Repository } from 'typeorm';
 import { Comment } from '../entity/comment.entity';
 import { Activity } from '../entity/activity.entity';
 import { User } from '../entity/user.entity';
+import { UserService } from './user.service';
 
 export interface CreateCommentDTO {
   content: string;
@@ -43,6 +44,9 @@ export class CommentService {
 
   @InjectEntityModel(User)
   userModel: Repository<User>;
+
+  @Inject()
+  userService: UserService;
 
   // 创建评论
   async createComment(data: CreateCommentDTO) {
@@ -341,11 +345,21 @@ export class CommentService {
         };
       }
 
-      // 验证是否是评论作者
-      if (comment.user_id !== userId) {
+      // 获取操作用户信息
+      const user = await this.userService.getUser({ uid: userId });
+      if (!user) {
+        return {
+          code: 404,
+          message: '用户不存在',
+          data: null
+        };
+      }
+
+      // 验证权限：评论作者或管理员可以删除评论
+      if (comment.user_id !== userId && user.role !== 'admin') {
         return {
           code: 403,
-          message: '只能删除自己的评论',
+          message: '只能删除自己的评论或需要管理员权限',
           data: null
         };
       }

@@ -3,7 +3,7 @@ import { useUser } from '../contexts/UserContext';
 import ParticipantsModal from './ParticipantsModal';
 import EditActivityModal from './EditActivityModal';
 import type { ActivityDisplay } from '../types/activity';
-import { getActivityComments, createComment } from '../services/comment';
+import { getActivityComments, createComment, deleteComment } from '../services/comment';
 import { getUserAvatar } from '../utils/avatar';
 import '../styles/activity-detail-modal.css';
 
@@ -166,6 +166,23 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
     }
   };
 
+  const handleDeleteComment = async (commentId: number) => {
+    if (!user || !isAdmin) return;
+    
+    if (!confirm('确定要删除这条评论吗？此操作不可撤销。')) {
+      return;
+    }
+    
+    try {
+      await deleteComment(commentId, user.id);
+      // 重新加载评论
+      await loadComments();
+    } catch (error) {
+      console.error('删除评论失败:', error);
+      alert('删除评论失败，请重试');
+    }
+  };
+
   const handleViewParticipants = () => {
     setIsParticipantsModalOpen(true);
   };
@@ -308,6 +325,15 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
                             <span className="comment-time">
                               {new Date(comment.created_at).toLocaleString('zh-CN')}
                             </span>
+                            {isAdmin && (
+                              <button
+                                className="delete-comment-btn"
+                                onClick={() => handleDeleteComment(comment.id)}
+                                title="删除评论"
+                              >
+                                🗑️
+                              </button>
+                            )}
                           </div>
                           <p className="comment-text">{comment.content}</p>
                         </div>
