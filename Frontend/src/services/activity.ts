@@ -108,6 +108,7 @@ function transformActivityData(backendActivity: ActivityBackend): ActivityDispla
     registeredCount: backendActivity.current_participants || 0,
     maxCount: backendActivity.max_participants || 0,
     // 保持完整的活动信息用于详情页面
+    status: backendActivity.status, // 添加状态字段
     description: backendActivity.description,
     notes: backendActivity.notes,
     allow_comments: backendActivity.allow_comments,

@@ -92,18 +92,15 @@ const PendingActivities: React.FC = () => {
       // 获取用户报名的活动
       const registrations = await getMyRegistrations(user!.id);
       
-      // 筛选出待参与的活动（已报名且未开始的活动）
+      // 筛选出待参与的活动（未被删除的、已被当前用户报名的、未到达活动开始日期的活动）
       const pendingActivities = registrations
         .filter((reg: any) => {
           const activity = reg.activity;
           const now = new Date();
           const startTime = new Date(activity.start_time);
           
-          // 活动状态为open、closed或ongoing，且开始时间在当前时间之后
-          return (
-            (activity.status === 'open' || activity.status === 'closed') && 
-            startTime > now
-          );
+          // 未被删除的、已被当前用户报名的、未到达活动开始日期的活动
+          return activity.status !== 'cancelled' && startTime > now;
         })
         .map((reg: any) => transformToActivityDisplay(reg.activity));
       

@@ -6,6 +6,7 @@ export interface ActivityBackend {
   title: string;
   description?: string;
   type: string;
+  status: string;
   start_time: string;
   end_time: string;
   registration_deadline: string;
@@ -33,6 +34,7 @@ export interface ActivityDisplay {
   registeredCount: number;
   maxCount: number;
   // 保持完整的活动信息用于详情页面
+  status: string;
   description?: string;
   notes?: string;
   allow_comments?: boolean;

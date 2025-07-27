@@ -91,15 +91,15 @@ const ParticipatedActivities: React.FC = () => {
       // 获取用户报名的活动
       const registrations = await getMyRegistrations(user!.id);
       
-      // 筛选出已参与的活动（已报名且已结束的活动）
+      // 筛选出已参与的活动（未被删除的、当前用户报名了的、已到达活动开始日期的活动）
       const participatedActivities = registrations
         .filter((reg: any) => {
           const activity = reg.activity;
           const now = new Date();
-          const endTime = new Date(activity.end_time);
+          const startTime = new Date(activity.start_time);
           
-          // 活动状态为ended，或者结束时间已过
-          return activity.status === 'ended' || endTime <= now;
+          // 未被删除的、当前用户报名了的、已到达活动开始日期的活动
+          return activity.status !== 'cancelled' && startTime <= now;
         })
         .map((reg: any) => transformToActivityDisplay(reg.activity));
       

@@ -24,10 +24,14 @@ const ActivitiesEnded: React.FC = () => {
       
       if (response && response.success && Array.isArray(response.data)) {
         console.log('活动数据:', response.data);
-        // 筛选出已结束的活动
-        const endedActivities = response.data.filter((activity: any) => 
-          activity.status === 'ended' || new Date(activity.end_time) < new Date()
-        );
+        // 筛选出已结束的活动（未被删除的、报名截止日期已过的活动）
+        const endedActivities = response.data.filter((activity: any) => {
+          const now = new Date();
+          const registrationDeadline = new Date(activity.registration_deadline);
+          
+          // 未被删除的、报名截止日期已过的活动
+          return activity.status !== 'cancelled' && registrationDeadline < now;
+        });
         console.log('已结束的活动:', endedActivities);
         setActivities(endedActivities);
         setError(null);
