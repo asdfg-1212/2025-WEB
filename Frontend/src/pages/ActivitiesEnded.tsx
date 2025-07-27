@@ -118,6 +118,7 @@ const ActivitiesEnded: React.FC = () => {
       <ActivityList
         activities={activities.map(activity => ({
           id: activity.id.toString(),
+          title: activity.title,
           type: activity.type,
           venue: activity.venue ? `${activity.venue.name}${activity.venue.location ? ` - ${activity.venue.location}` : ''}` : '未指定场馆',
           startTime: activity.start_time,

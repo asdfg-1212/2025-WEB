@@ -2,6 +2,7 @@ import { Inject, Controller, Get, Post, Put, Query, Body, Param } from '@midwayj
 import { Del } from '@midwayjs/decorator';
 import { Context } from '@midwayjs/koa';
 import { ActivityService, CreateActivityDTO, UpdateActivityDTO } from '../service/activity.service';
+import { RegistrationService, RegisterActivityDTO } from '../service/registration.service';
 import { ActivityStatus, ActivityType } from '../entity/activity.entity';
 
 @Controller('/api/activities')
@@ -11,6 +12,9 @@ export class ActivityController {
 
   @Inject()
   activityService: ActivityService;
+
+  @Inject()
+  registrationService: RegistrationService;
 
   // 创建活动 POST /api/activities
   @Post('/')
@@ -426,5 +430,156 @@ export class ActivityController {
       [ActivityStatus.CANCELLED]: '已取消'
     };
     return labels[status] || status;
+  }
+
+  // =========================== 活动报名相关API ===========================
+
+  // 报名参加活动 POST /api/activities/:id/register
+  @Post('/:id/register')
+  async registerActivity(@Param('id') activityId: string, @Body() body: { user_id: number }) {
+    try {
+      if (!activityId || isNaN(Number(activityId))) {
+        this.ctx.status = 400;
+        return {
+          success: false,
+          message: '无效的活动ID',
+          data: null
+        };
+      }
+
+      if (!body.user_id) {
+        this.ctx.status = 400;
+        return {
+          success: false,
+          message: '缺少用户ID',
+          data: null
+        };
+      }
+
+      const registrationData: RegisterActivityDTO = {
+        user_id: body.user_id,
+        activity_id: Number(activityId)
+      };
+
+      const result = await this.registrationService.registerActivity(registrationData);
+      
+      if (result.code === 0) {
+        this.ctx.status = 201;
+        return {
+          success: true,
+          message: result.message,
+          data: result.data
+        };
+      } else {
+        this.ctx.status = result.code === 404 ? 404 : 400;
+        return {
+          success: false,
+          message: result.message,
+          data: null
+        };
+      }
+    } catch (error) {
+      console.error('报名失败:', error);
+      this.ctx.status = 500;
+      return {
+        success: false,
+        message: '服务器内部错误',
+        data: null
+      };
+    }
+  }
+
+  // 取消报名 DELETE /api/activities/:id/register
+  @Del('/:id/register')
+  async unregisterActivity(@Param('id') activityId: string, @Body() body: { user_id: number }) {
+    try {
+      if (!activityId || isNaN(Number(activityId))) {
+        this.ctx.status = 400;
+        return {
+          success: false,
+          message: '无效的活动ID',
+          data: null
+        };
+      }
+
+      if (!body.user_id) {
+        this.ctx.status = 400;
+        return {
+          success: false,
+          message: '缺少用户ID',
+          data: null
+        };
+      }
+
+      const result = await this.registrationService.cancelRegistration(
+        body.user_id,
+        Number(activityId)
+      );
+      
+      if (result.code === 0) {
+        return {
+          success: true,
+          message: result.message,
+          data: result.data
+        };
+      } else {
+        this.ctx.status = result.code === 404 ? 404 : 400;
+        return {
+          success: false,
+          message: result.message,
+          data: null
+        };
+      }
+    } catch (error) {
+      console.error('取消报名失败:', error);
+      this.ctx.status = 500;
+      return {
+        success: false,
+        message: '服务器内部错误',
+        data: null
+      };
+    }
+  }
+
+  // 获取活动报名状态 GET /api/activities/:id/registration-status
+  @Get('/:id/registration-status')
+  async getRegistrationStatus(@Param('id') activityId: string, @Query('user_id') userId: string) {
+    try {
+      if (!activityId || isNaN(Number(activityId))) {
+        this.ctx.status = 400;
+        return {
+          success: false,
+          message: '无效的活动ID',
+          data: null
+        };
+      }
+
+      if (!userId) {
+        return {
+          success: true,
+          message: '未登录用户',
+          data: { isRegistered: false }
+        };
+      }
+
+      const result = await this.registrationService.checkUserRegistration(
+        Number(userId),
+        Number(activityId)
+      );
+      
+      return {
+        success: true,
+        message: '获取报名状态成功',
+        data: { isRegistered: result.data?.isRegistered || false }
+      };
+    } catch (error) {
+      console.error('获取报名状态失败:', error);
+      this.ctx.status = 500;
+      return {
+        success: false,
+        message: '服务器内部错误',
+        data: null
+      };
+    }
   }
 }

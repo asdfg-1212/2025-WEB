@@ -156,7 +156,17 @@ export async function deleteActivity(id: number) {
 
 // 活动报名相关接口
 export async function registerForActivity(activityId: string) {
-  const res = await apiClient.post(`/activities/${activityId}/register`);
+  // 获取当前用户信息
+  const userStr = localStorage.getItem('user');
+  if (!userStr) {
+    throw new Error('请先登录');
+  }
+  
+  const user = JSON.parse(userStr);
+  const res = await apiClient.post(`/activities/${activityId}/register`, {
+    user_id: user.id
+  });
+  
   if (res.data.success) {
     return res.data;
   }
@@ -164,7 +174,17 @@ export async function registerForActivity(activityId: string) {
 }
 
 export async function unregisterFromActivity(activityId: string) {
-  const res = await apiClient.delete(`/activities/${activityId}/register`);
+  // 获取当前用户信息
+  const userStr = localStorage.getItem('user');
+  if (!userStr) {
+    throw new Error('请先登录');
+  }
+  
+  const user = JSON.parse(userStr);
+  const res = await apiClient.delete(`/activities/${activityId}/register`, {
+    data: { user_id: user.id }
+  });
+  
   if (res.data.success) {
     return res.data;
   }
@@ -174,7 +194,19 @@ export async function unregisterFromActivity(activityId: string) {
 // 获取用户的活动报名状态
 export async function getRegistrationStatus(activityId: string) {
   try {
-    const res = await apiClient.get(`/activities/${activityId}/registration-status`);
+    // 获取当前用户信息
+    const userStr = localStorage.getItem('user');
+    let userId = null;
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      userId = user.id;
+    }
+    
+    const url = userId 
+      ? `/activities/${activityId}/registration-status?user_id=${userId}`
+      : `/activities/${activityId}/registration-status`;
+      
+    const res = await apiClient.get(url);
     if (res.data.success) {
       return res.data.data.isRegistered;
     }
@@ -186,12 +218,17 @@ export async function getRegistrationStatus(activityId: string) {
 }
 
 // 获取活动参与者列表
-export async function getActivityParticipants(activityId: string) {
-  const res = await apiClient.get(`/activities/${activityId}/participants`);
-  if (res.data.success) {
-    return res.data.data.participants;
+export async function getActivityParticipants(activityId: string | number) {
+  try {
+    const res = await apiClient.get(`/registrations/activity/${activityId}`);
+    if (res.data.success) {
+      return res.data.data;
+    }
+    throw new Error(res.data.message || '获取参与者列表失败');
+  } catch (error: any) {
+    console.error('获取参与者列表失败:', error);
+    throw new Error(error.message || '获取参与者列表失败');
   }
-  throw new Error(res.data.message || '获取参与者列表失败');
 }
 
 // 发表活动评论
