@@ -33,16 +33,45 @@
 ## 🚀 快速开始
 
 ### 环境要求
-- Node.js >= 14.0.0
-- npm >= 6.0.0
+- Docker >= 20.0.0
+- Docker Compose >= 2.0.0
 
-### 安装和运行
+### 一键部署 (推荐)
 
+#### Linux/Mac:
 ```bash
 # 克隆项目
 git clone https://github.com/your-username/2025-WEB.git
 cd 2025-WEB
 
+# 配置环境变量
+cp .env.example .env
+# 编辑 .env 文件，填入实际配置
+
+# 一键部署
+chmod +x deploy.sh
+./deploy.sh
+```
+
+#### Windows:
+```cmd
+# 克隆项目
+git clone https://github.com/your-username/2025-WEB.git
+cd 2025-WEB
+
+# 配置环境变量
+copy .env.example .env
+# 编辑 .env 文件，填入实际配置
+
+# 一键部署
+deploy.bat
+```
+
+### 本地开发模式
+
+如果需要进行开发：
+
+```bash
 # 启动后端服务
 cd Backend
 npm install
@@ -56,8 +85,61 @@ npm run dev
 ```
 
 ### 访问应用
-- 前端应用: http://localhost:5173
+- 前端应用: http://localhost (生产模式) 或 http://localhost:5173 (开发模式)
 - 后端API: http://localhost:7001
+- 数据库: localhost:3306 (MySQL)
+- 缓存: localhost:6379 (Redis)
+
+## 🚢 部署和运维
+
+### 生产环境部署
+
+项目已完全容器化，支持一键部署到生产环境：
+
+1. **服务器要求**
+   - Docker >= 20.0.0
+   - Docker Compose >= 2.0.0
+   - 2GB+ RAM
+   - 10GB+ 磁盘空间
+
+2. **部署步骤**
+   ```bash
+   # 1. 上传代码到服务器
+   git clone https://github.com/your-username/2025-WEB.git
+   cd 2025-WEB
+   
+   # 2. 配置环境变量
+   cp .env.example .env
+   # 编辑 .env 文件，设置生产环境配置
+   
+   # 3. 一键部署
+   ./deploy.sh
+   ```
+
+3. **常用运维命令**
+   ```bash
+   ./deploy.sh status    # 查看服务状态
+   ./deploy.sh restart   # 重启服务
+   ./deploy.sh stop      # 停止服务
+   ./deploy.sh health    # 健康检查
+   ./deploy.sh cleanup   # 清理资源
+   ```
+
+### Docker镜像构成
+
+- **Frontend**: Nginx + React生产构建
+- **Backend**: Node.js + PM2进程管理
+- **Database**: MySQL 8.0 with persistent storage
+- **Cache**: Redis 7 for session and caching
+
+### 安全特性
+
+- ✅ 非root用户运行容器
+- ✅ 安全HTTP头配置
+- ✅ JWT Token认证
+- ✅ 输入验证和SQL注入防护
+- ✅ CORS跨域安全配置
+- ✅ 生产环境密钥管理
 
 ## 📁 项目结构
 
