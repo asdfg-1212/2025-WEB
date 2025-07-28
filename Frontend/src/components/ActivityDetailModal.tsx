@@ -44,7 +44,7 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
   onClose,
   onRegister,
   onUnregister,
-  onPostComment,
+  onPostComment: _onPostComment,
   onActivityUpdated,
   onActivityDeleted,
   isUserRegistered = false // 新增参数，默认为 false
@@ -154,11 +154,6 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
         setIsCommentExpanded(false);
         // 重新加载评论
         await loadComments();
-        
-        // 调用父组件的回调（如果有的话）
-        if (onPostComment) {
-          onPostComment(activity.id, commentText.trim());
-        }
       }
     } catch (error) {
       console.error('发表评论失败:', error);
