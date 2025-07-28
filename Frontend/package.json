@@ -1,13 +1,17 @@
 {
-  "name": "my-react-app",
+  "name": "sports-activity-frontend",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "体育活动管理系统前端应用",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "lint:fix": "eslint . --fix",
+    "preview": "vite preview",
+    "test": "echo \"No tests specified yet\"",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@types/react-router-dom": "^5.3.3",

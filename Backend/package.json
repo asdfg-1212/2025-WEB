@@ -1,7 +1,7 @@
 {
-  "name": "my-midway-project",
+  "name": "sports-activity-backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "体育活动管理系统后端API服务",
   "private": true,
   "dependencies": {
     "@koa/cors": "^5.0.0",
@@ -38,11 +38,16 @@
     "start": "NODE_ENV=production node ./bootstrap.js",
     "dev": "cross-env NODE_ENV=local mw dev",
     "test": "cross-env NODE_ENV=unittest jest",
+    "test:watch": "cross-env NODE_ENV=unittest jest --watch",
     "cov": "jest --coverage",
     "lint": "mwts check",
     "lint:fix": "mwts fix",
     "ci": "npm run cov",
-    "build": "mwtsc --cleanOutDir"
+    "build": "mwtsc --cleanOutDir",
+    "db:init": "node init-database.js",
+    "db:seed": "node create-test-data.ts",
+    "scripts:clean": "node scripts/clear-data.js",
+    "scripts:check": "node scripts/check-tables.js"
   },
   "repository": {
     "type": "git",

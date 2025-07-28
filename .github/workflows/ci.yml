@@ -1,41 +1,66 @@
-name: CI
+name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, develop ]
   pull_request:
     branches: [ main ]
 
 jobs:
-  build:
+  test:
+    name: Test and Lint
     runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+    
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up Node.js
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-      - name: Install dependencies (Frontend)
-        run: |
-          cd Frontend
-          npm install
-      - name: Install dependencies (Backend)
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          
+      - name: Install Backend dependencies
         run: |
           cd Backend
-          npm install
-      - name: Lint Frontend
+          npm ci
+          
+      - name: Install Frontend dependencies
         run: |
           cd Frontend
-          npm run lint || true
+          npm ci
+          
       - name: Lint Backend
         run: |
           cd Backend
-          npm run lint || true
-      - name: Run Frontend Tests
+          npm run lint
+          
+      - name: Lint Frontend
         run: |
           cd Frontend
-          npm test || true
-      - name: Run Backend Tests
+          npm run lint
+          
+      - name: Type check Frontend
+        run: |
+          cd Frontend
+          npm run type-check
+          
+      - name: Run Backend tests
         run: |
           cd Backend
-          npm test || true
+          npm test
+          
+      - name: Build Backend
+        run: |
+          cd Backend
+          npm run build
+          
+      - name: Build Frontend
+        run: |
+          cd Frontend
+          npm run build
