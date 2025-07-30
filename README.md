@@ -4,8 +4,7 @@
 初次尝试、十分青涩、还望谅解、不值得也千万不要二创搬运抄袭，求求求求谢谢谢谢！  
 >Github: https://github.com/asdfg-1212/2025-WEB  
 >Wiki: https://github.com/asdfg-1212/2025-WEB/wiki/2025%E2%80%90WEB%E2%80%90Wiki  
->bilibili(功能描述)： https://www.bilibili.com/video/BV1bkhwznEe7/?spm_id_from=333.1387.homepage.video_card.click&vd_source=de252c3487db8b6334b8dd6450e948f7  
->视频过大无法随压缩包提交，所以采用B站链接形式，麻烦了，请见谅！
+>bilibili(功能描述)： https://www.bilibili.com/video/BV1bkhwznEe7/?spm_id_from=333.1387.homepage.video_card.click&vd_source=de252c3487db8b6334b8dd6450e948f7
 
 ## 🎯 主要功能
 - 👥 **普通用户**：
