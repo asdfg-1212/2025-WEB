@@ -8,7 +8,7 @@ export default {
     port: 7001,
   },
   typeorm: {
-    dataSource:{
+    dataSource: {
       default: {
         type: 'sqlite',
         database: './database.sqlite', // SQLite 数据库文件路径

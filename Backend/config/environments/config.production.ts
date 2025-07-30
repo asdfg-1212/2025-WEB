@@ -6,7 +6,7 @@ export default {
     origin: process.env.FRONTEND_URL || 'https://your-domain.com',
     credentials: true,
   },
-  
+
   // 数据库配置 - 生产环境应使用MySQL等
   typeorm: {
     dataSource: {
@@ -24,7 +24,7 @@ export default {
       },
     },
   },
-  
+
   // 日志配置
   midwayLogger: {
     default: {
@@ -33,19 +33,19 @@ export default {
       enableFile: true,
     },
   },
-  
+
   // 安全配置
   security: {
     jwt: {
-      secret: process.env.JWT_SECRET || 'your-super-secret-key-change-in-production',
+      secret:
+        process.env.JWT_SECRET || 'your-super-secret-key-change-in-production',
       expiresIn: '7d',
     },
   },
-  
+
   // 服务器配置
   koa: {
     port: parseInt(process.env.PORT) || 7001,
     hostname: '0.0.0.0',
   },
-  
 } as MidwayConfig;

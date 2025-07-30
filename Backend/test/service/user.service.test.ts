@@ -84,7 +84,11 @@ describe('test/service/user.service.test.ts', () => {
     });
 
     it('should login successfully with correct credentials', async () => {
-      const result = await userService.login('test@example.com', 'testuser', 'password123');
+      const result = await userService.login(
+        'test@example.com',
+        'testuser',
+        'password123'
+      );
 
       expect(result.code).toBe(0);
       expect(result.message).toBe('登录成功');
@@ -96,14 +100,22 @@ describe('test/service/user.service.test.ts', () => {
     });
 
     it('should fail when user does not exist', async () => {
-      const result = await userService.login('nonexistent@example.com', 'testuser', 'password123');
+      const result = await userService.login(
+        'nonexistent@example.com',
+        'testuser',
+        'password123'
+      );
 
       expect(result.code).toBe(1);
       expect(result.message).toBe('用户不存在');
     });
 
     it('should fail when password is incorrect', async () => {
-      const result = await userService.login('test@example.com', 'testuser', 'wrongpassword');
+      const result = await userService.login(
+        'test@example.com',
+        'testuser',
+        'wrongpassword'
+      );
 
       expect(result.code).toBe(2);
       expect(result.message).toBe('密码错误');
@@ -165,7 +177,9 @@ describe('test/service/user.service.test.ts', () => {
       expect(result.data.avatar_emoji).toBe(newAvatar);
 
       // 验证数据库中的数据是否真的更新了
-      const updatedUser = await userService['userModel'].findOne({ where: { id: savedUser.id } });
+      const updatedUser = await userService['userModel'].findOne({
+        where: { id: savedUser.id },
+      });
       expect(updatedUser.avatar_emoji).toBe(newAvatar);
     });
 
@@ -178,7 +192,10 @@ describe('test/service/user.service.test.ts', () => {
 
     it('should fail when avatar emoji is invalid', async () => {
       const invalidAvatar = 'invalid';
-      const result = await userService.updateAvatar(savedUser.id, invalidAvatar);
+      const result = await userService.updateAvatar(
+        savedUser.id,
+        invalidAvatar
+      );
 
       expect(result.code).toBe(1);
       expect(result.message).toBe('无效的头像emoji');
@@ -201,7 +218,11 @@ describe('test/service/user.service.test.ts', () => {
     it('should handle very long usernames', async () => {
       const longUsername = 'a'.repeat(1000);
       try {
-        const result = await userService.register('test@example.com', longUsername, 'password');
+        const result = await userService.register(
+          'test@example.com',
+          longUsername,
+          'password'
+        );
         // 如果没有抛出异常，应该返回错误码
         expect((result as any).code).toBeDefined();
         expect((result as any).code).not.toBe(0);
@@ -213,7 +234,11 @@ describe('test/service/user.service.test.ts', () => {
 
     it('should handle special characters in email', async () => {
       const specialEmail = 'test+special@example.com';
-      const result = await userService.register(specialEmail, 'testuser', 'password');
+      const result = await userService.register(
+        specialEmail,
+        'testuser',
+        'password'
+      );
 
       // 应该成功处理特殊但有效的邮箱格式
       expect(result).toBeDefined();

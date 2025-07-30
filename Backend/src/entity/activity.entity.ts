@@ -1,15 +1,21 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { User } from './user.entity';
 import { Venue } from './venue.entity';
 
 export enum ActivityStatus {
-  DRAFT = 'draft',           // 草稿
-  OPEN = 'open',            // 报名中
-  FULL = 'full',            // 报名已满
-  CLOSED = 'closed',        // 报名截止
-  ONGOING = 'ongoing',      // 进行中
-  ENDED = 'ended',          // 已结束
-  CANCELLED = 'cancelled'   // 已取消
+  DRAFT = 'draft', // 草稿
+  OPEN = 'open', // 报名中
+  FULL = 'full', // 报名已满
+  CLOSED = 'closed', // 报名截止
+  ONGOING = 'ongoing', // 进行中
+  ENDED = 'ended', // 已结束
+  CANCELLED = 'cancelled', // 已取消
 }
 
 export enum ActivityType {
@@ -21,7 +27,7 @@ export enum ActivityType {
   PINGPONG = 'pingpong',
   SWIMMING = 'swimming',
   GYM = 'gym',
-  OTHER = 'other'
+  OTHER = 'other',
 }
 
 @Entity('activities')
@@ -81,6 +87,10 @@ export class Activity {
   @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 
-  @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
+  @Column({
+    type: 'datetime',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
   updated_at: Date;
 }

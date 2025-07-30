@@ -2,7 +2,6 @@ import { createApp, close, createHttpRequest } from '@midwayjs/mock';
 import { Framework } from '@midwayjs/koa';
 
 describe('test/controller/home.test.ts', () => {
-
   it('should GET /', async () => {
     // create app
     const app = await createApp<Framework>();
@@ -17,5 +16,4 @@ describe('test/controller/home.test.ts', () => {
     // close app
     await close(app);
   });
-
 });

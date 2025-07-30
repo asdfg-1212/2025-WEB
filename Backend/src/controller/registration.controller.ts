@@ -1,7 +1,10 @@
 import { Inject, Controller, Get, Post, Body, Param } from '@midwayjs/core';
 import { Del } from '@midwayjs/decorator';
 import { Context } from '@midwayjs/koa';
-import { RegistrationService, RegisterActivityDTO } from '../service/registration.service';
+import {
+  RegistrationService,
+  RegisterActivityDTO,
+} from '../service/registration.service';
 
 @Controller('/api/registrations')
 export class RegistrationController {
@@ -16,36 +19,38 @@ export class RegistrationController {
   async registerActivity(@Body() body: RegisterActivityDTO) {
     try {
       const { user_id, activity_id } = body;
-      
+
       // 基础参数验证
       if (!user_id || !activity_id) {
         return {
           code: 400,
           message: '缺少必要参数：user_id, activity_id',
-          data: null
+          data: null,
         };
       }
 
       const registrationData: RegisterActivityDTO = {
         user_id: Number(user_id),
-        activity_id: Number(activity_id)
+        activity_id: Number(activity_id),
       };
 
-      const result = await this.registrationService.registerActivity(registrationData);
-      
+      const result = await this.registrationService.registerActivity(
+        registrationData
+      );
+
       if (result.code === 0) {
         this.ctx.status = 201; // Created
         return {
           success: true,
           message: result.message,
-          data: result.data
+          data: result.data,
         };
       } else {
         this.ctx.status = result.code === 404 ? 404 : 400;
         return {
           success: false,
           message: result.message,
-          data: null
+          data: null,
         };
       }
     } catch (error) {
@@ -54,7 +59,7 @@ export class RegistrationController {
       return {
         success: false,
         message: '服务器内部错误',
-        data: null
+        data: null,
       };
     }
   }
@@ -66,32 +71,37 @@ export class RegistrationController {
     @Param('activityId') activityId: string
   ) {
     try {
-      if (!userId || isNaN(Number(userId)) || !activityId || isNaN(Number(activityId))) {
+      if (
+        !userId ||
+        isNaN(Number(userId)) ||
+        !activityId ||
+        isNaN(Number(activityId))
+      ) {
         this.ctx.status = 400;
         return {
           success: false,
           message: '无效的用户ID或活动ID',
-          data: null
+          data: null,
         };
       }
 
       const result = await this.registrationService.cancelRegistration(
-        Number(userId), 
+        Number(userId),
         Number(activityId)
       );
-      
+
       if (result.code === 0) {
         return {
           success: true,
           message: result.message,
-          data: result.data
+          data: result.data,
         };
       } else {
         this.ctx.status = result.code;
         return {
           success: false,
           message: result.message,
-          data: null
+          data: null,
         };
       }
     } catch (error) {
@@ -100,7 +110,7 @@ export class RegistrationController {
       return {
         success: false,
         message: '服务器内部错误',
-        data: null
+        data: null,
       };
     }
   }
@@ -114,24 +124,26 @@ export class RegistrationController {
         return {
           success: false,
           message: '无效的活动ID',
-          data: null
+          data: null,
         };
       }
 
-      const result = await this.registrationService.getActivityRegistrations(Number(activityId));
-      
+      const result = await this.registrationService.getActivityRegistrations(
+        Number(activityId)
+      );
+
       if (result.code === 0) {
         return {
           success: true,
           message: result.message,
-          data: result.data
+          data: result.data,
         };
       } else {
         this.ctx.status = result.code;
         return {
           success: false,
           message: result.message,
-          data: null
+          data: null,
         };
       }
     } catch (error) {
@@ -140,7 +152,7 @@ export class RegistrationController {
       return {
         success: false,
         message: '服务器内部错误',
-        data: null
+        data: null,
       };
     }
   }
@@ -152,12 +164,17 @@ export class RegistrationController {
     @Param('activityId') activityId: string
   ) {
     try {
-      if (!userId || isNaN(Number(userId)) || !activityId || isNaN(Number(activityId))) {
+      if (
+        !userId ||
+        isNaN(Number(userId)) ||
+        !activityId ||
+        isNaN(Number(activityId))
+      ) {
         this.ctx.status = 400;
         return {
           success: false,
           message: '无效的用户ID或活动ID',
-          data: null
+          data: null,
         };
       }
 
@@ -165,19 +182,19 @@ export class RegistrationController {
         Number(userId),
         Number(activityId)
       );
-      
+
       if (result.code === 0) {
         return {
           success: true,
           message: result.message,
-          data: result.data
+          data: result.data,
         };
       } else {
         this.ctx.status = result.code;
         return {
           success: false,
           message: result.message,
-          data: null
+          data: null,
         };
       }
     } catch (error) {
@@ -186,7 +203,7 @@ export class RegistrationController {
       return {
         success: false,
         message: '服务器内部错误',
-        data: null
+        data: null,
       };
     }
   }

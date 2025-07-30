@@ -2,7 +2,7 @@ const sqlite3 = require('sqlite3').verbose();
 const bcrypt = require('bcrypt');
 
 // 连接数据库
-const db = new sqlite3.Database('./database.sqlite', (err) => {
+const db = new sqlite3.Database('./database.sqlite', err => {
   if (err) {
     console.error('数据库连接错误:', err.message);
     return;
@@ -27,8 +27,8 @@ async function createTablesAndAdmin() {
           updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
         )
       `;
-      
-      db.run(userTableSQL, (err) => {
+
+      db.run(userTableSQL, err => {
         if (err) reject(err);
         else {
           console.log('✅ 用户表创建成功');
@@ -51,8 +51,8 @@ async function createTablesAndAdmin() {
           updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
         )
       `;
-      
-      db.run(venueTableSQL, (err) => {
+
+      db.run(venueTableSQL, err => {
         if (err) reject(err);
         else {
           console.log('✅ 场馆表创建成功');
@@ -81,8 +81,8 @@ async function createTablesAndAdmin() {
           FOREIGN KEY (organizerId) REFERENCES user(id)
         )
       `;
-      
-      db.run(activityTableSQL, (err) => {
+
+      db.run(activityTableSQL, err => {
         if (err) reject(err);
         else {
           console.log('✅ 活动表创建成功');
@@ -108,8 +108,8 @@ async function createTablesAndAdmin() {
           UNIQUE(userId, activityId)
         )
       `;
-      
-      db.run(registrationTableSQL, (err) => {
+
+      db.run(registrationTableSQL, err => {
         if (err) reject(err);
         else {
           console.log('✅ 报名表创建成功');
@@ -135,8 +135,8 @@ async function createTablesAndAdmin() {
           FOREIGN KEY (parentId) REFERENCES comment(id)
         )
       `;
-      
-      db.run(commentTableSQL, (err) => {
+
+      db.run(commentTableSQL, err => {
         if (err) reject(err);
         else {
           console.log('✅ 评论表创建成功');
@@ -148,10 +148,10 @@ async function createTablesAndAdmin() {
     // 清空所有数据
     console.log('\n开始清理数据...');
     const tables = ['comment', 'registration', 'activity', 'venue', 'user'];
-    
+
     for (const table of tables) {
       await new Promise((resolve, reject) => {
-        db.run(`DELETE FROM ${table}`, (err) => {
+        db.run(`DELETE FROM ${table}`, err => {
           if (err) reject(err);
           else {
             console.log(`✅ 已清空 ${table} 数据`);
@@ -163,7 +163,7 @@ async function createTablesAndAdmin() {
 
     // 重置自增ID
     await new Promise((resolve, reject) => {
-      db.run('DELETE FROM sqlite_sequence', (err) => {
+      db.run('DELETE FROM sqlite_sequence', err => {
         if (err) reject(err);
         else {
           console.log('✅ 已重置自增ID');
@@ -175,32 +175,35 @@ async function createTablesAndAdmin() {
     // 创建管理员用户
     console.log('\n正在创建管理员用户...');
     const hashedPassword = await bcrypt.hash('123456', 10);
-    
+
     await new Promise((resolve, reject) => {
       const sql = `INSERT INTO user (username, email, password, isActive, createdAt, updatedAt) 
                    VALUES (?, ?, ?, 1, datetime('now'), datetime('now'))`;
-      
-      db.run(sql, ['asdfg_admin', 'admin@web.com', hashedPassword], function(err) {
-        if (err) {
-          reject(err);
-        } else {
-          console.log('✅ 管理员用户创建成功！');
-          console.log('   用户名: asdfg_admin');
-          console.log('   邮箱: admin@web.com');
-          console.log('   密码: 123456');
-          console.log('   用户ID:', this.lastID);
-          resolve();
+
+      db.run(
+        sql,
+        ['asdfg_admin', 'admin@web.com', hashedPassword],
+        function (err) {
+          if (err) {
+            reject(err);
+          } else {
+            console.log('✅ 管理员用户创建成功！');
+            console.log('   用户名: asdfg_admin');
+            console.log('   邮箱: admin@web.com');
+            console.log('   密码: 123456');
+            console.log('   用户ID:', this.lastID);
+            resolve();
+          }
         }
-      });
+      );
     });
 
     console.log('\n🎉 数据库初始化完成！');
-
   } catch (error) {
     console.error('❌ 操作失败:', error.message);
   } finally {
     // 关闭数据库连接
-    db.close((err) => {
+    db.close(err => {
       if (err) {
         console.error('关闭数据库时出错:', err.message);
       } else {

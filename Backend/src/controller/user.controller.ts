@@ -11,7 +11,7 @@ export class UserController {
   async register(@Body() body) {
     const { email, username, password } = body;
     if (!email || !username || !password) {
-      throw new Error("缺少参数");
+      throw new Error('缺少参数');
     }
     const result = await this.userService.register(email, username, password);
     return result;
@@ -21,9 +21,9 @@ export class UserController {
   async login(@Body() body) {
     const { email, username, password } = body;
     if (!email || !username || !password) {
-      throw new Error("缺少参数");
+      throw new Error('缺少参数');
     }
-    const result = await this.userService.login(email, username, password);  
+    const result = await this.userService.login(email, username, password);
     return result;
   }
 
@@ -31,7 +31,7 @@ export class UserController {
   async updateAvatar(@Body() body) {
     const { userId, avatarEmoji } = body;
     if (!userId || !avatarEmoji) {
-      throw new Error("缺少参数");
+      throw new Error('缺少参数');
     }
     const result = await this.userService.updateAvatar(userId, avatarEmoji);
     return result;
@@ -43,8 +43,8 @@ export class UserController {
       code: 0,
       message: '获取头像选项成功',
       data: {
-        emojis: AVATAR_EMOJIS
-      }
+        emojis: AVATAR_EMOJIS,
+      },
     };
   }
 }

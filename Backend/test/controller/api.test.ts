@@ -2,13 +2,14 @@ import { createApp, close, createHttpRequest } from '@midwayjs/mock';
 import { Framework } from '@midwayjs/koa';
 
 describe('test/controller/api.test.ts', () => {
-
   it('should GET /api/get_user with valid uid', async () => {
     // create app
     const app = await createApp<Framework>();
 
     // make request
-    const result = await createHttpRequest(app).get('/api/get_user').query({ uid: 1 });
+    const result = await createHttpRequest(app)
+      .get('/api/get_user')
+      .query({ uid: 1 });
 
     // use expect by jest
     expect(result.status).toBe(200);

@@ -1,13 +1,20 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, Unique } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  Unique,
+} from 'typeorm';
 import { User } from './user.entity';
 import { Activity } from './activity.entity';
 
 export enum RegistrationStatus {
-  PENDING = 'pending',     // 待确认
+  PENDING = 'pending', // 待确认
   CONFIRMED = 'confirmed', // 已确认
   CANCELLED = 'cancelled', // 已取消
-  ATTENDED = 'attended',   // 已参加
-  ABSENT = 'absent'        // 缺席
+  ATTENDED = 'attended', // 已参加
+  ABSENT = 'absent', // 缺席
 }
 
 @Entity('registrations')
@@ -44,6 +51,10 @@ export class Registration {
   @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 
-  @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
+  @Column({
+    type: 'datetime',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
   updated_at: Date;
 }

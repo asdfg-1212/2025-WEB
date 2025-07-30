@@ -6,7 +6,7 @@ export default {
     origin: 'http://localhost:5173', // Vite开发服务器地址
     credentials: true,
   },
-  
+
   // 数据库配置 - 开发环境使用SQLite
   typeorm: {
     dataSource: {
@@ -19,7 +19,7 @@ export default {
       },
     },
   },
-  
+
   // 日志配置
   midwayLogger: {
     default: {
@@ -28,7 +28,7 @@ export default {
       enableFile: true,
     },
   },
-  
+
   // 安全配置
   security: {
     jwt: {
@@ -36,11 +36,10 @@ export default {
       expiresIn: '7d',
     },
   },
-  
+
   // 服务器配置
   koa: {
     port: 7001,
     hostname: '127.0.0.1',
   },
-  
 } as MidwayConfig;

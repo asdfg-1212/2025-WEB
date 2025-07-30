@@ -1,7 +1,10 @@
 import { Provide } from '@midwayjs/core';
 import { InjectEntityModel } from '@midwayjs/typeorm';
 import { Repository } from 'typeorm';
-import { Registration, RegistrationStatus } from '../entity/registration.entity';
+import {
+  Registration,
+  RegistrationStatus,
+} from '../entity/registration.entity';
 import { Activity, ActivityStatus } from '../entity/activity.entity';
 import { User } from '../entity/user.entity';
 
@@ -56,31 +59,33 @@ export class RegistrationService {
   userModel: Repository<User>;
 
   // 1. 用户报名活动
-  async registerActivity(data: RegisterActivityDTO): Promise<ServiceResult<Registration>> {
+  async registerActivity(
+    data: RegisterActivityDTO
+  ): Promise<ServiceResult<Registration>> {
     try {
       const { user_id, activity_id } = data;
 
       // 验证用户是否存在
       const user = await this.userModel.findOne({
-        where: { id: user_id }
+        where: { id: user_id },
       });
       if (!user) {
         return {
           code: 404,
           message: '用户不存在',
-          data: null
+          data: null,
         };
       }
 
       // 验证活动是否存在
       const activity = await this.activityModel.findOne({
-        where: { id: activity_id }
+        where: { id: activity_id },
       });
       if (!activity) {
         return {
           code: 404,
           message: '活动不存在',
-          data: null
+          data: null,
         };
       }
 
@@ -89,7 +94,7 @@ export class RegistrationService {
         return {
           code: 400,
           message: '活动未开放报名或已结束',
-          data: null
+          data: null,
         };
       }
 
@@ -98,15 +103,15 @@ export class RegistrationService {
         where: {
           user_id,
           activity_id,
-          status: RegistrationStatus.CONFIRMED
-        }
+          status: RegistrationStatus.CONFIRMED,
+        },
       });
 
       if (existingRegistration) {
         return {
           code: 400,
           message: '您已经报名了此活动',
-          data: null
+          data: null,
         };
       }
 
@@ -115,7 +120,7 @@ export class RegistrationService {
         return {
           code: 400,
           message: '活动报名人数已满',
-          data: null
+          data: null,
         };
       }
 
@@ -124,7 +129,7 @@ export class RegistrationService {
         user_id,
         activity_id,
         status: RegistrationStatus.CONFIRMED,
-        registered_at: new Date()
+        registered_at: new Date(),
       });
 
       const savedRegistration = await this.registrationModel.save(registration);
@@ -135,48 +140,51 @@ export class RegistrationService {
       return {
         code: 0,
         message: '报名成功',
-        data: savedRegistration
+        data: savedRegistration,
       };
     } catch (error) {
       console.error('报名失败:', error);
       return {
         code: 500,
         message: '服务器内部错误',
-        data: null
+        data: null,
       };
     }
   }
 
   // 2. 用户取消报名
-  async cancelRegistration(userId: number, activityId: number): Promise<ServiceResult<Registration>> {
+  async cancelRegistration(
+    userId: number,
+    activityId: number
+  ): Promise<ServiceResult<Registration>> {
     try {
       // 查找报名记录
       const registration = await this.registrationModel.findOne({
         where: {
           user_id: userId,
           activity_id: activityId,
-          status: RegistrationStatus.CONFIRMED
-        }
+          status: RegistrationStatus.CONFIRMED,
+        },
       });
 
       if (!registration) {
         return {
           code: 404,
           message: '未找到有效的报名记录',
-          data: null
+          data: null,
         };
       }
 
       // 检查活动是否已经开始（可选的业务逻辑）
       const activity = await this.activityModel.findOne({
-        where: { id: activityId }
+        where: { id: activityId },
       });
 
       if (activity && new Date() >= activity.start_time) {
         return {
           code: 400,
           message: '活动已开始，无法取消报名',
-          data: null
+          data: null,
         };
       }
 
@@ -184,7 +192,9 @@ export class RegistrationService {
       registration.status = RegistrationStatus.CANCELLED;
       registration.cancelled_at = new Date();
 
-      const updatedRegistration = await this.registrationModel.save(registration);
+      const updatedRegistration = await this.registrationModel.save(
+        registration
+      );
 
       // 更新活动参与人数
       await this.updateActivityParticipantCount(activityId);
@@ -192,31 +202,33 @@ export class RegistrationService {
       return {
         code: 0,
         message: '取消报名成功',
-        data: updatedRegistration
+        data: updatedRegistration,
       };
     } catch (error) {
       console.error('取消报名失败:', error);
       return {
         code: 500,
         message: '服务器内部错误',
-        data: null
+        data: null,
       };
     }
   }
 
   // 3. 管理员查看某活动的报名列表
-  async getActivityRegistrations(activityId: number): Promise<ServiceResult<ActivityRegistrationsResult>> {
+  async getActivityRegistrations(
+    activityId: number
+  ): Promise<ServiceResult<ActivityRegistrationsResult>> {
     try {
       // 验证活动是否存在
       const activity = await this.activityModel.findOne({
-        where: { id: activityId }
+        where: { id: activityId },
       });
 
       if (!activity) {
         return {
           code: 404,
           message: '活动不存在',
-          data: null
+          data: null,
         };
       }
 
@@ -234,28 +246,30 @@ export class RegistrationService {
             id: true,
             username: true,
             email: true,
-            avatar_emoji: true
-          }
+            avatar_emoji: true,
+          },
         },
         order: {
-          registered_at: 'ASC'
-        }
+          registered_at: 'ASC',
+        },
       });
 
       // 转换为需要的格式
-      const registrationDetails: RegistrationDetail[] = registrations.map(reg => ({
-        id: reg.id,
-        user_id: reg.user_id,
-        status: reg.status,
-        registered_at: reg.registered_at,
-        cancelled_at: reg.cancelled_at,
-        user: {
-          id: reg.user.id,
-          username: reg.user.username,
-          email: reg.user.email,
-          avatar_emoji: reg.user.avatar_emoji
-        }
-      }));
+      const registrationDetails: RegistrationDetail[] = registrations.map(
+        reg => ({
+          id: reg.id,
+          user_id: reg.user_id,
+          status: reg.status,
+          registered_at: reg.registered_at,
+          cancelled_at: reg.cancelled_at,
+          user: {
+            id: reg.user.id,
+            username: reg.user.username,
+            email: reg.user.email,
+            avatar_emoji: reg.user.avatar_emoji,
+          },
+        })
+      );
 
       return {
         code: 0,
@@ -265,31 +279,36 @@ export class RegistrationService {
             id: activity.id,
             title: activity.title,
             max_participants: activity.max_participants,
-            current_participants: activity.current_participants
+            current_participants: activity.current_participants,
           },
           registrations: registrationDetails,
-          total: registrationDetails.length
-        }
+          total: registrationDetails.length,
+        },
       };
     } catch (error) {
       console.error('获取活动报名列表失败:', error);
       return {
         code: 500,
         message: '服务器内部错误',
-        data: null
+        data: null,
       };
     }
   }
 
   // 4. 检查用户是否已报名某活动
-  async checkUserRegistration(userId: number, activityId: number): Promise<ServiceResult<{ isRegistered: boolean; registration?: Registration }>> {
+  async checkUserRegistration(
+    userId: number,
+    activityId: number
+  ): Promise<
+    ServiceResult<{ isRegistered: boolean; registration?: Registration }>
+  > {
     try {
       const registration = await this.registrationModel.findOne({
         where: {
           user_id: userId,
           activity_id: activityId,
-          status: RegistrationStatus.CONFIRMED
-        }
+          status: RegistrationStatus.CONFIRMED,
+        },
       });
 
       return {
@@ -297,26 +316,28 @@ export class RegistrationService {
         message: registration ? '用户已报名' : '用户未报名',
         data: {
           isRegistered: !!registration,
-          registration: registration || undefined
-        }
+          registration: registration || undefined,
+        },
       };
     } catch (error) {
       console.error('检查用户报名状态失败:', error);
       return {
         code: 500,
         message: '服务器内部错误',
-        data: null
+        data: null,
       };
     }
   }
 
   // 私有方法：更新活动参与人数
-  private async updateActivityParticipantCount(activityId: number): Promise<void> {
+  private async updateActivityParticipantCount(
+    activityId: number
+  ): Promise<void> {
     const confirmedCount = await this.registrationModel.count({
       where: {
         activity_id: activityId,
-        status: RegistrationStatus.CONFIRMED
-      }
+        status: RegistrationStatus.CONFIRMED,
+      },
     });
 
     await this.activityModel.update(
@@ -329,12 +350,12 @@ export class RegistrationService {
   async getUserRegistrations(userId: number): Promise<ServiceResult<any[]>> {
     try {
       const registrations = await this.registrationModel.find({
-        where: { 
+        where: {
           user_id: userId,
-          status: RegistrationStatus.CONFIRMED
+          status: RegistrationStatus.CONFIRMED,
         },
         relations: ['activity', 'activity.venue'],
-        order: { registered_at: 'DESC' }
+        order: { registered_at: 'DESC' },
       });
 
       const registrationDetails = registrations.map(registration => ({
@@ -354,21 +375,21 @@ export class RegistrationService {
           status: registration.activity.status,
           venue: registration.activity.venue,
           allow_comments: registration.activity.allow_comments,
-          notes: registration.activity.notes
-        }
+          notes: registration.activity.notes,
+        },
       }));
 
       return {
         code: 0,
         message: '获取用户报名活动成功',
-        data: registrationDetails
+        data: registrationDetails,
       };
     } catch (error) {
       console.error('获取用户报名活动失败:', error);
       return {
         code: 500,
         message: '服务器内部错误',
-        data: null
+        data: null,
       };
     }
   }

@@ -55,45 +55,45 @@ export class CommentService {
 
       // 验证活动是否存在
       const activity = await this.activityModel.findOne({
-        where: { id: activity_id }
+        where: { id: activity_id },
       });
 
       if (!activity) {
         return {
           code: 404,
           message: '活动不存在',
-          data: null
+          data: null,
         };
       }
 
       // 验证用户是否存在
       const user = await this.userModel.findOne({
-        where: { id: user_id }
+        where: { id: user_id },
       });
 
       if (!user) {
         return {
           code: 404,
           message: '用户不存在',
-          data: null
+          data: null,
         };
       }
 
       // 如果是回复评论，验证父评论是否存在
       if (parent_id) {
         const parentComment = await this.commentModel.findOne({
-          where: { 
+          where: {
             id: parent_id,
             activity_id: activity_id,
-            is_deleted: false
-          }
+            is_deleted: false,
+          },
         });
 
         if (!parentComment) {
           return {
             code: 404,
             message: '父评论不存在',
-            data: null
+            data: null,
           };
         }
       }
@@ -103,7 +103,7 @@ export class CommentService {
         content,
         user_id,
         activity_id,
-        parent_id: parent_id || null
+        parent_id: parent_id || null,
       });
 
       const savedComment = await this.commentModel.save(comment);
@@ -124,22 +124,22 @@ export class CommentService {
           user: {
             id: true,
             username: true,
-            avatar_emoji: true
-          }
-        }
+            avatar_emoji: true,
+          },
+        },
       });
 
       return {
         code: 0,
         message: '评论创建成功',
-        data: fullComment
+        data: fullComment,
       };
     } catch (error) {
       console.error('创建评论失败:', error);
       return {
         code: 500,
         message: '服务器内部错误',
-        data: null
+        data: null,
       };
     }
   }
@@ -149,22 +149,22 @@ export class CommentService {
     try {
       // 验证活动是否存在
       const activity = await this.activityModel.findOne({
-        where: { id: activityId }
+        where: { id: activityId },
       });
 
       if (!activity) {
         return {
           code: 404,
           message: '活动不存在',
-          data: null
+          data: null,
         };
       }
 
       // 获取所有评论（未删除的）
       const comments = await this.commentModel.find({
-        where: { 
+        where: {
           activity_id: activityId,
-          is_deleted: false
+          is_deleted: false,
         },
         relations: ['user'],
         select: {
@@ -181,12 +181,12 @@ export class CommentService {
             username: true,
             email: true,
             role: true,
-            avatar_emoji: true
-          }
+            avatar_emoji: true,
+          },
         },
         order: {
-          created_at: 'ASC'
-        }
+          created_at: 'ASC',
+        },
       });
 
       // 构建树形结构
@@ -195,14 +195,14 @@ export class CommentService {
       return {
         code: 0,
         message: '获取评论成功',
-        data: commentTree
+        data: commentTree,
       };
     } catch (error) {
       console.error('获取活动评论失败:', error);
       return {
         code: 500,
         message: '服务器内部错误',
-        data: null
+        data: null,
       };
     }
   }
@@ -211,9 +211,9 @@ export class CommentService {
   async getCommentById(commentId: number) {
     try {
       const comment = await this.commentModel.findOne({
-        where: { 
+        where: {
           id: commentId,
-          is_deleted: false
+          is_deleted: false,
         },
         relations: ['user', 'activity'],
         select: {
@@ -228,53 +228,57 @@ export class CommentService {
           user: {
             id: true,
             username: true,
-            avatar_emoji: true
+            avatar_emoji: true,
           },
           activity: {
             id: true,
-            title: true
-          }
-        }
+            title: true,
+          },
+        },
       });
 
       if (!comment) {
         return {
           code: 404,
           message: '评论不存在',
-          data: null
+          data: null,
         };
       }
 
       return {
         code: 0,
         message: '获取评论成功',
-        data: comment
+        data: comment,
       };
     } catch (error) {
       console.error('获取评论详情失败:', error);
       return {
         code: 500,
         message: '服务器内部错误',
-        data: null
+        data: null,
       };
     }
   }
 
   // 更新评论
-  async updateComment(commentId: number, userId: number, data: UpdateCommentDTO) {
+  async updateComment(
+    commentId: number,
+    userId: number,
+    data: UpdateCommentDTO
+  ) {
     try {
       const comment = await this.commentModel.findOne({
-        where: { 
+        where: {
           id: commentId,
-          is_deleted: false
-        }
+          is_deleted: false,
+        },
       });
 
       if (!comment) {
         return {
           code: 404,
           message: '评论不存在',
-          data: null
+          data: null,
         };
       }
 
@@ -283,14 +287,14 @@ export class CommentService {
         return {
           code: 403,
           message: '只能修改自己的评论',
-          data: null
+          data: null,
         };
       }
 
       // 更新评论
       await this.commentModel.update(commentId, {
         ...data,
-        updated_at: new Date()
+        updated_at: new Date(),
       });
 
       // 获取更新后的评论
@@ -309,22 +313,22 @@ export class CommentService {
           user: {
             id: true,
             username: true,
-            avatar_emoji: true
-          }
-        }
+            avatar_emoji: true,
+          },
+        },
       });
 
       return {
         code: 0,
         message: '评论更新成功',
-        data: updatedComment
+        data: updatedComment,
       };
     } catch (error) {
       console.error('更新评论失败:', error);
       return {
         code: 500,
         message: '服务器内部错误',
-        data: null
+        data: null,
       };
     }
   }
@@ -333,17 +337,17 @@ export class CommentService {
   async deleteComment(commentId: number, userId: number) {
     try {
       const comment = await this.commentModel.findOne({
-        where: { 
+        where: {
           id: commentId,
-          is_deleted: false
-        }
+          is_deleted: false,
+        },
       });
 
       if (!comment) {
         return {
           code: 404,
           message: '评论不存在',
-          data: null
+          data: null,
         };
       }
 
@@ -353,7 +357,7 @@ export class CommentService {
         return {
           code: 404,
           message: '用户不存在',
-          data: null
+          data: null,
         };
       }
 
@@ -362,40 +366,40 @@ export class CommentService {
         return {
           code: 403,
           message: '只能删除自己的评论或需要管理员权限',
-          data: null
+          data: null,
         };
       }
 
       // 软删除评论
       await this.commentModel.update(commentId, {
         is_deleted: true,
-        updated_at: new Date()
+        updated_at: new Date(),
       });
 
       return {
         code: 0,
         message: '评论删除成功',
-        data: null
+        data: null,
       };
     } catch (error) {
       console.error('删除评论失败:', error);
       return {
         code: 500,
         message: '服务器内部错误',
-        data: null
+        data: null,
       };
     }
   }
 
   // 获取用户的所有评论
-  async getUserComments(userId: number, page: number = 1, pageSize: number = 10) {
+  async getUserComments(userId: number, page = 1, pageSize = 10) {
     try {
       const skip = (page - 1) * pageSize;
 
       const [comments, total] = await this.commentModel.findAndCount({
-        where: { 
+        where: {
           user_id: userId,
-          is_deleted: false
+          is_deleted: false,
         },
         relations: ['activity'],
         select: {
@@ -409,14 +413,14 @@ export class CommentService {
           updated_at: true,
           activity: {
             id: true,
-            title: true
-          }
+            title: true,
+          },
         },
         order: {
-          created_at: 'DESC'
+          created_at: 'DESC',
         },
         skip,
-        take: pageSize
+        take: pageSize,
       });
 
       return {
@@ -428,16 +432,16 @@ export class CommentService {
             page,
             pageSize,
             total,
-            totalPages: Math.ceil(total / pageSize)
-          }
-        }
+            totalPages: Math.ceil(total / pageSize),
+          },
+        },
       };
     } catch (error) {
       console.error('获取用户评论失败:', error);
       return {
         code: 500,
         message: '服务器内部错误',
-        data: null
+        data: null,
       };
     }
   }
@@ -451,7 +455,7 @@ export class CommentService {
     comments.forEach(comment => {
       const treeNode: CommentWithUser = {
         ...comment,
-        replies: []
+        replies: [],
       };
       commentMap.set(comment.id, treeNode);
     });
@@ -459,7 +463,7 @@ export class CommentService {
     // 第二遍：构建树形结构
     comments.forEach(comment => {
       const treeNode = commentMap.get(comment.id)!;
-      
+
       if (comment.parent_id === null) {
         // 根评论
         rootComments.push(treeNode);

@@ -23,7 +23,7 @@ describe('test/service/venue.service.test.ts', () => {
     // 清理测试数据
     const venueModel = venueService['venueModel'];
     const userModel = venueService['userModel'];
-    
+
     await venueModel.clear();
     await userModel.clear();
 
@@ -47,7 +47,7 @@ describe('test/service/venue.service.test.ts', () => {
     it('should create venue successfully by admin', async () => {
       const venueData = {
         name: '羽毛球馆A',
-        is_active: true
+        is_active: true,
       };
 
       const result = await venueService.createVenue(venueData, testAdmin.id);
@@ -62,7 +62,7 @@ describe('test/service/venue.service.test.ts', () => {
     it('should fail when user is not admin', async () => {
       const venueData = {
         name: '篮球馆B',
-        is_active: true
+        is_active: true,
       };
 
       const result = await venueService.createVenue(venueData, testUser.id);
@@ -74,7 +74,7 @@ describe('test/service/venue.service.test.ts', () => {
     it('should fail when venue name already exists', async () => {
       const venueData = {
         name: '游泳馆',
-        is_active: true
+        is_active: true,
       };
 
       // 先创建一个场馆
@@ -90,7 +90,7 @@ describe('test/service/venue.service.test.ts', () => {
     it('should fail when user does not exist', async () => {
       const venueData = {
         name: '乒乓球馆',
-        is_active: true
+        is_active: true,
       };
 
       const result = await venueService.createVenue(venueData, 999);
@@ -106,7 +106,7 @@ describe('test/service/venue.service.test.ts', () => {
       const venues = [
         { name: '羽毛球馆A', is_active: true },
         { name: '篮球馆B', is_active: false },
-        { name: '乒乓球馆C', is_active: true }
+        { name: '乒乓球馆C', is_active: true },
       ];
 
       const venueModel = venueService['venueModel'];
@@ -152,7 +152,7 @@ describe('test/service/venue.service.test.ts', () => {
     it('should handle pagination', async () => {
       const result = await venueService.getVenues({
         page: 1,
-        pageSize: 2
+        pageSize: 2,
       });
 
       expect(result.code).toBe(0);
@@ -206,10 +206,14 @@ describe('test/service/venue.service.test.ts', () => {
     it('should update venue successfully by admin', async () => {
       const updateData = {
         name: '更新后场馆',
-        is_active: false
+        is_active: false,
       };
 
-      const result = await venueService.updateVenue(testVenue.id, updateData, testAdmin.id);
+      const result = await venueService.updateVenue(
+        testVenue.id,
+        updateData,
+        testAdmin.id
+      );
 
       expect(result.code).toBe(0);
       expect(result.message).toBe('场馆更新成功');
@@ -219,7 +223,11 @@ describe('test/service/venue.service.test.ts', () => {
 
     it('should fail when user is not admin', async () => {
       const updateData = { name: '用户尝试更新' };
-      const result = await venueService.updateVenue(testVenue.id, updateData, testUser.id);
+      const result = await venueService.updateVenue(
+        testVenue.id,
+        updateData,
+        testUser.id
+      );
 
       expect(result.code).toBe(2);
       expect(result.message).toBe('权限不足，只有管理员可以修改场馆');
@@ -227,7 +235,11 @@ describe('test/service/venue.service.test.ts', () => {
 
     it('should fail when venue does not exist', async () => {
       const updateData = { name: '不存在的场馆' };
-      const result = await venueService.updateVenue(999, updateData, testAdmin.id);
+      const result = await venueService.updateVenue(
+        999,
+        updateData,
+        testAdmin.id
+      );
 
       expect(result.code).toBe(3);
       expect(result.message).toBe('场馆不存在');
@@ -242,7 +254,11 @@ describe('test/service/venue.service.test.ts', () => {
 
       // 尝试将 testVenue 更新为与 anotherVenue 相同的名称
       const updateData = { name: '另一个场馆' };
-      const result = await venueService.updateVenue(testVenue.id, updateData, testAdmin.id);
+      const result = await venueService.updateVenue(
+        testVenue.id,
+        updateData,
+        testAdmin.id
+      );
 
       expect(result.code).toBe(4);
       expect(result.message).toBe('场馆名称已存在');
@@ -261,7 +277,10 @@ describe('test/service/venue.service.test.ts', () => {
     });
 
     it('should toggle venue status successfully by admin', async () => {
-      const result = await venueService.toggleVenueStatus(testVenue.id, testAdmin.id);
+      const result = await venueService.toggleVenueStatus(
+        testVenue.id,
+        testAdmin.id
+      );
 
       expect(result.code).toBe(0);
       expect(result.message).toBe('场馆禁用成功');
@@ -269,7 +288,10 @@ describe('test/service/venue.service.test.ts', () => {
     });
 
     it('should fail when user is not admin', async () => {
-      const result = await venueService.toggleVenueStatus(testVenue.id, testUser.id);
+      const result = await venueService.toggleVenueStatus(
+        testVenue.id,
+        testUser.id
+      );
 
       expect(result.code).toBe(2);
       expect(result.message).toBe('权限不足，只有管理员可以修改场馆状态');
@@ -306,7 +328,7 @@ describe('test/service/venue.service.test.ts', () => {
 
       // 验证场馆已被设为不可用
       const updatedVenue = await venueService['venueModel'].findOne({
-        where: { id: testVenue.id }
+        where: { id: testVenue.id },
       });
       expect(updatedVenue.is_active).toBe(false);
     });
@@ -333,10 +355,13 @@ describe('test/service/venue.service.test.ts', () => {
     it('should create multiple venues successfully by admin', async () => {
       const venuesData = [
         { name: '批量场馆1', is_active: true },
-        { name: '批量场馆2', is_active: false }
+        { name: '批量场馆2', is_active: false },
       ];
 
-      const result = await venueService.batchCreateVenues(venuesData, testAdmin.id);
+      const result = await venueService.batchCreateVenues(
+        venuesData,
+        testAdmin.id
+      );
 
       expect(result.code).toBe(0);
       expect(result.message).toBe('批量创建完成，成功 2 个，失败 0 个');
@@ -346,17 +371,23 @@ describe('test/service/venue.service.test.ts', () => {
 
     it('should handle partial failures in batch creation', async () => {
       // 先创建一个场馆
-      await venueService.createVenue({
-        name: '已存在场馆',
-        is_active: true
-      }, testAdmin.id);
+      await venueService.createVenue(
+        {
+          name: '已存在场馆',
+          is_active: true,
+        },
+        testAdmin.id
+      );
 
       const venuesData = [
         { name: '新场馆', is_active: true },
-        { name: '已存在场馆', is_active: true } // 这个会失败
+        { name: '已存在场馆', is_active: true }, // 这个会失败
       ];
 
-      const result = await venueService.batchCreateVenues(venuesData, testAdmin.id);
+      const result = await venueService.batchCreateVenues(
+        venuesData,
+        testAdmin.id
+      );
 
       expect(result.code).toBe(0);
       expect(result.data.created).toHaveLength(1);
@@ -365,11 +396,12 @@ describe('test/service/venue.service.test.ts', () => {
     });
 
     it('should fail when user is not admin', async () => {
-      const venuesData = [
-        { name: '普通用户场馆', is_active: true }
-      ];
+      const venuesData = [{ name: '普通用户场馆', is_active: true }];
 
-      const result = await venueService.batchCreateVenues(venuesData, testUser.id);
+      const result = await venueService.batchCreateVenues(
+        venuesData,
+        testUser.id
+      );
 
       expect(result.code).toBe(2);
       expect(result.message).toBe('权限不足，只有管理员可以批量创建场馆');
@@ -382,7 +414,7 @@ describe('test/service/venue.service.test.ts', () => {
       const venues = [
         { name: '统计场馆1', is_active: true },
         { name: '统计场馆2', is_active: false },
-        { name: '统计场馆3', is_active: true }
+        { name: '统计场馆3', is_active: true },
       ];
 
       const venueModel = venueService['venueModel'];

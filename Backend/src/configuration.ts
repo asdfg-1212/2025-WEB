@@ -27,12 +27,14 @@ export class MainConfiguration {
 
   async onReady() {
     // 添加CORS中间件
-    this.app.use(cors({
-      origin: 'http://localhost:5173',
-      credentials: true,
-      allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-      allowHeaders: ['Content-Type', 'Authorization'],
-    }));
+    this.app.use(
+      cors({
+        origin: 'http://localhost:5173',
+        credentials: true,
+        allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        allowHeaders: ['Content-Type', 'Authorization'],
+      })
+    );
 
     // add middleware
     this.app.useMiddleware([ReportMiddleware]);

@@ -1,7 +1,11 @@
 import { createApp, close } from '@midwayjs/mock';
 import { Framework } from '@midwayjs/koa';
 import { ActivityService } from '../../src/service/activity.service';
-import { Activity, ActivityStatus, ActivityType } from '../../src/entity/activity.entity';
+import {
+  Activity,
+  ActivityStatus,
+  ActivityType,
+} from '../../src/entity/activity.entity';
 import { User, UserRole } from '../../src/entity/user.entity';
 import { Venue } from '../../src/entity/venue.entity';
 
@@ -11,7 +15,9 @@ describe('test/service/activity.service.test.ts', () => {
 
   beforeAll(async () => {
     app = await createApp<Framework>();
-    activityService = await app.getApplicationContext().getAsync(ActivityService);
+    activityService = await app
+      .getApplicationContext()
+      .getAsync(ActivityService);
   });
 
   afterAll(async () => {
@@ -23,7 +29,7 @@ describe('test/service/activity.service.test.ts', () => {
     const activityModel = activityService['activityModel'];
     const userModel = activityService['userModel'];
     const venueModel = activityService['venueModel'];
-    
+
     await activityModel.clear();
     await userModel.clear();
     await venueModel.clear();
@@ -54,7 +60,7 @@ describe('test/service/activity.service.test.ts', () => {
         max_participants: 20,
         venue_id: savedVenue.id,
         creator_id: savedUser.id,
-        notes: '测试备注'
+        notes: '测试备注',
       };
 
       const result = await activityService.createActivity(activityData);
@@ -82,7 +88,7 @@ describe('test/service/activity.service.test.ts', () => {
         max_participants: 20,
         venue_id: savedVenue.id,
         creator_id: 999, // 不存在的用户ID
-        notes: '测试备注'
+        notes: '测试备注',
       };
 
       const result = await activityService.createActivity(activityData);
@@ -114,7 +120,7 @@ describe('test/service/activity.service.test.ts', () => {
         max_participants: 20,
         venue_id: savedVenue.id,
         creator_id: savedUser.id,
-        notes: '测试备注'
+        notes: '测试备注',
       };
 
       const result = await activityService.createActivity(activityData);
@@ -141,7 +147,7 @@ describe('test/service/activity.service.test.ts', () => {
         max_participants: 20,
         venue_id: 999, // 不存在的场馆ID
         creator_id: savedUser.id,
-        notes: '测试备注'
+        notes: '测试备注',
       };
 
       const result = await activityService.createActivity(activityData);
@@ -173,7 +179,7 @@ describe('test/service/activity.service.test.ts', () => {
         max_participants: 20,
         venue_id: savedVenue.id,
         creator_id: savedUser.id,
-        notes: '测试备注'
+        notes: '测试备注',
       };
 
       const result = await activityService.createActivity(activityData);
@@ -205,7 +211,7 @@ describe('test/service/activity.service.test.ts', () => {
         max_participants: 20,
         venue_id: savedVenue.id,
         creator_id: savedUser.id,
-        notes: '测试备注'
+        notes: '测试备注',
       };
 
       const result = await activityService.createActivity(activityData);
@@ -237,7 +243,7 @@ describe('test/service/activity.service.test.ts', () => {
         max_participants: 20,
         venue_id: savedVenue.id,
         creator_id: savedUser.id,
-        notes: '测试备注'
+        notes: '测试备注',
       };
 
       const result = await activityService.createActivity(activityData);
@@ -286,7 +292,10 @@ describe('test/service/activity.service.test.ts', () => {
         await activityService['activityModel'].save(activity);
       }
 
-      const result = await activityService.getActivities({ page: 1, pageSize: 3 });
+      const result = await activityService.getActivities({
+        page: 1,
+        pageSize: 3,
+      });
 
       expect(result.code).toBe(0);
       expect(result.data.activities).toHaveLength(3);
@@ -333,7 +342,9 @@ describe('test/service/activity.service.test.ts', () => {
       closedActivity.venue_id = savedVenue.id;
       await activityService['activityModel'].save(closedActivity);
 
-      const result = await activityService.getActivities({ status: ActivityStatus.OPEN });
+      const result = await activityService.getActivities({
+        status: ActivityStatus.OPEN,
+      });
 
       expect(result.code).toBe(0);
       expect(result.data.activities).toHaveLength(1);
@@ -367,14 +378,20 @@ describe('test/service/activity.service.test.ts', () => {
       activity.max_participants = 20;
       activity.creator_id = savedUser.id;
       activity.venue_id = savedVenue.id;
-      const savedActivity = await activityService['activityModel'].save(activity);
+      const savedActivity = await activityService['activityModel'].save(
+        activity
+      );
 
       const updateData = {
         title: '更新后的标题',
-        description: '更新后的描述'
+        description: '更新后的描述',
       };
 
-      const result = await activityService.updateActivity(savedActivity.id, updateData, savedUser.id);
+      const result = await activityService.updateActivity(
+        savedActivity.id,
+        updateData,
+        savedUser.id
+      );
 
       expect(result.code).toBe(0);
       expect(result.message).toBe('活动更新成功');
@@ -391,10 +408,14 @@ describe('test/service/activity.service.test.ts', () => {
       const savedUser = await activityService['userModel'].save(user);
 
       const updateData = {
-        title: '更新后的标题'
+        title: '更新后的标题',
       };
 
-      const result = await activityService.updateActivity(999, updateData, savedUser.id);
+      const result = await activityService.updateActivity(
+        999,
+        updateData,
+        savedUser.id
+      );
 
       expect(result.code).toBe(1);
       expect(result.message).toBe('活动不存在');
@@ -432,16 +453,24 @@ describe('test/service/activity.service.test.ts', () => {
       activity.max_participants = 20;
       activity.creator_id = savedCreator.id;
       activity.venue_id = savedVenue.id;
-      const savedActivity = await activityService['activityModel'].save(activity);
+      const savedActivity = await activityService['activityModel'].save(
+        activity
+      );
 
       const updateData = {
-        title: '更新后的标题'
+        title: '更新后的标题',
       };
 
-      const result = await activityService.updateActivity(savedActivity.id, updateData, savedOtherUser.id);
+      const result = await activityService.updateActivity(
+        savedActivity.id,
+        updateData,
+        savedOtherUser.id
+      );
 
       expect(result.code).toBe(3);
-      expect(result.message).toBe('权限不足，只有创建者或超级管理员可以修改活动');
+      expect(result.message).toBe(
+        '权限不足，只有创建者或超级管理员可以修改活动'
+      );
     });
   });
 
@@ -470,9 +499,15 @@ describe('test/service/activity.service.test.ts', () => {
       activity.max_participants = 20;
       activity.creator_id = savedUser.id;
       activity.venue_id = savedVenue.id;
-      const savedActivity = await activityService['activityModel'].save(activity);
+      const savedActivity = await activityService['activityModel'].save(
+        activity
+      );
 
-      const result = await activityService.updateActivityStatus(savedActivity.id, ActivityStatus.CANCELLED, savedUser.id);
+      const result = await activityService.updateActivityStatus(
+        savedActivity.id,
+        ActivityStatus.CANCELLED,
+        savedUser.id
+      );
 
       expect(result.code).toBe(0);
       expect(result.message).toBe('活动状态更新成功');
@@ -487,7 +522,11 @@ describe('test/service/activity.service.test.ts', () => {
       user.role = UserRole.ADMIN;
       const savedUser = await activityService['userModel'].save(user);
 
-      const result = await activityService.updateActivityStatus(999, ActivityStatus.CANCELLED, savedUser.id);
+      const result = await activityService.updateActivityStatus(
+        999,
+        ActivityStatus.CANCELLED,
+        savedUser.id
+      );
 
       expect(result.code).toBe(1);
       expect(result.message).toBe('活动不存在');

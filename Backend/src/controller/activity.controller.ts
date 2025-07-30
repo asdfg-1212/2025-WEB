@@ -1,8 +1,24 @@
-import { Inject, Controller, Get, Post, Put, Query, Body, Param } from '@midwayjs/core';
+import {
+  Inject,
+  Controller,
+  Get,
+  Post,
+  Put,
+  Query,
+  Body,
+  Param,
+} from '@midwayjs/core';
 import { Del } from '@midwayjs/decorator';
 import { Context } from '@midwayjs/koa';
-import { ActivityService, CreateActivityDTO, UpdateActivityDTO } from '../service/activity.service';
-import { RegistrationService, RegisterActivityDTO } from '../service/registration.service';
+import {
+  ActivityService,
+  CreateActivityDTO,
+  UpdateActivityDTO,
+} from '../service/activity.service';
+import {
+  RegistrationService,
+  RegisterActivityDTO,
+} from '../service/registration.service';
 import { ActivityStatus, ActivityType } from '../entity/activity.entity';
 
 @Controller('/api/activities')
@@ -20,14 +36,35 @@ export class ActivityController {
   @Post('/')
   async createActivity(@Body() body: CreateActivityDTO) {
     try {
-      const { title, description, type, start_time, end_time, registration_deadline, max_participants, venue_id, creator_id, notes, allow_comments } = body;
-      
+      const {
+        title,
+        description,
+        type,
+        start_time,
+        end_time,
+        registration_deadline,
+        max_participants,
+        venue_id,
+        creator_id,
+        notes,
+        allow_comments,
+      } = body;
+
       // 基础参数验证
-      if (!title || !type || !start_time || !end_time || !registration_deadline || !max_participants || !venue_id || !creator_id) {
+      if (
+        !title ||
+        !type ||
+        !start_time ||
+        !end_time ||
+        !registration_deadline ||
+        !max_participants ||
+        !venue_id ||
+        !creator_id
+      ) {
         return {
           code: 400,
           message: '缺少必要参数',
-          data: null
+          data: null,
         };
       }
 
@@ -43,24 +80,24 @@ export class ActivityController {
         venue_id: Number(venue_id),
         creator_id: Number(creator_id),
         notes,
-        allow_comments
+        allow_comments,
       };
 
       const result = await this.activityService.createActivity(activityData);
-      
+
       if (result.code === 0) {
         this.ctx.status = 201; // Created
         return {
           success: true,
           message: result.message,
-          data: result.data
+          data: result.data,
         };
       } else {
         this.ctx.status = 400; // Bad Request
         return {
           success: false,
           message: result.message,
-          data: null
+          data: null,
         };
       }
     } catch (error) {
@@ -69,7 +106,7 @@ export class ActivityController {
         success: false,
         message: '服务器内部错误',
         data: null,
-        error: error.message
+        error: error.message,
       };
     }
   }
@@ -91,15 +128,15 @@ export class ActivityController {
         venue_id: venue_id ? Number(venue_id) : undefined,
         creator_id: creator_id ? Number(creator_id) : undefined,
         page: page ? Number(page) : 1,
-        pageSize: pageSize ? Number(pageSize) : 10
+        pageSize: pageSize ? Number(pageSize) : 10,
       };
 
       const result = await this.activityService.getActivities(params);
-      
+
       return {
         success: true,
         message: result.message,
-        data: result.data
+        data: result.data,
       };
     } catch (error) {
       this.ctx.status = 500;
@@ -107,7 +144,7 @@ export class ActivityController {
         success: false,
         message: '服务器内部错误',
         data: null,
-        error: error.message
+        error: error.message,
       };
     }
   }
@@ -122,25 +159,27 @@ export class ActivityController {
         return {
           success: false,
           message: '无效的活动ID',
-          data: null
+          data: null,
         };
       }
 
-      const activity = await this.activityService.getActivityWithDetails(activityId);
-      
+      const activity = await this.activityService.getActivityWithDetails(
+        activityId
+      );
+
       if (!activity) {
         this.ctx.status = 404;
         return {
           success: false,
           message: '活动不存在',
-          data: null
+          data: null,
         };
       }
 
       return {
         success: true,
         message: '获取活动详情成功',
-        data: activity
+        data: activity,
       };
     } catch (error) {
       this.ctx.status = 500;
@@ -148,14 +187,17 @@ export class ActivityController {
         success: false,
         message: '服务器内部错误',
         data: null,
-        error: error.message
+        error: error.message,
       };
     }
   }
 
   // 更新活动 PUT /api/activities/:id
   @Put('/:id')
-  async updateActivity(@Param('id') id: string, @Body() body: UpdateActivityDTO & { operator_id: number }) {
+  async updateActivity(
+    @Param('id') id: string,
+    @Body() body: UpdateActivityDTO & { operator_id: number }
+  ) {
     try {
       const activityId = Number(id);
       if (isNaN(activityId)) {
@@ -163,7 +205,7 @@ export class ActivityController {
         return {
           success: false,
           message: '无效的活动ID',
-          data: null
+          data: null,
         };
       }
 
@@ -173,7 +215,7 @@ export class ActivityController {
         return {
           success: false,
           message: '缺少操作者ID',
-          data: null
+          data: null,
         };
       }
 
@@ -185,23 +227,29 @@ export class ActivityController {
         updateData.end_time = new Date(updateData.end_time);
       }
       if (updateData.registration_deadline) {
-        updateData.registration_deadline = new Date(updateData.registration_deadline);
+        updateData.registration_deadline = new Date(
+          updateData.registration_deadline
+        );
       }
 
-      const result = await this.activityService.updateActivity(activityId, updateData, operator_id);
-      
+      const result = await this.activityService.updateActivity(
+        activityId,
+        updateData,
+        operator_id
+      );
+
       if (result.code === 0) {
         return {
           success: true,
           message: result.message,
-          data: result.data
+          data: result.data,
         };
       } else {
         this.ctx.status = 400;
         return {
           success: false,
           message: result.message,
-          data: null
+          data: null,
         };
       }
     } catch (error) {
@@ -210,14 +258,17 @@ export class ActivityController {
         success: false,
         message: '服务器内部错误',
         data: null,
-        error: error.message
+        error: error.message,
       };
     }
   }
 
   // 更新活动状态 PUT /api/activities/:id/status
   @Put('/:id/status')
-  async updateActivityStatus(@Param('id') id: string, @Body() body: { status: ActivityStatus; operator_id: number }) {
+  async updateActivityStatus(
+    @Param('id') id: string,
+    @Body() body: { status: ActivityStatus; operator_id: number }
+  ) {
     try {
       const activityId = Number(id);
       if (isNaN(activityId)) {
@@ -225,7 +276,7 @@ export class ActivityController {
         return {
           success: false,
           message: '无效的活动ID',
-          data: null
+          data: null,
         };
       }
 
@@ -235,24 +286,28 @@ export class ActivityController {
         return {
           success: false,
           message: '缺少必要参数',
-          data: null
+          data: null,
         };
       }
 
-      const result = await this.activityService.updateActivityStatus(activityId, status, operator_id);
-      
+      const result = await this.activityService.updateActivityStatus(
+        activityId,
+        status,
+        operator_id
+      );
+
       if (result.code === 0) {
         return {
           success: true,
           message: result.message,
-          data: result.data
+          data: result.data,
         };
       } else {
         this.ctx.status = 400;
         return {
           success: false,
           message: result.message,
-          data: null
+          data: null,
         };
       }
     } catch (error) {
@@ -261,14 +316,17 @@ export class ActivityController {
         success: false,
         message: '服务器内部错误',
         data: null,
-        error: error.message
+        error: error.message,
       };
     }
   }
 
   // 删除活动 DELETE /api/activities/:id
   @Del('/:id')
-  async deleteActivity(@Param('id') id: string, @Body() body: { operator_id: number }) {
+  async deleteActivity(
+    @Param('id') id: string,
+    @Body() body: { operator_id: number }
+  ) {
     try {
       const activityId = Number(id);
       if (isNaN(activityId)) {
@@ -276,7 +334,7 @@ export class ActivityController {
         return {
           success: false,
           message: '无效的活动ID',
-          data: null
+          data: null,
         };
       }
 
@@ -286,24 +344,27 @@ export class ActivityController {
         return {
           success: false,
           message: '缺少操作者ID',
-          data: null
+          data: null,
         };
       }
 
-      const result = await this.activityService.deleteActivity(activityId, operator_id);
-      
+      const result = await this.activityService.deleteActivity(
+        activityId,
+        operator_id
+      );
+
       if (result.code === 0) {
         return {
           success: true,
           message: result.message,
-          data: result.data
+          data: result.data,
         };
       } else {
         this.ctx.status = 400;
         return {
           success: false,
           message: result.message,
-          data: null
+          data: null,
         };
       }
     } catch (error) {
@@ -312,7 +373,7 @@ export class ActivityController {
         success: false,
         message: '服务器内部错误',
         data: null,
-        error: error.message
+        error: error.message,
       };
     }
   }
@@ -323,13 +384,13 @@ export class ActivityController {
     try {
       const types = Object.values(ActivityType).map(type => ({
         value: type,
-        label: this.getActivityTypeLabel(type)
+        label: this.getActivityTypeLabel(type),
       }));
 
       return {
         success: true,
         message: '获取活动类型成功',
-        data: types
+        data: types,
       };
     } catch (error) {
       this.ctx.status = 500;
@@ -337,7 +398,7 @@ export class ActivityController {
         success: false,
         message: '服务器内部错误',
         data: null,
-        error: error.message
+        error: error.message,
       };
     }
   }
@@ -348,13 +409,13 @@ export class ActivityController {
     try {
       const statuses = Object.values(ActivityStatus).map(status => ({
         value: status,
-        label: this.getActivityStatusLabel(status)
+        label: this.getActivityStatusLabel(status),
       }));
 
       return {
         success: true,
         message: '获取活动状态成功',
-        data: statuses
+        data: statuses,
       };
     } catch (error) {
       this.ctx.status = 500;
@@ -362,7 +423,7 @@ export class ActivityController {
         success: false,
         message: '服务器内部错误',
         data: null,
-        error: error.message
+        error: error.message,
       };
     }
   }
@@ -377,7 +438,7 @@ export class ActivityController {
         return {
           success: false,
           message: '缺少操作者ID',
-          data: null
+          data: null,
         };
       }
 
@@ -385,11 +446,11 @@ export class ActivityController {
       // 暂时先简单处理
 
       const result = await this.activityService.autoUpdateActivityStatus();
-      
+
       return {
         success: true,
         message: result.message,
-        data: null
+        data: null,
       };
     } catch (error) {
       this.ctx.status = 500;
@@ -397,7 +458,7 @@ export class ActivityController {
         success: false,
         message: '服务器内部错误',
         data: null,
-        error: error.message
+        error: error.message,
       };
     }
   }
@@ -413,7 +474,7 @@ export class ActivityController {
       [ActivityType.PINGPONG]: '乒乓球',
       [ActivityType.SWIMMING]: '游泳',
       [ActivityType.GYM]: '健身',
-      [ActivityType.OTHER]: '其他'
+      [ActivityType.OTHER]: '其他',
     };
     return labels[type] || type;
   }
@@ -427,7 +488,7 @@ export class ActivityController {
       [ActivityStatus.CLOSED]: '报名截止',
       [ActivityStatus.ONGOING]: '进行中',
       [ActivityStatus.ENDED]: '已结束',
-      [ActivityStatus.CANCELLED]: '已取消'
+      [ActivityStatus.CANCELLED]: '已取消',
     };
     return labels[status] || status;
   }
@@ -436,14 +497,17 @@ export class ActivityController {
 
   // 报名参加活动 POST /api/activities/:id/register
   @Post('/:id/register')
-  async registerActivity(@Param('id') activityId: string, @Body() body: { user_id: number }) {
+  async registerActivity(
+    @Param('id') activityId: string,
+    @Body() body: { user_id: number }
+  ) {
     try {
       if (!activityId || isNaN(Number(activityId))) {
         this.ctx.status = 400;
         return {
           success: false,
           message: '无效的活动ID',
-          data: null
+          data: null,
         };
       }
 
@@ -452,30 +516,32 @@ export class ActivityController {
         return {
           success: false,
           message: '缺少用户ID',
-          data: null
+          data: null,
         };
       }
 
       const registrationData: RegisterActivityDTO = {
         user_id: body.user_id,
-        activity_id: Number(activityId)
+        activity_id: Number(activityId),
       };
 
-      const result = await this.registrationService.registerActivity(registrationData);
-      
+      const result = await this.registrationService.registerActivity(
+        registrationData
+      );
+
       if (result.code === 0) {
         this.ctx.status = 201;
         return {
           success: true,
           message: result.message,
-          data: result.data
+          data: result.data,
         };
       } else {
         this.ctx.status = result.code === 404 ? 404 : 400;
         return {
           success: false,
           message: result.message,
-          data: null
+          data: null,
         };
       }
     } catch (error) {
@@ -484,21 +550,24 @@ export class ActivityController {
       return {
         success: false,
         message: '服务器内部错误',
-        data: null
+        data: null,
       };
     }
   }
 
   // 取消报名 DELETE /api/activities/:id/register
   @Del('/:id/register')
-  async unregisterActivity(@Param('id') activityId: string, @Body() body: { user_id: number }) {
+  async unregisterActivity(
+    @Param('id') activityId: string,
+    @Body() body: { user_id: number }
+  ) {
     try {
       if (!activityId || isNaN(Number(activityId))) {
         this.ctx.status = 400;
         return {
           success: false,
           message: '无效的活动ID',
-          data: null
+          data: null,
         };
       }
 
@@ -507,7 +576,7 @@ export class ActivityController {
         return {
           success: false,
           message: '缺少用户ID',
-          data: null
+          data: null,
         };
       }
 
@@ -515,19 +584,19 @@ export class ActivityController {
         body.user_id,
         Number(activityId)
       );
-      
+
       if (result.code === 0) {
         return {
           success: true,
           message: result.message,
-          data: result.data
+          data: result.data,
         };
       } else {
         this.ctx.status = result.code === 404 ? 404 : 400;
         return {
           success: false,
           message: result.message,
-          data: null
+          data: null,
         };
       }
     } catch (error) {
@@ -536,21 +605,24 @@ export class ActivityController {
       return {
         success: false,
         message: '服务器内部错误',
-        data: null
+        data: null,
       };
     }
   }
 
   // 获取活动报名状态 GET /api/activities/:id/registration-status
   @Get('/:id/registration-status')
-  async getRegistrationStatus(@Param('id') activityId: string, @Query('user_id') userId: string) {
+  async getRegistrationStatus(
+    @Param('id') activityId: string,
+    @Query('user_id') userId: string
+  ) {
     try {
       if (!activityId || isNaN(Number(activityId))) {
         this.ctx.status = 400;
         return {
           success: false,
           message: '无效的活动ID',
-          data: null
+          data: null,
         };
       }
 
@@ -558,7 +630,7 @@ export class ActivityController {
         return {
           success: true,
           message: '未登录用户',
-          data: { isRegistered: false }
+          data: { isRegistered: false },
         };
       }
 
@@ -566,11 +638,11 @@ export class ActivityController {
         Number(userId),
         Number(activityId)
       );
-      
+
       return {
         success: true,
         message: '获取报名状态成功',
-        data: { isRegistered: result.data?.isRegistered || false }
+        data: { isRegistered: result.data?.isRegistered || false },
       };
     } catch (error) {
       console.error('获取报名状态失败:', error);
@@ -578,7 +650,7 @@ export class ActivityController {
       return {
         success: false,
         message: '服务器内部错误',
-        data: null
+        data: null,
       };
     }
   }
@@ -588,11 +660,11 @@ export class ActivityController {
   async refreshAllActivityStatus() {
     try {
       const result = await this.activityService.autoUpdateActivityStatus();
-      
+
       return {
         success: true,
         message: result.message,
-        data: null
+        data: null,
       };
     } catch (error) {
       console.error('更新活动状态失败:', error);
@@ -600,7 +672,7 @@ export class ActivityController {
       return {
         success: false,
         message: '服务器内部错误',
-        data: null
+        data: null,
       };
     }
   }
@@ -610,30 +682,32 @@ export class ActivityController {
   async getMyRegistrations() {
     try {
       const userId = this.ctx.request.query.userId;
-      
+
       if (!userId) {
         this.ctx.status = 401;
         return {
           success: false,
           message: '用户未登录',
-          data: null
+          data: null,
         };
       }
 
-      const result = await this.registrationService.getUserRegistrations(Number(userId));
-      
+      const result = await this.registrationService.getUserRegistrations(
+        Number(userId)
+      );
+
       if (result.code === 0) {
         return {
           success: true,
           message: result.message,
-          data: result.data
+          data: result.data,
         };
       } else {
         this.ctx.status = 400;
         return {
           success: false,
           message: result.message,
-          data: null
+          data: null,
         };
       }
     } catch (error) {
@@ -642,7 +716,7 @@ export class ActivityController {
       return {
         success: false,
         message: '服务器内部错误',
-        data: null
+        data: null,
       };
     }
   }

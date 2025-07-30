@@ -3,7 +3,6 @@ import { Context } from '@midwayjs/koa';
 
 @Controller('/api')
 export class HealthController {
-
   @Inject()
   ctx: Context;
 
@@ -17,13 +16,14 @@ export class HealthController {
       version: process.env.npm_package_version || '1.0.0',
       memory: {
         used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024) + ' MB',
-        total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024) + ' MB'
-      }
+        total:
+          Math.round(process.memoryUsage().heapTotal / 1024 / 1024) + ' MB',
+      },
     };
 
     return {
       success: true,
-      data: health
+      data: health,
     };
   }
 
@@ -36,7 +36,7 @@ export class HealthController {
       return {
         success: true,
         message: 'Service is ready',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     } catch (error) {
       this.ctx.status = 503;
@@ -44,7 +44,7 @@ export class HealthController {
         success: false,
         message: 'Service is not ready',
         error: error.message,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
     }
   }
