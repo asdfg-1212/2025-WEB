@@ -17,7 +17,7 @@ export class Comment {
   content: string; // 评论内容
 
   // 关联用户（评论者）
-  @ManyToOne(() => User, { nullable: false })
+  @ManyToOne(() => User, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user: User;
 
@@ -25,7 +25,7 @@ export class Comment {
   user_id: number;
 
   // 关联活动
-  @ManyToOne(() => Activity, { nullable: false })
+  @ManyToOne(() => Activity, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'activity_id' })
   activity: Activity;
 
@@ -33,7 +33,7 @@ export class Comment {
   activity_id: number;
 
   // 父评论ID，用于实现回复功能
-  @ManyToOne(() => Comment, { nullable: true })
+  @ManyToOne(() => Comment, { nullable: true, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'parent_id' })
   parent: Comment;
 

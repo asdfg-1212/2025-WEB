@@ -24,7 +24,7 @@ export class Registration {
   id: number;
 
   // 关联用户
-  @ManyToOne(() => User, { nullable: false })
+  @ManyToOne(() => User, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user: User;
 
@@ -32,7 +32,7 @@ export class Registration {
   user_id: number;
 
   // 关联活动
-  @ManyToOne(() => Activity, { nullable: false })
+  @ManyToOne(() => Activity, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'activity_id' })
   activity: Activity;
 

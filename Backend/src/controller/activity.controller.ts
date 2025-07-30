@@ -8,7 +8,7 @@ import {
   Body,
   Param,
 } from '@midwayjs/core';
-import { Del } from '@midwayjs/decorator';
+import { Del } from '@midwayjs/core';
 import { Context } from '@midwayjs/koa';
 import {
   ActivityService,

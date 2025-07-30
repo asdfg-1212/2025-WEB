@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ActivityList from '../components/ActivityList';
 import ActivityDetailModal from '../components/ActivityDetailModal';
 import type { ActivityDisplay } from '../types/activity';
-import { useUser } from '../contexts/UserContext';
+import { useUser } from '../hooks/useUser';
 import { 
   getMyRegistrations, 
   refreshActivityStatus,

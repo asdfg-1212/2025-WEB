@@ -1,7 +1,7 @@
 import React from "react";
 import AuthForm from "../components/AuthForm";
 import { useNavigate, Link } from "react-router-dom";
-import { useUser } from "../contexts/UserContext";
+import { useUser } from '../hooks/useUser';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();

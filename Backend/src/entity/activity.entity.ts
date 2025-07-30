@@ -66,7 +66,7 @@ export class Activity {
   notes: string; // 备注信息
 
   // 关联创建者（管理员）
-  @ManyToOne(() => User, { nullable: false })
+  @ManyToOne(() => User, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'creator_id' })
   creator: User;
 
@@ -74,7 +74,7 @@ export class Activity {
   creator_id: number;
 
   // 关联场馆
-  @ManyToOne(() => Venue, { nullable: false })
+  @ManyToOne(() => Venue, { nullable: false, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'venue_id' })
   venue: Venue;
 

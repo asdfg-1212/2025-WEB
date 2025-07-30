@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getAvailableVenues } from '../services/admin';
-import { useUser } from '../contexts/UserContext';
+import { useUser } from '../hooks/useUser';
 import '../styles/create-modals.css';
 
 interface Activity {

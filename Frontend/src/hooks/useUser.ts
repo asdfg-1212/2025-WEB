@@ -1,5 +1,6 @@
 import { useContext } from 'react';
-import { UserContext, UserContextType } from '../contexts/UserContext';
+import { UserContext } from '../contexts/UserContext';
+import type { UserContextType } from '../types/user';
 
 // 自定义Hook：使用用户上下文
 export const useUser = (): UserContextType => {

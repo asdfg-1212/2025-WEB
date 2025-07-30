@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getActivityCounts } from '../services/activity';
-import { useUser } from '../contexts/UserContext';
+import { useUser } from '../hooks/useUser';
 import CreateActivityModal from '../components/CreateActivityModal';
 import CreateVenueModal from '../components/CreateVenueModal';
 import ProfileModal from '../components/ProfileModal';

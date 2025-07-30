@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useUser } from '../contexts/UserContext';
+import { useUser } from '../hooks/useUser';
 import HeaderUserInfo from '../components/HeaderUserInfo';
 import { getUserAvatar } from '../utils/avatar';
 import '../styles/profile.css';

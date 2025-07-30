@@ -1,5 +1,5 @@
 import React from 'react';
-import { useUser } from '../contexts/UserContext';
+import { useUser } from '../hooks/useUser';
 import { useNavigate } from 'react-router-dom';
 import { getUserAvatar } from '../utils/avatar';
 import '../styles/header-user-info.css';
