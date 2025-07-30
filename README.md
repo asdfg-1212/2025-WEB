@@ -4,8 +4,7 @@
 初次尝试、十分青涩、还望谅解、不值得也千万不要二创搬运抄袭，求求求求谢谢谢谢！  
 >Github: https://github.com/asdfg-1212/2025-WEB  
 >Wiki: https://github.com/asdfg-1212/2025-WEB/wiki/2025%E2%80%90WEB%E2%80%90Wiki  
->bilibili(功能描述)： 
-
+>bilibili(功能描述)： https://www.bilibili.com/video/BV1bkhwznEe7/?spm_id_from=333.1387.homepage.video_card.click&vd_source=de252c3487db8b6334b8dd6450e948f7
 
 ## 🎯 主要功能
 - 👥 **普通用户**：
@@ -139,12 +138,14 @@ npm test
 - ✔ API文档
 - ✔ 单元测试
 - ✔ CI/CD流程
-## 🤝 贡献指南
-1. Fork 项目
-2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 开启 Pull Request
+
+## 印象深刻的内容
+对于项目最开始的搭建非常畏手畏脚，不知道该如何启动项目，所以拖了很久才着手编写  
+编写过程中确实发觉AI的强大，单靠我个人肯定是无法实现这个项目的！  
+但是没有人类也不行，因为很多错误需要人类来找到发掘，再才可能交由AI修改之类的...比如由于个人能力的不足，我无法发现GithubAction测试中究竟为何无法通过，导致CI/CD测试有很多触目惊心的红叉叉，但这似乎也不影响前后端各自的运行（只是自动化测试无法通过...）  
+还是很庆幸自己选择了这门课程，有机会体验逼着自己体验完成这次web开发的项目，如果单靠自驱力可能很难完成下去，看到网页被一步步搭建起来，在电脑上实现脑海中所想象的界面，满足感也的确越来越强，非常感谢！  
+最后就是体会到想要搭建好网页，对于我来说还有非常多需要深入学习的内容，学无止境！
+
 ## 👥 鸣谢
 - 老师
 - Github Copilot（代码顾问）
