@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createActivity, getAvailableVenues } from '../services/admin';
-import { useUser } from '../contexts/UserContext';
+import { useUser } from '../hooks/useUser';
 import '../styles/create-modals.css';
 
 interface CreateActivityModalProps {
@@ -95,9 +95,9 @@ const CreateActivityModal: React.FC<CreateActivityModalProps> = ({ isOpen, onClo
       });
       onSuccess?.();
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('创建活动失败:', error);
-      alert('创建活动失败: ' + (error.message || '未知错误'));
+      alert('创建活动失败: ' + (error instanceof Error ? error.message : '未知错误'));
     } finally {
       setLoading(false);
     }

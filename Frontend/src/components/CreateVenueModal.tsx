@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { createVenue } from '../services/admin';
-import { useUser } from '../contexts/UserContext';
+import { useUser } from '../hooks/useUser';
 import '../styles/create-modals.css';
 
 interface CreateVenueModalProps {
@@ -41,9 +41,9 @@ const CreateVenueModal: React.FC<CreateVenueModalProps> = ({ isOpen, onClose, on
       });
       onSuccess?.();
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('创建场馆失败:', error);
-      alert('创建场馆失败: ' + (error.message || '未知错误'));
+      alert('创建场馆失败: ' + (error instanceof Error ? error.message : '未知错误'));
     } finally {
       setLoading(false);
     }

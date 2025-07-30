@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useUser } from '../contexts/UserContext';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useUser } from '../hooks/useUser';
 import ParticipantsModal from './ParticipantsModal';
 import EditActivityModal from './EditActivityModal';
 import type { ActivityDisplay } from '../types/activity';
@@ -44,7 +44,6 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
   onClose,
   onRegister,
   onUnregister,
-  onPostComment: _onPostComment,
   onActivityUpdated,
   onActivityDeleted,
   isUserRegistered = false // 新增参数，默认为 false
@@ -67,7 +66,7 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
   }, [isUserRegistered]);
 
   // 加载评论数据
-  const loadComments = async () => {
+  const loadComments = useCallback(async () => {
     if (!activity) return;
     
     try {
@@ -81,14 +80,14 @@ const ActivityDetailModal: React.FC<ActivityDetailModalProps> = ({
     } finally {
       setLoadingComments(false);
     }
-  };
+  }, [activity]);
 
   // 监听活动变化，重新加载评论
   useEffect(() => {
     if (activity && isOpen) {
       loadComments();
     }
-  }, [activity, isOpen]);
+  }, [activity, isOpen, loadComments]);
 
   if (!isOpen || !activity) return null;
 

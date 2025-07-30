@@ -1,9 +1,9 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 import type { User, UserContextType } from '../types/user';
 import * as authService from '../services/auth';
 
 // 创建用户上下文
-const UserContext = createContext<UserContextType | undefined>(undefined);
+export const UserContext = createContext<UserContextType | undefined>(undefined);
 
 // 用户上下文提供者组件
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -98,15 +98,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       {children}
     </UserContext.Provider>
   );
-};
-
-// 自定义Hook：使用用户上下文
-export const useUser = (): UserContextType => {
-  const context = useContext(UserContext);
-  if (!context) {
-    throw new Error('useUser must be used within a UserProvider');
-  }
-  return context;
 };
 
 export default UserContext;
