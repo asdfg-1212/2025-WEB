@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ main ]
 
+env:
+  NODE_VERSION: '18.x'
+
 jobs:
   test:
     name: Test and Lint
@@ -14,6 +17,11 @@ jobs:
     strategy:
       matrix:
         node-version: [18.x, 20.x]
+        include:
+          - node-version: 18.x
+            cache-suffix: 'lts'
+          - node-version: 20.x
+            cache-suffix: 'latest'
     
     steps:
       - name: Checkout code
@@ -23,17 +31,35 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'npm'
+          # 不在根目录配置缓存，因为package-lock.json在子目录中
+          
+      - name: Cache Backend dependencies
+        uses: actions/cache@v3
+        with:
+          path: Backend/node_modules
+          key: ${{ runner.os }}-backend-${{ matrix.cache-suffix }}-${{ hashFiles('Backend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-backend-${{ matrix.cache-suffix }}-
+            ${{ runner.os }}-backend-
+            
+      - name: Cache Frontend dependencies
+        uses: actions/cache@v3
+        with:
+          path: Frontend/node_modules
+          key: ${{ runner.os }}-frontend-${{ matrix.cache-suffix }}-${{ hashFiles('Frontend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-frontend-${{ matrix.cache-suffix }}-
+            ${{ runner.os }}-frontend-
           
       - name: Install Backend dependencies
         run: |
           cd Backend
-          npm ci
+          npm ci --prefer-offline --no-audit
           
       - name: Install Frontend dependencies
         run: |
           cd Frontend
-          npm ci
+          npm ci --prefer-offline --no-audit
           
       - name: Lint Backend
         run: |
@@ -64,3 +90,49 @@ jobs:
         run: |
           cd Frontend
           npm run build
+
+  docker:
+    name: Docker Build Test
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        
+      - name: Build Backend Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./Backend
+          file: ./Backend/Dockerfile
+          push: false
+          tags: sports-activity-backend:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          
+      - name: Build Frontend Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./Frontend
+          file: ./Frontend/Dockerfile
+          push: false
+          tags: sports-activity-frontend:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          
+      - name: Test Docker Compose
+        run: |
+          # 创建测试环境变量
+          cp .env.example .env
+          
+          # 测试docker-compose配置
+          docker-compose config
+          
+          # 可选：运行快速集成测试
+          # docker-compose up -d database
+          # sleep 30
+          # docker-compose down
